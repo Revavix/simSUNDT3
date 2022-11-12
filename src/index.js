@@ -6,12 +6,13 @@ function createWindow () {
     width: 800,
     height: 600,
     titleBarStyle: 'hidden',
-  })
+    useContentSize: true
+    })
 
   if (process.env.NODE_ENV !== 'development') {
-    win.loadFile(`${__dirname}/renderer/dist/index.html`)
+    win.loadFile(`${__dirname}/dist/index.html`)
   } else {
-    win.loadURL('http://localhost:5173/src/renderer/index.html')
+    win.loadURL('http://localhost:5173/index.html')
     win.webContents.openDevTools()
   }
 
