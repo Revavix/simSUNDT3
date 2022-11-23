@@ -3,14 +3,15 @@ const path = require('path')
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1400,
+    height: 900,
     titleBarStyle: 'hidden',
     useContentSize: true
     })
 
   if (process.env.NODE_ENV !== 'development') {
-    win.loadFile(`${__dirname}/dist/index.html`)
+    win.loadFile(path.join(__dirname, 'dist/index.html'))
+    win.webContents.openDevTools()
   } else {
     win.loadURL('http://localhost:5173/index.html')
     win.webContents.openDevTools()
