@@ -8,6 +8,7 @@
     // Component imports
     import TreeComponent from '../components/Tree.svelte'
     import ButtonComponent from '../components/Button.svelte'
+    import HorizontalProgressbar from '../components/HorizontalProgressbar.svelte'
 
     // Page imports
     import Viewport from '../pages/Viewport.svelte'
@@ -41,13 +42,16 @@
         </div>
     </div>
     <div class="flex flex-col shadow-lg rounded-lg mx-4 px-2 mt-2 bg-stone-300" style="z-index: 4; position: relative; min-height: 400px; min-width: 100px; max-width: 330px">
-    <p class="pt-1" style="color:#4d4d4d">Parameterisation</p>
-    <div style="padding-left: 0px; overflow: auto; max-height: 400px;">
-        <TreeComponent tree={treeMethod}/>
-        <TreeComponent tree={treeTransmitter}/>
-        <TreeComponent tree={treeReceiver}/>
-        <TreeComponent tree={treeDefect}/>
+        <p class="pt-1" style="color:#4d4d4d">Parameterisation</p>
+        <div style="padding-left: 0px; overflow: auto; max-height: 400px;">
+            <TreeComponent tree={treeMethod}/>
+            <TreeComponent tree={treeTransmitter}/>
+            <TreeComponent tree={treeReceiver}/>
+            <TreeComponent tree={treeDefect}/>
+        </div>
     </div>
+    <div class="absolute-bottom-above pb-4">
+        <HorizontalProgressbar/>
     </div>
     <div class="absolute-under">
         <Viewport/>
@@ -65,6 +69,17 @@
       width: 100%;
       overflow: hidden;
       z-index: 1;
+  }
+  .absolute-bottom-above
+  {
+    position: absolute;
+    bottom: 0;
+    width: 50%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 4;
   }
   .line-vert {
     border-left: 1px solid #7f7f7f;
