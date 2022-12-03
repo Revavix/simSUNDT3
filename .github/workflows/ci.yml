@@ -15,9 +15,12 @@ jobs:
           npm install yarn
           yarn install
           yarn build
+      - name:
+        run: |
+          tar -zcvf dist.tar.gz dist/ 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dist
+          name: ubuntu-artifact
           path: |
-            dist
+            dist.tar.gz
