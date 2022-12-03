@@ -38,7 +38,7 @@ jobs:
           yarn build
       - name: Compress dist
         run: |
-          tar -zcvf dist.tar.gz dist/ 
+          tar -zcvf dist.tar.gz dist
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
