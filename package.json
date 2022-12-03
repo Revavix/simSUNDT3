@@ -9,7 +9,7 @@
     "dev": "NODE_ENV=development concurrently 'npm run web:watch' 'sleep 1 && npm run electron:start'",
     "web:watch": "vite",
     "electron:start": "electron src",
-    "build": "vite build && electron-builder",
+    "build": "vite build && electron-builder --publish never",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
@@ -32,9 +32,17 @@
     "vite": "^3.2.3"
   },
   "build": {
+    "mac":
+    {
+      "publish": []
+    },
     "linux":
     {
-      "publish": "never"
+      "publish": []
+    },
+    "win":
+    {
+      "publish": []
     },
     "files": [
       "src/**/*"
