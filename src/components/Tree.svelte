@@ -23,11 +23,9 @@
     {
         ulCssPadding = "ul-without-padding"
     }
-
-	
 </script>
 
-<ul class={ulCssPadding} transition:slide>
+<ul class={ulCssPadding}>
 	<li>
 		{#if tree instanceof TreeExpandable}
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -89,7 +87,6 @@
 	.arrow {
 		cursor: pointer;
 		display: inline-block;
-		transition: transform 20ms;
 	}
 	.arrowDown { transform: rotate(90deg); }
 </style>
