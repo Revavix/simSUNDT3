@@ -1,7 +1,9 @@
 {
   "name": "simsundt3",
+  "author": "Revavix AB & University West",
+  "description": "SimSUNDT3 is a ultrasonic defect detection simulation tool",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "main": "src/index.js",
   "scripts": {
     "dev": "NODE_ENV=development concurrently 'npm run web:watch' 'sleep 1 && npm run electron:start'",
@@ -30,6 +32,10 @@
     "vite": "^3.2.3"
   },
   "build": {
+    "linux":
+    {
+      "publish": "never"
+    },
     "files": [
       "src/**/*"
     ]
