@@ -156,7 +156,7 @@ export const treeDef = new TreeExpandable
         ],
         false
     ),
-    new TreeSelect("Accuracy", ["Highest", "High", "Medium", "Lower", "Lowest"])
+    //new TreeSelect("Accuracy", ["Highest", "High", "Medium", "Lower", "Lowest"])
   ],
   true
 )

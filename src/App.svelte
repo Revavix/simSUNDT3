@@ -13,58 +13,62 @@
     } from '@threlte/core'
     import { spring } from 'svelte/motion'
     import Tree from './components/Tree.svelte'
-    import { TreeExpandable, TreeNumber, TreeSelect } from './lib/treeData'
     import { treeDef, treeTransmitter, treeReceiver, treeDefect } from './lib/treeDef'
+    import { Button } from './lib/buttonData'
+    import { Tabs, Tab } from './lib/tabDef'
+    import ButtonComponent from './components/Button.svelte'
+    import FileComponent from './tabs/File.svelte'
+    import HelpComponent from './tabs/Help.svelte'
+    import PreprocessorComponent from './tabs/Preprocessor.svelte'
+    import ResultsComponent from './tabs/Results.svelte'
+    import TabsComponent from './components/Tabs.svelte'
 
     treeDef.value[0].value[1].disabled = true;
     console.log(treeDef);
+
+    const tabs = new Tabs(
+      [
+        new Tab("File", FileComponent),
+        new Tab("Preprocessor", PreprocessorComponent),
+        new Tab("Results", ResultsComponent),
+        new Tab("Help", HelpComponent)
+      ]
+    )
+    tabs.activeIdx = 1;
 
     const scale = spring(1)
 </script>
 
 <main style="height:100%; width:100%">
-  <div class="text-sm font-medium text-center text-gray-300 mt-8 mx-4">
-      <ul class="flex flex-wrap">
-          <li class="mr-2">
-              <a href="#" class="inline-block rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">File</a>
-          </li>
-          <li class="mr-2">
-              <a href="#" class="inline-block text-gray-400 rounded-t-lg border-b-2 border-blue-600 active" aria-current="page">Preprocessor</a>
-          </li>
-          <li class="mr-2">
-              <a href="#" class="inline-block rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Results</a>
-          </li>
-          <li class="mr-2">
-              <a href="#" class="inline-block rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Help</a>
-          </li>
-
-      </ul>
+  <svelte:component this={tabs.members[tabs.activeIdx].component}></svelte:component>
+  <div class="text-sm font-medium text-center text-gray-300 mt-8 mx-4" style="z-index: 4; position:relative;">
+      <TabsComponent tabs={tabs}></TabsComponent>
   </div>
   <div class="flex flex-row shadow-lg rounded-lg w-stretch mx-4 px-2 mt-2 bg-stone-300" style="z-index: 4; position: relative">
       <div class="flex flex-col w-20 pt-1 -space-y-1">
-        <div class="flex flex-row w-full">
-          <div class="flex flex-col" style="font-family:'Material Icons'; font-size:16px; color:#55b13c">
-            play_arrow
-          </div>
-          <div class="flex flex-col pl-2" style="font-size:11px; color:#4d4d4d;">
-            Run
-          </div>
-        </div>
-        <div class="flex flex-row w-full">
-          <div class="flex flex-col" style="font-family:'Material Icons'; font-size:16px; color:#d49527">
-            fact_check
-          </div>
-          <div class="flex flex-col pl-2" style="font-size:11px; color:#4d4d4d;">
-            Validate
-          </div>
-        </div>
-        <div class="flex flex-row w-full justify-center pt-6">
+        <ButtonComponent btn={new Button("Run", "play_arrow", () => {alert('test')})}></ButtonComponent>
+        <ButtonComponent btn={new Button("Cloud Run", "cloud_sync", () => {alert('test')})}></ButtonComponent>
+        <div class="flex flex-row w-full justify-center mt-auto pt-4">
           <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
             Simulate
           </div>
         </div>
       </div>
-      <div class="flex flex-col line my-2"/>
+      <div class="flex flex-col line my-2 mx-2"/>
+      <div class="flex flex-col w-20 pt-1 -space-y-1">
+        <select class="pl-1 mb-auto bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" required> 
+          <option>Highest</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+          <option>Lowest</option>
+        </select>
+        <div class="flex flex-row w-full justify-center mt-auto pt-4">
+          <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+            Accuracy
+          </div>
+        </div>
+      </div>
   </div>
   <div class="flex flex-col shadow-lg rounded-lg mx-4 px-2 mt-2 bg-stone-300" style="z-index: 4; position: relative; min-height: 400px; min-width: 100px; max-width: 330px">
     <p class="pt-1" style="color:#4d4d4d">Parameterisation</p>
@@ -76,41 +80,41 @@
     </div>
   </div>
   <div class="test">
-      <Canvas>
-          <PerspectiveCamera position={{ x: 10, y: 10, z: 10 }} fov={24}>
-            <OrbitControls
-              maxPolarAngle={DEG2RAD * 80}
-              autoRotate={false}
-              enableZoom={false}
-              target={{ y: 0.5 }}
-            />
-          </PerspectiveCamera>
-      
-          <DirectionalLight shadow position={{ x: 3, y: 10, z: 10 }} />
-          <DirectionalLight position={{ x: -3, y: 10, z: -10 }} intensity={0.2} />
-          <AmbientLight intensity={0.2} />
-      
-          <!-- Cube -->
-          <Group scale={$scale}>
-            <Mesh
-              interactive
-              on:pointerenter={() => ($scale = 2)}
-              on:pointerleave={() => ($scale = 1)}
-              position={{ y: 0.5 }}
-              castShadow
-              geometry={new BoxGeometry(1, 1, 1)}
-              material={new MeshStandardMaterial({ color: '#333333' })}
-            />
-          </Group>
-      
-          <!-- Floor -->
-          <Mesh
-            receiveShadow
-            rotation={{ x: -90 * (Math.PI / 180) }}
-            geometry={new CircleGeometry(3, 72)}
-            material={new MeshStandardMaterial({ side: DoubleSide, color: 'white' })}
+    <Canvas>
+        <PerspectiveCamera position={{ x: 10, y: 10, z: 10 }} fov={24}>
+          <OrbitControls
+            maxPolarAngle={DEG2RAD * 80}
+            autoRotate={false}
+            enableZoom={false}
+            target={{ y: 0.5 }}
           />
-        </Canvas>
+        </PerspectiveCamera>
+    
+        <DirectionalLight shadow position={{ x: 3, y: 10, z: 10 }} />
+        <DirectionalLight position={{ x: -3, y: 10, z: -10 }} intensity={0.2} />
+        <AmbientLight intensity={0.2} />
+    
+        <!-- Cube -->
+        <Group scale={$scale}>
+          <Mesh
+            interactive
+            on:pointerenter={() => ($scale = 2)}
+            on:pointerleave={() => ($scale = 1)}
+            position={{ y: 0.5 }}
+            castShadow
+            geometry={new BoxGeometry(1, 1, 1)}
+            material={new MeshStandardMaterial({ color: '#333333' })}
+          />
+        </Group>
+    
+        <!-- Floor -->
+        <Mesh
+          receiveShadow
+          rotation={{ x: -90 * (Math.PI / 180) }}
+          geometry={new CircleGeometry(3, 72)}
+          material={new MeshStandardMaterial({ side: DoubleSide, color: 'white' })}
+        />
+    </Canvas>
   </div>
 </main>
 
