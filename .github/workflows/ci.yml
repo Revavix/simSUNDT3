@@ -15,7 +15,7 @@ jobs:
           npm install yarn
           yarn install
           yarn build
-      - name:
+      - name: Compress dist
         run: |
           tar -zcvf dist.tar.gz dist/ 
       - name: Upload artifact
