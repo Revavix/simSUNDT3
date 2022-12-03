@@ -5,6 +5,7 @@
     function changeIdx(index)
     {
         tabs.activeIdx = index
+        console.log(tabs.activeIdx)
     }
 </script>
 
