@@ -6,7 +6,7 @@
 
 <script lang="ts">
     import { slide } from 'svelte/transition'
-    import { TreeExpandable, TreeSelect, TreeNumber, TreeBool } from '../lib/treeData'
+    import { TreeExpandable, TreeSelect, TreeNumber, TreeBool } from '../lib/treeDef'
 	export let tree
     let treeLabel = tree['label']
     let treeValue = tree['value']

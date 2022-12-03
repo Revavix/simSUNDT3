@@ -13,8 +13,8 @@
     } from '@threlte/core'
     import { spring } from 'svelte/motion'
     import Tree from './components/Tree.svelte'
-    import { treeDef, treeTransmitter, treeReceiver, treeDefect } from './lib/treeDef'
-    import { Button } from './lib/buttonData'
+    import { treeMethod, treeTransmitter, treeReceiver, treeDefect } from './lib/treeData'
+    import { Button } from './lib/buttonDef'
     import { Tabs, Tab } from './lib/tabDef'
     import ButtonComponent from './components/Button.svelte'
     import FileComponent from './tabs/File.svelte'
@@ -22,9 +22,6 @@
     import PreprocessorComponent from './tabs/Preprocessor.svelte'
     import ResultsComponent from './tabs/Results.svelte'
     import TabsComponent from './components/Tabs.svelte'
-
-    treeDef.value[0].value[1].disabled = true;
-    console.log(treeDef);
 
     const tabs = new Tabs(
       [
@@ -73,7 +70,7 @@
   <div class="flex flex-col shadow-lg rounded-lg mx-4 px-2 mt-2 bg-stone-300" style="z-index: 4; position: relative; min-height: 400px; min-width: 100px; max-width: 330px">
     <p class="pt-1" style="color:#4d4d4d">Parameterisation</p>
     <div style="padding-left: 0px; overflow: auto; max-height: 400px;">
-      <Tree tree={treeDef}/>
+      <Tree tree={treeMethod}/>
       <Tree tree={treeTransmitter}/>
       <Tree tree={treeReceiver}/>
       <Tree tree={treeDefect}/>
