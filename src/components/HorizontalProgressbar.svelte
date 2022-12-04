@@ -19,7 +19,7 @@
     }
 </script>
 
-<div class="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+<div class="w-full bg-gray-200 rounded-full dark:bg-gray-700 shadow-lg">
     <div class="bg-yellow-600 text-xs font-medium text-blue-100 text-center leading-none rounded-full" style="width: {$progressTween * 100}%; transition: width 2s; min-height:15px"> 
         {#if progress/maxValue <= 1 && progress/maxValue > 0.1}
             <div class="p-0.5">

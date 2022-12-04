@@ -1,6 +1,10 @@
-name: CI
+name: Build Prod & Package
 
-on: [push]
+on: 
+  push:
+    branches:
+      - main
+      - 'releases/**'
 
 jobs:
   build-ubuntu:
@@ -17,7 +21,7 @@ jobs:
           yarn build
       - name: Compress dist
         run: |
-          tar -zcvf dist.tar.gz dist/ 
+          tar -zcvf dist.tar.gz dist/*.AppImage
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -38,7 +42,7 @@ jobs:
           yarn build
       - name: Compress dist
         run: |
-          tar -zcvf dist.tar.gz dist
+          tar -zcvf dist.tar.gz dist/*.exe
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:

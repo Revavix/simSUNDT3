@@ -1,5 +1,3 @@
-
-
 export class Tabs
 {
     members: Array<Tab>
