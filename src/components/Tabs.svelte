@@ -9,7 +9,7 @@
     }
 </script>
 
-<ul class="flex flex-wrap">
+<ul class="flex flex-row">
     {#each tabs.members as tab, i}
         <li class="mr-2">
             {#if i == tabs.activeIdx}

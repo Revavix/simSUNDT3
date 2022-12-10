@@ -27,8 +27,8 @@
     tabs.activeIdx = 1
 </script>
 
-<main style="height:100%; width:100%">
-    <div class="text-sm font-medium text-center text-gray-300 mt-8 mx-4" style="z-index: 4; position:relative;">
+<main class="flex flex-col main-container">
+    <div class="flex flex-row text-sm font-medium text-center text-gray-300 mt-8" style="z-index: 4;">
         <TabsComponent bind:tabs={tabs}></TabsComponent>
     </div>
     <svelte:component this={tabs.members[tabs.activeIdx].component}></svelte:component>
@@ -37,5 +37,11 @@
 <style>
     div::-webkit-scrollbar {
         display: none;
+    }
+    .main-container
+    {
+        width: calc(100% - 32px);
+        margin-right: 16px;
+        margin-left: 16px;
     }
 </style>

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { Button } from "../lib/buttonDef";
     export let btn
 
     function exec()

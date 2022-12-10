@@ -23,10 +23,13 @@
     log.AddMessage("cloud_sync", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", "#4d4d4d")
     log.AddMessage("cloud_sync", "Test", "#4d4d4d")
     log.AddMessage("cloud_sync", "Test", "#4d4d4d")
+
+    // Set up some tree settings
+    let treeMinimized: boolean = false
 </script>
 
-<div id="preprocessor-tab">
-    <div class="flex flex-row shadow-lg rounded-lg w-stretch mx-4 px-2 mt-2 bg-stone-300" style="z-index: 4; position: relative">
+<div id="preprocessor-tab" class="flex flex-col w-full h-full">
+    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-20" style="z-index: 4;">
         <div class="flex flex-col w-20 pt-1 -space-y-1">
             <ButtonComponent btn={new Button("Run", "#55b13c", "play_arrow", () => {alert('test')})}></ButtonComponent>
             <ButtonComponent btn={new Button("Cloud Run", "#55b13c", "cloud_sync", () => {alert('test')})}></ButtonComponent>
@@ -52,16 +55,31 @@
             </div>
         </div>
     </div>
-    <div class="flex flex-col shadow-lg rounded-lg mx-4 px-2 mt-2 bg-stone-300" style="z-index: 4; position: relative; min-height: 306px; max-height: 706px; min-width: 300px; max-width: 330px">
-        <p class="pt-1" style="color:#4d4d4d">Parameterisation</p>
-        <div style="padding-left: 0px; overflow: auto; max-height: 706px;">
-            <TreeComponent tree={treeMethod}/>
-            <TreeComponent tree={treeTransmitter}/>
-            <TreeComponent tree={treeReceiver}/>
-            <TreeComponent tree={treeDefect}/>
+    <div class="flex flex-row tree-view">
+        <div class="flex flex-col shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-3/12 mb-4 opacity-90 hover:opacity-100" style="z-index: 4; position:relative;">
+            <div class="flex flex-row">
+                <div class="flex flex-col">
+                    <p class="pt-1" style="color:#4d4d4d">Parameterisation</p>
+                </div>
+                <div class="flex flex-col ml-auto">
+                    {#if treeMinimized}
+                    <ButtonComponent btn={new Button("", "#4d4d4d", "expand_more", () => {treeMinimized = false})}/>
+                    {:else}
+                    <ButtonComponent btn={new Button("", "#4d4d4d", "expand_less", () => {treeMinimized = true})}/>
+                    {/if}
+                </div>
+            </div>
+            {#if !treeMinimized}
+            <div class="h-full rounded-md my-1 mb-2" style="overflow: auto;">
+                <TreeComponent tree={treeMethod}/>
+                <TreeComponent tree={treeTransmitter}/>
+                <TreeComponent tree={treeReceiver}/>
+                <TreeComponent tree={treeDefect}/>
+            </div>
+            {/if}
         </div>
     </div>
-    <div class="absolute-bottom-above pb-4">
+    <div class="absolute-bottom-above pb-4 px-6 w-6/12 opacity-90 hover:opacity-100">
         <OutputLogComponent log={log}/>
         <div class="py-1"/>
         <HorizontalProgressbarComponent/>
@@ -87,12 +105,15 @@
   {
     position: absolute;
     bottom: 0;
-    width: 50%;
     left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
     z-index: 4;
+  }
+  .tree-view
+  {
+    max-height: calc(100vh - 142px);
   }
   .line-vert {
     border-left: 1px solid #7f7f7f;
