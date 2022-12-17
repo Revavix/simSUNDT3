@@ -5,8 +5,7 @@ export class TreeExpandable {
     disabled: boolean;
     expanded: boolean;
 
-    constructor(name: string, list: object, paddingOff: boolean)
-    {
+    constructor(name: string, list: object, paddingOff: boolean) {
         this.label = name;
         this.value = list;
         this.paddingOff = paddingOff;
@@ -41,19 +40,31 @@ export class TreeBool {
 
 export class TreeSelect {
     label: string;
-    value: object;
+    value: Array<TreeSelectMember>;
     disabled?: boolean;
-    selectedItem?: string;
+    selectedItem: number;
     filters?: object;
 
-    constructor(name: string, selectables: object) {
+    constructor(name: string, selectables: Array<TreeSelectMember>) {
         this.label = name;
         this.value = selectables;
         this.disabled = false;
+        this.selectedItem = selectables[0].value
     }
 
     // Filters eg: {optionName: 'Isotropic', [object, object]}
     updateFilters() {
 
+    }
+}
+
+export class TreeSelectMember {
+    value: number;
+    displayName: string;
+
+    constructor(name: string, value: number)
+    {
+        this.value = value
+        this.displayName = name
     }
 }

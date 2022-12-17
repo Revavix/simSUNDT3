@@ -6,7 +6,7 @@
 
 <script lang="ts">
     import { slide } from 'svelte/transition'
-    import { TreeExpandable, TreeSelect, TreeNumber, TreeBool } from '../lib/treeDef'
+    import { TreeExpandable, TreeSelect, TreeSelectMember, TreeNumber, TreeBool } from '../lib/treeDef'
 	export let tree
     let treeLabel = tree['label']
     let treeValue = tree['value']
@@ -42,21 +42,21 @@
             <div class="flex flex-row disabled:opacity-75" disabled={treeDisabled}>
                 <span style="font-family:'Material Icons'; font-size:24px;">tag</span>
                 <span class="pl-1">{treeLabel}</span>
-                <input type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={treeDisabled} placeholder="0" required>
+                <input bind:value={tree.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={treeDisabled} placeholder="0" required>
             </div>
         {:else if tree instanceof TreeBool}
         <div class="flex flex-row">
             <span style="font-family:'Material Icons'; font-size:24px;">check_box</span>
             <span class="pl-1">{treeLabel}</span>
-            <input type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={treeDisabled} required>
+            <input bind:checked={tree.value} type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={treeDisabled} required>
         </div>
         {:else if tree instanceof TreeSelect}
         <div class="flex flex-row">
             <span style="font-family:'Material Icons'; font-size:24px;">list</span>
             <span class="pl-1">{treeLabel}</span>
-            <select class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={treeDisabled} required> 
+            <select bind:value={tree.selectedItem} class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={treeDisabled} required> 
                 {#each treeValue as opt}
-                <option>{opt}</option>
+                <option value={opt.value}>{opt.displayName}</option>
                 {/each}
             </select>
         </div>

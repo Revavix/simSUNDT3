@@ -5,6 +5,9 @@
     
     // TypeScript class data definition imports
     import { treeMethod, treeTransmitter, treeReceiver, treeDefect } from '../lib/treeData'
+    import { UTDefectTreeBinder } from '../lib/utDefectTreeBinder'
+    import { UTDefectIsoSaver } from '../lib/utDefectIsoSaver'
+    import { TreeUtil } from '../lib/treeUtil'
 
     // Component imports
     import TreeComponent from '../components/Tree.svelte'
@@ -26,12 +29,19 @@
 
     // Set up some tree settings
     let treeMinimized: boolean = false
+
+    // Misc variables not defined in tree to be forwarded to tree binder
+    let selectAccuracyIndex: number = "5"
+
+    // UTDefectIsoSaver & variable binding setup
+    let utDefSaver: UTDefectIsoSaver = new UTDefectIsoSaver()
+    let utDefTreeBinder: UTDefectTreeBinder = new UTDefectTreeBinder(treeMethod, treeTransmitter, treeReceiver, treeDefect, utDefSaver, selectAccuracyIndex)
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-20" style="z-index: 4;">
         <div class="flex flex-col w-20 pt-1 -space-y-1">
-            <ButtonComponent btn={new Button("Run", "#55b13c", "play_arrow", () => {alert('test')})}></ButtonComponent>
+            <ButtonComponent btn={new Button("Run", "#55b13c", "play_arrow", () => {utDefTreeBinder.Update(); utDefSaver.Save()})}></ButtonComponent>
             <ButtonComponent btn={new Button("Cloud Run", "#55b13c", "cloud_sync", () => {alert('test')})}></ButtonComponent>
             <div class="flex flex-row w-full justify-center mt-auto pt-4">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
@@ -41,12 +51,12 @@
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
             <div class="flex flex-col w-20 pt-1 -space-y-1">
-            <select class="pl-1 mb-auto bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" required> 
-                <option>Highest</option>
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-                <option>Lowest</option>
+            <select bind:value={selectAccuracyIndex} class="pl-1 mb-auto bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" required> 
+                <option value=5>Highest</option>
+                <option value=4>High</option>
+                <option value=3>Medium</option>
+                <option value=2>Low</option>
+                <option value=1>Lowest</option>
             </select>
             <div class="flex flex-row w-full justify-center mt-auto pt-4">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">

@@ -3,7 +3,7 @@ class TreeSelect extends Array {};
 class TreeNumber extends Number {};
 class TreeBool extends Boolean {};*/
 
-import { TreeExpandable, TreeNumber, TreeSelect, TreeBool } from './treeDef'
+import { TreeExpandable, TreeNumber, TreeSelect, TreeBool, TreeSelectMember } from './treeDef'
 
 export const treeMethod = new TreeExpandable
 (
@@ -12,10 +12,16 @@ export const treeMethod = new TreeExpandable
     new TreeExpandable(
       "Material",
       [
-        new TreeSelect("Symmetry", ["Isotropic", "Transversaly Isotropic", "Orthotropic"]),
+        new TreeSelect("Symmetry", new Array<TreeSelectMember>(
+            {displayName: "Isotropic", value: 2},
+            {displayName: "Transversaly Isotropic", value: 4},
+            {displayName: "Orthotropic", value: -2},
+        )), // TODO: Find out values, unspecified in translator of .NET app
         new TreeExpandable("Metal Properties", 
         [
-            new TreeSelect("Alloy", ["Steel"]),
+            new TreeSelect("Alloy", new Array<TreeSelectMember>(
+                {displayName: "Steel", value: 1}
+            )),
             new TreeNumber("Longitudinal Velocity", 0),
             new TreeNumber("Transversal Velocity", 0),
             new TreeNumber("Damping", 0)
@@ -51,16 +57,33 @@ export const treeMethod = new TreeExpandable
     new TreeExpandable(
       "UT Technique",
       [
-        new TreeSelect("Method", ["Pulse Echo", "Separate", "Tandem", "TOFD"]),
-        new TreeSelect("Transmitter", ["Contact", "Immersion", "Phased Array"]),
-        new TreeSelect("Receiver", ["Contact", "Immersion", "Phased Array"])
+        new TreeSelect("Method", new Array<TreeSelectMember>(
+            {displayName: "Pulse Echo", value: 1},
+            {displayName: "Tandem", value: 2},
+            {displayName: "TOFD", value: 2},
+            {displayName: "Separate", value: 3}
+        )),
+        new TreeSelect("Transmitter", new Array<TreeSelectMember>(
+            {displayName: "Contact", value: 2},
+            {displayName: "Immersion", value: 4},
+            {displayName: "Phased Array", value: -2},
+        )),
+        new TreeSelect("Receiver", new Array<TreeSelectMember>(
+            {displayName: "Contact", value: 2},
+            {displayName: "Immersion", value: 4},
+            {displayName: "Phased Array", value: -2},
+        )),
       ],
       false
     ),
     new TreeExpandable(
         "Calibration",
         [
-            new TreeSelect("Type", ["None", "Side-drilled Hole", "Flat-bottomed Hole"]),
+            new TreeSelect("Type", new Array<TreeSelectMember>(
+                {displayName: "None", value: 0},
+                {displayName: "Side-drilled Hole", value: 1},
+                {displayName: "Flat-bottomed Hole", value: 2}
+            )),
             new TreeNumber("Diameter", 0),
             new TreeNumber("Center Depth", 0)
         ],
@@ -84,7 +107,11 @@ export const treeMethod = new TreeExpandable
             new TreeExpandable(
                 "Weld",
                 [
-                    new TreeSelect("Type", ["None", "Regular Weld", "Control Volume"]),
+                    new TreeSelect("Type", new Array<TreeSelectMember>(
+                        {displayName: "None", value: "No Weld Specified"},
+                        {displayName: "Regular Weld", value: "Welding_Parameters"},
+                        {displayName: "Control Volume", value: "Hard_Measurement"}
+                    )), // TODO: Find out values, unspecified in translator of .NET app
                     new TreeExpandable(
                         "Parameters",
                         [
@@ -151,7 +178,11 @@ export const treeMethod = new TreeExpandable
     new TreeExpandable(
         "Time Window",
         [
-            new TreeSelect("Type", ["Automatic", "All positions", "Specific Diffraction Point"]),
+            new TreeSelect("Type", new Array<TreeSelectMember>(
+                {displayName: "Automatic", value: 1},
+                {displayName: "All positions", value: 2},
+                {displayName: "Specific Diffraction Point", value: 3}
+            )),
             new TreeNumber("Start", 0),
             new TreeNumber("End", 0),
             new TreeNumber("Increment", 0),
@@ -173,7 +204,10 @@ export const treeTransmitter = new TreeExpandable
         new TreeExpandable(
             "Shape & Elements",
             [
-                new TreeSelect("Shape", ["Rectangular", "Elliptic"]),
+                new TreeSelect("Shape", new Array<TreeSelectMember>(
+                    {displayName: "Rectangular", value: -1},
+                    {displayName: "Elliptic", value: -2}
+                )),
                 new TreeBool("Auto Num of Elements", false),
                 new TreeExpandable(
                     "X",
@@ -199,7 +233,11 @@ export const treeTransmitter = new TreeExpandable
         new TreeExpandable(
             "Spectrum",
             [
-                new TreeBool("Type", false),
+                new TreeSelect("Type", new Array<TreeSelectMember>(
+                    {displayName: "Cosine Square", value: -1},
+                    {displayName: "Monochromatic", value: 1},
+                    {displayName: "Input Spectrum", value: 0}
+                )),
                 new TreeNumber("Frequency", 0),
                 new TreeNumber("Bandwidth", 0),
                 new TreeExpandable(
@@ -220,7 +258,11 @@ export const treeTransmitter = new TreeExpandable
         new TreeExpandable(
             "Focus",
             [
-                new TreeSelect("Type", ["Unfocused", "Line Focused", "Point Focused"]),
+                new TreeSelect("Type", new Array<TreeSelectMember>(
+                    {displayName: "Unfocused", value: 0},
+                    {displayName: "Line Focused", value: 10},
+                    {displayName: "Point Focused", value: 20},
+                )),
                 new TreeNumber("Focal Distance", 0),
             ],
             false
@@ -236,7 +278,11 @@ export const treeTransmitter = new TreeExpandable
         new TreeExpandable(
             "Wave",
             [
-                new TreeSelect("Type", ["Longitudinal", "Transversal (vert. pol)", "Transversal (hori. pol)"]),
+                new TreeSelect("Type", new Array<TreeSelectMember>(
+                    {displayName: "Longitudinal", value: 0},
+                    {displayName: "Transversal (vert. pol)", value: 1},
+                    {displayName: "Transversal (hori. pol)", value: 2},
+                )), // TODO: Find out values, unspecified in translator of .NET app
                 new TreeBool("Suppression", false)
             ],
             false
@@ -290,7 +336,10 @@ export const treeReceiver = new TreeExpandable(
         new TreeExpandable(
             "Shape & Elements",
             [
-                new TreeSelect("Shape", ["Rectangular", "Elliptic"]),
+                new TreeSelect("Shape", new Array<TreeSelectMember>(
+                    {displayName: "Rectangular", value: -1},
+                    {displayName: "Elliptic", value: -2}
+                )),
                 new TreeBool("Auto Num of Elements", false),
                 new TreeExpandable(
                     "X",
@@ -316,7 +365,11 @@ export const treeReceiver = new TreeExpandable(
         new TreeExpandable(
             "Focus",
             [
-                new TreeSelect("Type", ["Unfocused", "Line Focused", "Point Focused"]),
+                new TreeSelect("Type", new Array<TreeSelectMember>(
+                    {displayName: "Unfocused", value: 0},
+                    {displayName: "Line Focused", value: 10},
+                    {displayName: "Point Focused", value: 20},
+                )),
                 new TreeNumber("Focal Distance", 0)
             ],
             false
@@ -332,7 +385,11 @@ export const treeReceiver = new TreeExpandable(
         new TreeExpandable(
             "Wave",
             [
-                new TreeSelect("Type", ["Longitudinal", "Transversal (vert. pol)", "Transversal (hori. pol)"]),
+                new TreeSelect("Type", new Array<TreeSelectMember>(
+                    {displayName: "Longitudinal", value: 0},
+                    {displayName: "Transversal (vert. pol)", value: 1},
+                    {displayName: "Transversal (hori. pol)", value: 2},
+                )),
                 new TreeBool("Suppression", false)
             ],
             false
@@ -386,17 +443,16 @@ export const treeDefect = new TreeExpandable(
         new TreeExpandable(
             "Specification",
             [
-                new TreeSelect("Variant", 
-                [
-                    "Spherical Cavity", 
-                    "Spherical Inclusion", 
-                    "Spheroidal Cavity", 
-                    "Circular Crack",
-                    "Rectangular Crack",
-                    "Side-drilled Hole",
-                    "Strip-like Crack",
-                    "S-B Strip-like Crack"
-                ]),
+                new TreeSelect("Variant", new Array<TreeSelectMember>(
+                    {displayName: "Spherical Cavity", value: 1},
+                    {displayName: "Elastic Spherical Inclusion", value: 2},
+                    {displayName: "Circular Crack", value: 3},
+                    {displayName: "Spheroidal Cavity", value: 4},
+                    {displayName: "Rectangular Crack", value: 5},
+                    {displayName: "Strip-like Crack", value: 7},
+                    {displayName: "Side Drilled Hole", value: 8},
+                    {displayName: "SBSL Crack", value: 19},
+                )),
                 new TreeExpandable(
                     "Measurement",
                     [
@@ -432,7 +488,11 @@ export const treeDefect = new TreeExpandable(
                 new TreeExpandable(
                     "Circular Properties",
                     [
-                        new TreeSelect("Variant", ["Open", "Fluid Filled", "Partly Closed"]),
+                        new TreeSelect("Variant", new Array<TreeSelectMember>(
+                            {displayName: "Open", value: 1},
+                            {displayName: "Fluid Filled", value: 2},
+                            {displayName: "Partly Closed", value: 3},
+                        )),
                         new TreeNumber("Stress Quotient", 0),
                         new TreeNumber("Contact Diameter", 0)
                     ],
@@ -462,7 +522,10 @@ export const treeDefect = new TreeExpandable(
                     ],
                     false
                 ),
-                new TreeSelect("Integration", ["Exact", "S-Phase Approx."])
+                new TreeSelect("Integration", new Array<TreeSelectMember>(
+                    {displayName: "Exact", value: 0},
+                    {displayName: "S-Phase Approx", value: 1},
+                ))
             ],
             false
         ),
