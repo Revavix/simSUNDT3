@@ -5,7 +5,7 @@
     
     // TypeScript class data definition imports
     import { treeMethod, treeTransmitter, treeReceiver, treeDefect } from '../lib/treeData'
-    import { UTDefectTreeBinder } from '../lib/utDefectTreeBinder'
+    import { UTDefectIsoTreeBinder } from '../lib/utDefectIsoTreeBinder'
     import { UTDefectIsoSaver } from '../lib/utDefectIsoSaver'
     import { TreeUtil } from '../lib/treeUtil'
 
@@ -35,7 +35,7 @@
 
     // UTDefectIsoSaver & variable binding setup
     let utDefSaver: UTDefectIsoSaver = new UTDefectIsoSaver()
-    let utDefTreeBinder: UTDefectTreeBinder = new UTDefectTreeBinder(treeMethod, treeTransmitter, treeReceiver, treeDefect, utDefSaver, selectAccuracyIndex)
+    let utDefTreeBinder: UTDefectIsoTreeBinder = new UTDefectIsoTreeBinder(treeMethod, treeTransmitter, treeReceiver, treeDefect, utDefSaver, selectAccuracyIndex)
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">

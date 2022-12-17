@@ -2,7 +2,7 @@ import type { UTDefectSaver } from "./utDefectSaver";
 import type { TreeBool, TreeSelect, TreeSelectMember, TreeNumber, TreeExpandable } from "./treeDef";
 import { TreeUtil } from "./treeUtil";
 
-export class UTDefectTreeBinder
+export class UTDefectIsoTreeBinder
 {
     method: TreeExpandable
     transmitter: TreeExpandable
