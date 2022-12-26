@@ -3,6 +3,7 @@ const path = require('path')
 const { electron } = require('process')
 const os = require('os')
 const fs = require('fs')
+const { spawn } = require('child_process')
 
 function createWindow () {
   const win = new BrowserWindow({
@@ -35,6 +36,10 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
+  let utdefectStdCurrentProgress = 0
+  let utdefectStdMaxProgress = 0
+  let utdefectActive = false
+
   createWindow()
 
   app.on('activate', () => {
@@ -43,8 +48,35 @@ app.whenReady().then(() => {
     }
   })
 
+  ipcMain.handle('get-default-binary-path', async () => {
+    if (process.platform == 'darwin') {
+      return "/usr/local/bin/UTDefect6"
+    } else if (process.platform == 'linux') {
+      return "/usr/bin/UTDefect6"
+    } else if (process.platform == 'win32') {
+      return "C:/utdefect/UTDefect6.exe"
+    }
+  })
+
   ipcMain.handle('os-get-home-dir', async () => {
     return os.homedir()
+  })
+
+  ipcMain.handle('copy-file', async(event, src, target) => {
+    fs.copyFile(src, target, () => {
+      process.stdout.write("Copied file from " + src + " to " + target + "\n")
+    })
+  })
+
+  ipcMain.handle('file-exists', async(event, src) => {
+    try {
+      await fs.promises.access(String(src), 
+      fs.constants.R_OK | fs.constants.W_OK)
+
+      return true
+    } catch {
+      return false
+    }
   })
 
   ipcMain.handle('write-file', async(event, filePath, data) => {
@@ -86,6 +118,38 @@ app.whenReady().then(() => {
     stream.close()
 
     return true;
+  })
+
+  ipcMain.handle('utdef-start-std', async(event, pathToBinary, inputPath) => {
+    let utdefProcess = spawn(pathToBinary, ["-I", inputPath, "-M", "std"])
+
+    process.stdout.write("Starting UTDef process from Electron using path " + pathToBinary + "\n")
+
+    utdefProcess.on('spawn', function () {
+      utdefectActive = true
+    })
+
+    utdefProcess.stdout.on('data', function(data) {
+      let strData = (data.toString()).split(/[\s,]+/)
+      utdefectStdCurrentProgress = parseInt(strData[0])
+      utdefectStdMaxProgress = parseInt(strData[1])
+
+      process.stdout.write("UTDefect standard output: \n" + strData)
+    })
+
+    utdefProcess.on('close', function() {
+      utdefectActive = false
+    })
+
+    return true
+  })
+
+  ipcMain.handle('utdef-get-prog-std', async(event) => {
+    return {p: utdefectStdCurrentProgress, mp: utdefectStdMaxProgress}
+  })
+
+  ipcMain.handle('utdef-active', async(event) => {
+    return utdefectActive
   })
 })
 

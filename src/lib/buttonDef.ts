@@ -3,6 +3,7 @@ export class Button {
     icon: string
     action: Function
     color: string
+    disabled: boolean
 
     constructor(name: string, color: string, materialIconName: string, actionToExec: Function)
     {
@@ -10,5 +11,6 @@ export class Button {
         this.color = color;
         this.icon = materialIconName;
         this.action = actionToExec;
+        this.disabled = false
     }
 }

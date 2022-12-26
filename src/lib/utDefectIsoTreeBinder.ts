@@ -1,6 +1,7 @@
-import type { UTDefectSaver } from "./utDefectSaver";
+import type { UTDefectIsoSaver } from "./utDefectIsoSaver";
 import type { TreeBool, TreeSelect, TreeSelectMember, TreeNumber, TreeExpandable } from "./treeDef";
 import { TreeUtil } from "./treeUtil";
+import type { MiscParameterisation } from "./miscParameterisationDef";
 
 export class UTDefectIsoTreeBinder
 {
@@ -8,17 +9,17 @@ export class UTDefectIsoTreeBinder
     transmitter: TreeExpandable
     receiver: TreeExpandable
     defect: TreeExpandable
-    saver: UTDefectSaver
-    accuracy: number
+    saver: UTDefectIsoSaver
+    miscParameters: MiscParameterisation
 
 
     constructor(
+        saver: UTDefectIsoSaver,
         method: TreeExpandable, 
         transmitter: TreeExpandable, 
         receiver: TreeExpandable, 
         defect: TreeExpandable,
-        saver: UTDefectSaver,
-        accuracy: number
+        miscParameters: MiscParameterisation
     ) 
     {
         this.method = method
@@ -26,13 +27,13 @@ export class UTDefectIsoTreeBinder
         this.receiver = receiver
         this.defect = defect
         this.saver = saver
-        this.accuracy = accuracy
+        this.miscParameters = miscParameters
 
         this.Update()
     }
 
     Update() {
-        // Create bindings to UTDefectSaver
+        // Create bindings to UTDefectIsoSaver
         this.saver.LP = this.ConvertNFRToLP(TreeUtil.FindRecursive(this.transmitter, ["Spectrum", "Type"]).selectedItem) 
         this.saver.LS = TreeUtil.FindRecursive(this.method, ["UT Technique", "Method"]).selectedItem
         this.saver.XS = TreeUtil.FindRecursive(this.method, ["Mesh", "Size", "X - Start"]).value
@@ -92,7 +93,7 @@ export class UTDefectIsoTreeBinder
 
         // From .NET version => "XSEP and YSEP changes depending on receiver: ADD FUNCTIONALITY FOR THIS", TODO: Investigate this
         this.saver.XSEP = TreeUtil.FindRecursive(this.transmitter, ["Position", "X"]).value
-        this.saver.YSEP = TreeUtil.FindRecursive(this.transmitter, ["Position", "X"]).value
+        this.saver.YSEP = TreeUtil.FindRecursive(this.transmitter, ["Position", "Y"]).value
 
         this.saver.LDTY = TreeUtil.FindRecursive(this.defect, ["Specification", "Variant"]).selectedItem
         this.saver.DZ = TreeUtil.FindRecursive(this.defect, ["Specification", "Measurement", "Centre Depth"]).value
@@ -148,7 +149,7 @@ export class UTDefectIsoTreeBinder
         this.saver.LCTY = TreeUtil.FindRecursive(this.method, ["Calibration", "Type"]).selectedItem
         this.saver.CA = TreeUtil.FindRecursive(this.method, ["Calibration", "Diameter"]).value
         this.saver.CZ = TreeUtil.FindRecursive(this.method, ["Calibration", "Center Depth"]).value
-        this.saver.IA = this.accuracy
+        this.saver.IA = parseInt(this.miscParameters.accuracy)
         this.saver.XDEF = TreeUtil.FindRecursive(this.defect, ["Position", "X"]).value
         this.saver.YDEF = TreeUtil.FindRecursive(this.defect, ["Position", "Y"]).value
         this.saver.WELD = TreeUtil.FindRecursive(this.method, ["Mesh", "Weld", "Type"]).selectedItem
