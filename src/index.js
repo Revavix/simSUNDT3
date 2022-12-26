@@ -36,6 +36,7 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
+  let utdefProcess = null
   let utdefectStdCurrentProgress = 0
   let utdefectStdMaxProgress = 0
   let utdefectActive = false
@@ -121,7 +122,7 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('utdef-start-std', async(event, pathToBinary, inputPath) => {
-    let utdefProcess = spawn(pathToBinary, ["-I", inputPath, "-M", "std"])
+    utdefProcess = spawn(pathToBinary, ["-I", inputPath, "-M", "std"])
 
     process.stdout.write("Starting UTDef process from Electron using path " + pathToBinary + "\n")
 
@@ -134,7 +135,7 @@ app.whenReady().then(() => {
       utdefectStdCurrentProgress = parseInt(strData[0])
       utdefectStdMaxProgress = parseInt(strData[1])
 
-      process.stdout.write("UTDefect standard output: \n" + strData)
+      process.stdout.write("UTDefect standard output: " + strData + "\n")
     })
 
     utdefProcess.on('close', function() {
@@ -150,6 +151,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('utdef-active', async(event) => {
     return utdefectActive
+  })
+
+  ipcMain.handle('utdef-terminate', async(event) => {
+    utdefProcess.kill()
   })
 })
 

@@ -1,7 +1,6 @@
 <script lang="ts">
     // TypeScript class definition imports
     import { Button } from '../lib/buttonDef'
-    import { OutputLog } from '../lib/outputLogDef'
     
     // TypeScript class data definition imports
     import { treeMethod, treeTransmitter, treeReceiver, treeDefect } from '../lib/treeData'
@@ -21,13 +20,7 @@
     import Viewport from '../pages/Viewport.svelte'
 
     // Set up output log
-    let log = new OutputLog(false)
-    log.AddMessage("warning", "Test", "#4d4d4d")
-    log.AddMessage("cloud_sync", "Test", "#4d4d4d")
-    log.AddMessage("cloud_sync", "Test", "#4d4d4d")
-    log.AddMessage("cloud_sync", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", "#4d4d4d")
-    log.AddMessage("cloud_sync", "Test", "#4d4d4d")
-    log.AddMessage("cloud_sync", "Test", "#4d4d4d")
+    let mainLogContents: Array<object> = new Array<object>()
 
     // Set up some tree settings
     let treeMinimized: boolean = false
@@ -41,11 +34,28 @@
     let utDefTreeBinder: UTDefectIsoTreeBinder = new UTDefectIsoTreeBinder(utDefSaver, treeMethod, treeTransmitter, treeReceiver, treeDefect, miscParameters)
     let utDefRunner: UTDefectRunner = new UTDefectRunner("", true, false)
 
+    // utDefRunner to log subscription
+    utDefRunner.statusMessage.subscribe(value => {
+        mainLogContents.push(value)
+
+        // Force update variable to trigger svelte reactivity...
+        mainLogContents = mainLogContents
+    })
+
+    // utDefRunner running status
+    let utDefRunnerIsRunning: boolean = false
+    utDefRunner.running.subscribe(value => {
+        utDefRunnerIsRunning = value
+    })
+
     // Simulate section buttons
     let runButton: Button = new Button("Run", "#55b13c", "play_arrow", async () => {
         utDefTreeBinder.Update()
         utDefSaver.Save()
         utDefRunner.Run()
+    })
+    let stopButton: Button = new Button("Stop", "#ba3822", "stop", async () => {
+        utDefRunner.Stop()
     })
     let cloudRunButton: Button = new Button("Cloud", "#55b13c", "cloud_sync", () => {
         alert('test')
@@ -82,7 +92,11 @@
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 4;">
         <div class="flex flex-col w-20 pt-1 -space-y-1">
+            {#if !utDefRunnerIsRunning}
             <ButtonComponent btn={runButton}></ButtonComponent>
+            {:else}
+            <ButtonComponent btn={stopButton}></ButtonComponent>
+            {/if}
             <ButtonComponent btn={cloudRunButton}></ButtonComponent>
             <ButtonComponent btn={configureRunButton}></ButtonComponent>
             <div class="flex flex-row w-full justify-center mt-auto pt-2">
@@ -132,7 +146,7 @@
         </div>
     </div>
     <div class="absolute-bottom-above pb-4 px-6 w-6/12 opacity-90 hover:opacity-100">
-        <OutputLogComponent log={log}/>
+        <OutputLogComponent bind:contents={mainLogContents}/>
         <div class="py-1"/>
         <HorizontalProgressbarComponent bind:progress={progress} bind:maxValue={maxProgress}/>
     </div>
@@ -222,7 +236,7 @@
   }
   .tree-view
   {
-    max-height: calc(100vh - 142px);
+    max-height: calc(100vh - 158px);
   }
   .line-vert {
     border-left: 1px solid #7f7f7f;

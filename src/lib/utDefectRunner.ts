@@ -8,6 +8,8 @@ export class UTDefectRunner {
     stdMode: boolean
     runProgress: Writable<number>
     maxRunProgress: Writable<number>
+    statusMessage: Writable<object>
+    running: Writable<boolean>
 
     constructor(sourceBinaryPath: string, prototype: boolean, stdMode: boolean) {
         this.sourceBinaryPath = sourceBinaryPath
@@ -15,6 +17,8 @@ export class UTDefectRunner {
         this.stdMode = stdMode
         this.runProgress = writable(0)
         this.maxRunProgress = writable(100)
+        this.statusMessage = writable({icon: "info", message: "Runner initialized", color: "#4d4d4d"})
+        this.running = writable(false)
     }
 
     async Run() {
@@ -24,6 +28,8 @@ export class UTDefectRunner {
         let lastProgress: number = 0
         let targetBinaryPath: string
 
+        this.statusMessage.set({icon: "info", message: "Starting simulation...", color: "#4d4d4d"})
+
         if (this.stdMode) {
             targetBinaryPath = homeDir + "/Documents/simSUNDT/utdefect"
             window.electronAPI.copyFile(this.sourceBinaryPath, targetBinaryPath)
@@ -32,6 +38,8 @@ export class UTDefectRunner {
             targetBinaryPath = homeDir + "/Documents/simSUNDT/UTDef6"
             window.electronAPI.copyFile(this.sourceBinaryPath, targetBinaryPath)
         }
+
+        this.running.set(true)
 
         while(failTimer < maxTime && await window.electronAPI.utdefectAlive())
         {
@@ -45,11 +53,18 @@ export class UTDefectRunner {
 
             this.maxRunProgress.set(progressObj['mp'])
             this.runProgress.set(progressObj['p'])
+            this.running.set(await window.electronAPI.utdefectAlive())
 
             lastProgress = progressObj['p']
         }
 
+        this.statusMessage.set({icon: "info", message: "Simulation concluded, see the 'Results' tab to view simulation results", color: "#4d4d4d"})
+        this.running.set(false)
         this.maxRunProgress.set(100)
         this.runProgress.set(0)
+    }
+
+    Stop() {
+        window.electronAPI.utdefectTerminate()
     }
 }

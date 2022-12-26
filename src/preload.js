@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     fileExists: (src) => ipcRenderer.invoke('file-exists', src),
     utdefectStartStd: (pathToBinary, inputPath) => ipcRenderer.invoke('utdef-start-std', pathToBinary, inputPath),
     utdefectGetProgressStd: () => ipcRenderer.invoke('utdef-get-prog-std'),
-    utdefectAlive: () => ipcRenderer.invoke('utdef-active')
+    utdefectAlive: () => ipcRenderer.invoke('utdef-active'),
+    utdefectTerminate: () => ipcRenderer.invoke('utdef-terminate')
 })

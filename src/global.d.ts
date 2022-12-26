@@ -6,7 +6,8 @@ export interface IElectronAPI {
     fileExists: (src: string) => Promise<boolean>,
     utdefectStartStd: (pathToBinary: string, inputPath: string) => Promise<boolean>,
     utdefectGetProgressStd: () => Promise<object>,
-    utdefectAlive: () => Promise<boolean>
+    utdefectAlive: () => Promise<boolean>,
+    utdefectTerminate: () => Promise<void>
 }
 
 declare global {
