@@ -5,9 +5,14 @@
     {
         btn.action()
     }
+
+    let brightnessClass: string = ''
+
+    $: btn.disabled, btn.disabled ? brightnessClass = 'lower-opacity' : brightnessClass = ''
+
 </script>
 
-<button class="flex flex-row w-full hover:bg-gray-300 hover:rounded-sm" on:click={exec}>
+<button class="flex flex-row w-full hover:bg-gray-300 hover:rounded-sm {brightnessClass}" on:click={exec} disabled={btn.disabled}>
     <div class="flex flex-col" style="font-family:'Material Icons'; font-size:16px; color:{btn.color}">
         {btn.icon}
     </div>
@@ -19,5 +24,8 @@
 </button>
 
 <style>
-
+.lower-opacity 
+{
+    opacity: 30%;
+}
 </style>
