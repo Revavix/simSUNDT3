@@ -32,7 +32,14 @@ export class UTDefectRunner {
 
         if (this.stdMode) {
             targetBinaryPath = homeDir + "/Documents/simSUNDT/utdefect"
-            window.electronAPI.copyFile(this.sourceBinaryPath, targetBinaryPath)
+            
+            if (!window.electronAPI.fileExists(targetBinaryPath)) {
+                window.electronAPI.copyFile(this.sourceBinaryPath, targetBinaryPath)
+                
+                // Delay to ensure copyFile finishes copying, may need to change API function to return a bool promise
+                await new Promise(r => setTimeout(r, 300));
+            }
+            
             window.electronAPI.utdefectStartStd(targetBinaryPath, homeDir + "/Documents/simSUNDT/utdefdat")
         } else {
             targetBinaryPath = homeDir + "/Documents/simSUNDT/UTDef6"
