@@ -140,6 +140,7 @@ app.whenReady().then(() => {
 
     utdefProcess.on('close', function() {
       utdefectActive = false
+      utdefProcess.kill()
     })
 
     return true
