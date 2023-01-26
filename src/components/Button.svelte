@@ -13,7 +13,7 @@
 </script>
 
 <button class="flex flex-row w-full hover:bg-gray-300 hover:rounded-sm {brightnessClass}" on:click={exec} disabled={btn.disabled}>
-    <div class="flex flex-col" style="font-family:'Material Icons'; font-size:16px; color:{btn.color}">
+    <div class="flex flex-col" style="font-family:'Material Icons'; font-size:{btn.size}px; color:{btn.color}">
         {btn.icon}
     </div>
     {#if btn.label != ""}

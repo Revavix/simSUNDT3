@@ -14,10 +14,12 @@ export class Tab
 {
     label: string
     component: ConstructorOfATypedSvelteComponent
+    properties: object
 
-    constructor(name: string, page: ConstructorOfATypedSvelteComponent)
+    constructor(name: string, page: ConstructorOfATypedSvelteComponent, properties: object)
     {
         this.label = name
         this.component = page
+        this.properties = properties
     }
 }

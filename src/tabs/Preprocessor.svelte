@@ -1,4 +1,7 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
+    import { onMount } from 'svelte';
+
     // TypeScript class definition imports
     import { Button } from '../lib/buttonDef'
     
@@ -16,8 +19,17 @@
     import HorizontalProgressbarComponent from '../components/HorizontalProgressbar.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
 
-    // Page imports
-    import Viewport from '../pages/Viewport.svelte'
+    // Used in all tab components to pass properties (supresses dev console warning)
+    export let properties
+
+    let dispatch = createEventDispatcher()
+
+    onMount(() => {
+        dispatch('message', {
+            origin: "Generic",
+            type: "UnhideViewport"
+        })
+    })
 
     // Set up output log
     let mainLogContents: Array<object> = new Array<object>()
@@ -150,9 +162,6 @@
         <div class="py-1"/>
         <HorizontalProgressbarComponent bind:progress={progress} bind:maxValue={maxProgress}/>
     </div>
-    <div class="absolute-under">
-        <Viewport/>
-    </div>
 
     {#if showConfigureModal}
     <div class="absolute-bg bg-stone-600 opacity-75"/>
@@ -193,17 +202,6 @@
 </div>
 
 <style>
-  .absolute-under {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      z-index: 1;
-  }
   .absolute-bottom-above
   {
     position: absolute;
