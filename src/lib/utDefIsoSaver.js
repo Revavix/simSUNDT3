@@ -1,247 +1,233 @@
+import { convertNFRToLP, convertAutoElementsToISHA, convertFocusAndTechniqueToIMODE } from "./utDefUtils"
+
 export class UTDefectIsoSaver {
-    LP: number 
-    LS: number 
-    XS: number 
-    XE: number 
-    XI: number 
-    YS: number 
-    YE: number 
-    YI: number 
-    CP: number 
-    CS: number 
-    DBA: number 
-    NFR: number 
-    FREQ: number 
-    BANDW: number 
-    F1: number 
-    F2: number 
-    F3: number 
-    F4: number 
-    AF: number 
-    BF: number 
-    LTTY: number 
-    TS: number 
-    TE: number 
-    TI: number 
-    XD: number 
-    YD: number 
-    ZD: number 
-    IMODE: [number, number] 
-    INSTY: [number, number] 
-    COUP: [number, number] 
-    PGA: [number, number] 
-    PSI: [number, number] 
-    ISHA: [number, number] 
-    PA: [number, number] 
-    PB: [number, number] 
-    PD: [number, number] 
-    NAWX: [number, number] 
-    NAWY: [number, number] 
-    GAPX: [number, number] 
-    GAPY: [number, number] 
-    RHOW: [number, number] 
-    CPW: [number, number] 
-    CSW: [number, number] 
-    PCW: [number, number] 
-    GW: [number, number] 
-    RF: number 
-    CF: number 
-    FPHI: [number, number] 
-    FTHE: [number, number] 
-    FPSI: [number, number] 
-    DBF: number 
-    FOC: [number, number] 
-    XSEP: number 
-    YSEP: number 
-    LDTY: number 
-    DZ: number 
-    DA: number
-    ETHA: number 
-    PHI: number 
-    LDC: number 
-    DC: number 
-    DAC: number  
-    DB: number 
-    DBI: number 
-    A: number 
-    B: number 
-    PS: number 
-    BZ: number 
-    ET: number 
-    DEL: number 
-    EPSI: number 
-    LZ: number 
-    LCTY: number 
-    CA: number 
-    CZ: number 
-    IA: number 
-    XDEF: number 
-    YDEF: number 
-    WELD: string 
-    B1: number 
-    B2: number 
-    B3: number 
-    T1: number 
-    T2: number 
-    CALB2A: number 
-    CALB2D: number 
-    CALB2Z: number 
-    LQ: number 
-    T0: number 
-    NN: number 
-    CC: number 
-    D0: number 
-    RA: number 
-    TMP: number 
-    KK: number 
-    Q: number 
-    AA: number 
-    K0: number 
-    DRR: number 
-    CPI: number 
-    CSI: number 
-    HMT0: number 
-    HMT1: number 
-    HMX1: number 
-    HMX2: number 
-    HMY1: number 
-    HMY2: number 
-    HMD0: number 
-    HMD1: number 
-    NDE: [number, number] 
-    DEIXYT: Array<number>
-    DEIXYR: Array<number>
-    DET: boolean
-    DER: boolean
-
-
-    // TODO: Add NDE, DEIXYT, DEIXYR, DET and DER when ready
-
-    constructor()
+    constructor(data, miscParameters)
     {
-        this.LP = 0 
-        this.LS = 0 
-        this.XS = 0 
-        this.XE = 0 
-        this.XI = 0 
-        this.YS = 0 
-        this.YE = 0 
-        this.YI = 0 
-        this.CP = 0 
-        this.CS = 0 
-        this.DBA = 0 
-        this.NFR = 0 
-        this.FREQ = 0 
-        this.BANDW = 0 
-        this.F1 = 0 
-        this.F2 = 0 
-        this.F3 = 0 
-        this.F4 = 0 
-        this.AF = 0 
-        this.BF = 0 
-        this.LTTY = 0 
-        this.TS = 0 
-        this.TE = 0 
-        this.TI = 0 
-        this.XD = 0 
-        this.YD = 0 
-        this.ZD = 0 
-        this.IMODE = [0, 0]
-        this.INSTY = [0, 0]
-        this.PGA = [0, 0]
-        this.PSI = [0, 0]
-        this.ISHA = [0, 0]
-        this.COUP = [0, 0]
-        this.PA = [0, 0]
-        this.PB = [0, 0]
-        this.PD = [0, 0]
-        this.NAWX = [0, 0]
-        this.NAWY = [0, 0]
-        this.GAPX = [0, 0]
-        this.GAPY = [0, 0]
-        this.RHOW = [0, 0]
-        this.CPW = [0, 0]
-        this.CSW = [0, 0]
-        this.PCW = [0, 0]
-        this.GW = [0, 0]
-        this.RF = 0 
-        this.CF = 0 
-        this.FPHI = [0, 0]
-        this.FTHE = [0, 0]
-        this.FPSI = [0, 0]
-        this.DBF = 0
-        this.FOC = [0, 0]
-        this.XSEP = 0 
-        this.YSEP = 0 
-        this.LDTY = 0 
-        this.DZ = 0 
-        this.DA = 0
-        this.ETHA = 0 
-        this.PHI = 0 
-        this.LDC = 0 
-        this.DC = 0 
-        this.DAC = 0  
-        this.DB = 0 
-        this.DBI = 0 
-        this.A = 0 
-        this.B = 0 
-        this.PS = 0 
-        this.BZ = 0 
-        this.ET = 0 
-        this.DEL = 0 
-        this.EPSI = 0 
-        this.LZ = 0 
-        this.LCTY = 0 
-        this.CA = 0 
-        this.CZ = 0 
-        this.IA = 0 
-        this.XDEF = 0 
-        this.YDEF = 0 
-        this.WELD = "" 
-        this.B1 = 0 
-        this.B2 = 0 
-        this.B3 = 0 
-        this.T1 = 0 
-        this.T2 = 0 
-        this.CALB2A = 0 
-        this.CALB2D = 0 
-        this.CALB2Z = 0 
-        this.LQ = 0 
-        this.T0 = 0 
-        this.NN = 0 
-        this.CC = 0 
-        this.D0 = 0 
-        this.RA = 0 
-        this.TMP = 0 
-        this.KK = 0 
-        this.Q = 0 
-        this.AA = 0 
-        this.K0 = 0 
-        this.DRR = 0 
-        this.CPI = 0 
-        this.CSI = 0 
-        this.HMT0 = 0 
-        this.HMT1 = 0 
-        this.HMX1 = 0 
-        this.HMX2 = 0 
-        this.HMY1 = 0 
-        this.HMY2 = 0 
-        this.HMD0 = 0 
-        this.HMD1 = 0 
+        this.LP = convertNFRToLP(data.transmitter.spectrum.stype.value)
+        this.LS = data.method.utTechnique.method.value
+        this.XS = data.method.size.xs.value
+        this.XE = data.method.size.xe.value
+        this.XI = data.method.size.xi.value
+        this.YS = data.method.size.ys.value
+        this.YE = data.method.size.ye.value
+        this.YI = data.method.size.yi.value
+        this.CP = data.method.material.metalProperties.longitudinalVelocity.value
+        this.CS = data.method.material.metalProperties.transversalVelocity.value 
+        this.DBA = data.method.material.metalProperties.damping.value
+        this.NFR = data.transmitter.spectrum.stype.value
+        this.FREQ = data.transmitter.spectrum.frequency.value
+        this.BANDW = data.transmitter.spectrum.bandwidth.value 
+        this.F1 = data.transmitter.spectrum.input.f1.value  
+        this.F2 = data.transmitter.spectrum.input.f2.value   
+        this.F3 = data.transmitter.spectrum.input.f3.value   
+        this.F4 = data.transmitter.spectrum.input.f4.value   
+        this.AF = data.transmitter.spectrum.input.af.value   
+        this.BF = data.transmitter.spectrum.input.bf.value
+        this.LTTY = data.method.timeWindow.twtype.value
+        this.TS = data.method.timeWindow.start.value 
+        this.TE = data.method.timeWindow.end.value  
+        this.TI = data.method.timeWindow.increment.value  
+        this.XD = data.method.timeWindow.x.value  
+        this.YD = data.method.timeWindow.y.value  
+        this.ZD = data.method.timeWindow.depth.value  
+        this.IMODE = [
+            convertFocusAndTechniqueToIMODE(data.transmitter.focus.ftype.value, data.method.utTechnique.transmitter),
+            convertFocusAndTechniqueToIMODE(data.receiver.focus.ftype.value, data.method.utTechnique.receiver)
+        ]
+        this.INSTY = [
+            data.transmitter.wave.suppression.value == true ? 1 : 0, 
+            data.receiver.wave.suppression.value == true ? 1 : 0
+        ]
+        this.PGA = [
+            data.transmitter.beamAngles.angle, 
+            data.receiver.beamAngles.angle
+        ]
+        this.PSI = [
+            data.transmitter.beamAngles.skewAngle, 
+            data.receiver.beamAngles.skewAngle
+        ]
+        this.ISHA = [
+            convertAutoElementsToISHA(data.transmitter.shapeAndElements.autoNumElements.value,
+                data.transmitter.shapeAndElements.shape.value), 
+            convertAutoElementsToISHA(data.receiver.shapeAndElements.autoNumElements.value,
+                data.receiver.shapeAndElements.shape.value)
+        ]
+        this.COUP = [
+            data.transmitter.couplant.value, 
+            data.receiver.couplant.value
+        ]
+        this.PA = [
+            data.transmitter.shapeAndElements.x.length.value, 
+            data.receiver.shapeAndElements.x.length.value
+        ]
+        this.PB = [
+            data.transmitter.shapeAndElements.y.length.value, 
+            data.receiver.shapeAndElements.y.length.value
+        ]
+        this.PD = [
+            data.transmitter.shapeAndElements.distance.value, 
+            data.receiver.shapeAndElements.distance.value
+        ]
+        this.NAWX = [
+            data.transmitter.shapeAndElements.x.elements.value, 
+            data.receiver.shapeAndElements.x.elements.value
+        ]
+        this.NAWY = [
+            data.transmitter.shapeAndElements.y.elements.value, 
+            data.receiver.shapeAndElements.y.elements.value
+        ]
+        this.GAPX = [
+            data.transmitter.shapeAndElements.x.gap.value, 
+            data.receiver.shapeAndElements.x.gap.value
+        ]
+        this.GAPY = [
+            data.transmitter.shapeAndElements.y.gap.value, 
+            data.receiver.shapeAndElements.y.gap.value
+        ]
+        this.RHOW = [
+            data.transmitter.wedge.density.value, 
+            data.receiver.wedge.density.value
+        ]
+        this.CPW = [
+            data.transmitter.wedge.longitudinalVelocity.value, 
+            data.receiver.wedge.longitudinalVelocity.value
+        ]
+        this.CSW = [
+            data.transmitter.wedge.transversalVelocity.value, 
+            data.receiver.wedge.transversalVelocity.value
+        ]
+        this.PCW = [
+            data.transmitter.wedge.width.value, 
+            data.receiver.wedge.width.value
+        ]
+        this.GW = [
+            data.transmitter.wedge.angle.value, 
+            data.receiver.wedge.angle.value
+        ]
+        this.RF = data.transmitter.fluidSpecification.densityRatio.value 
+        this.CF = data.transmitter.fluidSpecification.fluidWavespeed.value
+        this.DBF = data.transmitter.fluidSpecification.damping.value
+        this.FPHI = [
+            data.transmitter.eulerAngles.phi.value, 
+            data.receiver.eulerAngles.phi.value
+        ]
+        this.FTHE = [
+            data.transmitter.eulerAngles.theta.value, 
+            data.receiver.eulerAngles.theta.value
+        ]
+        this.FPSI = [
+            data.transmitter.eulerAngles.psi.value, 
+            data.receiver.eulerAngles.psi.value
+        ]
+        this.FOC = [
+            data.transmitter.focus.focalDistance.value, 
+            data.receiver.focus.focalDistance.value
+        ]
+        this.XSEP = data.transmitter.position.x.value
+        this.YSEP = data.transmitter.position.y.value
+        this.LDTY = data.defect.specification.variant.value
+
+        let isBackwallEnabled = data.defect.surfaces.backwall.enabled.value
+        let isRoughnessEnabled = data.defect.surfaces.roughness.enabled.value
+
+        if (isBackwallEnabled && isRoughnessEnabled && (this.LDTY == 5 || this.LDTY == 7)) {
+            this.LDTY += 30
+        } else if (!isBackwallEnabled && isRoughnessEnabled && (this.LDTY == 5 || this.LDTY == 7)) {
+            this.LDTY += 20
+        } else if (isBackwallEnabled && (this.LDTY >= 1 && this.LDTY <= 7)) {
+            this.LDTY += 10
+        }
+
+        switch(this.LDTY) {
+            case 1:
+            case 2:
+            case 3:
+            case 8:
+            case 11:
+            case 12:
+            case 13:
+                this.DA = data.defect.specification.measurement.diameter.value
+                break
+            case 7:
+            case 17:
+            case 19:
+            case 27:
+            case 37:
+                this.DA = data.defect.specification.measurement.height.value
+                break
+            case 4:
+            case 14:
+                this.DA = data.defect.specification.measurement.diameterParallel.value
+                break
+        }
+
+        this.DZ = data.defect.specification.measurement.centreDepth.value
+        this.ETHA = data.defect.specification.angles.tilt.value
+        this.PHI = data.defect.specification.angles.skew.value 
+        this.LDC = data.defect.specification.circularProperties.variant.value
+        this.DC = data.defect.specification.circularProperties.stressQuotient.value  
+        this.DAC = data.defect.specification.circularProperties.contactDiameter.value  
+        this.DB = data.defect.specification.measurement.diameterPerpendicular.value
+        this.DBI = data.defect.specification.inclusionProperties.damping.value
+        this.A = data.defect.specification.measurement.height.value
+        this.B = data.defect.specification.measurement.lengthParallel.value
+        this.PS = data.defect.specification.angles.tilt.value
+        this.BZ = data.defect.surfaces.backwall.depth.value
+        this.ET = data.defect.surfaces.backwall.tiltFromHorizontal.value
+        this.DEL = 0 // ?? Could potentially be related to defect => surfaces => integration
+        this.EPSI = data.defect.surfaces.roughness.rmsHeight.value 
+        this.LZ = data.defect.surfaces.roughness.corrLength.value 
+        this.LCTY = data.method.calibration.ctype.value
+        this.CA = data.method.calibration.diameter.value
+        this.CZ = data.method.calibration.depth.value
+        this.IA = miscParameters.accuracy
+        this.XDEF = data.defect.position.x.value
+        this.YDEF = data.defect.position.y.value
+        this.WELD = data.method.mesh.weld.wtype.value
+        this.B1 = data.method.mesh.weld.geometry.b1.value
+        this.B2 = data.method.mesh.weld.geometry.b2.value
+        this.B3 = data.method.mesh.weld.geometry.b3.value 
+        this.T1 = data.method.mesh.weld.geometry.t1.value 
+        this.T2 = data.method.mesh.weld.geometry.t2.value 
+        this.CALB2A = data.method.mesh.weld.signalToNoiseRatio.percentageOfSDH.value
+        this.CALB2D = data.method.mesh.weld.signalToNoiseRatio.diameter.value 
+        this.CALB2Z = data.method.mesh.weld.signalToNoiseRatio.depth.value 
+        this.LQ = data.method.mesh.weld.parameters.inputEnergy.value
+        this.T0 = data.method.mesh.weld.parameters.initialTemperature.value 
+        this.NN = data.method.mesh.weld.parameters.heatEfficiency.value 
+        this.CC = data.method.mesh.weld.properties.specificHeat.value 
+        this.D0 = data.method.mesh.weld.properties.initialGrainSize.value  
+        this.RA = data.method.mesh.weld.properties.density.value  
+        this.TMP = data.method.mesh.weld.properties.meltingTemperature.value  
+        this.KK = data.method.mesh.weld.properties.temperatureDiffusivity.value 
+        this.Q = data.method.mesh.weld.properties.activationEnergy.value  
+        this.AA = data.method.mesh.weld.properties.exponentialGrowthConstant.value  
+        this.K0 = data.method.mesh.weld.properties.grainBoundaryEnergyConstant.value  
+        this.DRR = data.defect.specification.inclusionProperties.relativeDensity.value 
+        this.CPI = data.defect.specification.inclusionProperties.longitudinalVelocity.value  
+        this.CSI = data.defect.specification.inclusionProperties.transversalVelocity.value  
+        this.HMT0 = data.method.mesh.weld.controlVolume.depth.value  
+        this.HMT1 = data.method.mesh.weld.controlVolume.thickness.value   
+        this.HMX1 = data.method.mesh.weld.controlVolume.xs.value   
+        this.HMX2 = data.method.mesh.weld.controlVolume.xe.value   
+        this.HMY1 = data.method.mesh.weld.controlVolume.ys.value   
+        this.HMY2 = data.method.mesh.weld.controlVolume.ye.value   
+        this.HMD0 = data.method.mesh.weld.controlVolume.grainSize.value   
+        this.HMD1 = data.method.mesh.weld.controlVolume.initial.value   
         this.NDE = [0, 0]
-        this.DEIXYT = new Array<number>()
-        this.DEIXYR = new Array<number>()
-        this.DET = false;
-        this.DER = false;
+        this.DEIXYT = []
+        this.DEIXYR = []
+        this.DET = false
+        this.DER = false
     }
 
     async Save() {
         // Check if folder exists under saves
-        let pharr: [number, number] = [0, 0]
-        let homeDir: string = await window.electronAPI.getHomeDir()
-        let saveLoc: string = homeDir + "/Documents/simSUNDT/utdefdat"
+        let pharr = [0, 0]
+        let homeDir = await window.electronAPI.getHomeDir()
+        let saveLoc = homeDir + "/Documents/simSUNDT/utdefdat"
 
-        let writeArray: Array<string> = new Array<string>()
+        let writeArray = []
         writeArray.push("Indefa")
         writeArray.push(" 1" + "   " + "Mode")
         writeArray.push(" " + (10*this.LS + this.LP) + "   " + "UT Technique")
@@ -567,7 +553,9 @@ export class UTDefectIsoSaver {
 
         //console.log("[DEBUG] Writing utdefdat array:\n" + writeArray)
 
-        let writeSuccessful: boolean = await window.electronAPI.writeFile(saveLoc, writeArray)
+        let writeSuccessful = await window.electronAPI.writeFile(saveLoc, writeArray)
         //console.log(writeSuccessful)
     }
+
+    
 }

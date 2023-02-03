@@ -46,7 +46,7 @@ class ProjectHandler {
 
     // Save the currently assigned currentProject
     async Save(data) {
-        if (!("preprocessor" in data) || ("postprocessor" in data)) {
+        if (!(data.hasOwnProperty("preprocessor")) || !(data.hasOwnProperty("postprocessor"))) {
             return Promise.resolve({status: "ERROR", msg: "Invalid data provided", data: {}})
         }
 

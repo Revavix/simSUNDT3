@@ -15,14 +15,18 @@
     import { onMount } from 'svelte';
 
     // Page imports
-    import Viewport from './pages/Viewport.svelte'
+    import Viewport from './components/Viewport.svelte'
 
     // Set up tabs
     let tabs = new Tabs(
         [
         new Tab("File", FileTab, {}),
-        new Tab("Preprocessor", PreprocessorTab, {}),
-        new Tab("Results", ResultsTab, {}),
+        new Tab("Preprocessor", PreprocessorTab, {
+            data: {}
+        }),
+        new Tab("Results", ResultsTab, {
+            data: {}
+        }),
         new Tab("Help", HelpTab, {})
         ]
     )
@@ -30,7 +34,9 @@
 
     let platform = 'darwin'
     let version = 'dev'
-    let projectName = 'No project loaded'
+    let currentProject = {
+        name: "Untitled Project"
+    }
     let viewportDisplay = "block"
 
     onMount(async () => {
@@ -41,12 +47,26 @@
     function handleFileMessage(ev) {
         switch (ev.detail.type) {
             case "ProjectUpdate":
-                projectName = ev.detail.projectName
+                currentProject = ev.detail.project
+                tabs.members[1].properties["data"] = currentProject["data"]["preprocessor"]
+                tabs.members[2].properties["data"] = currentProject["data"]["postprocessor"]
                 tabs.activeIdx = 1
                 break
             default:
                 console.log("Unhandled type message from File tab " + ev.detail.type)
                 return
+        }
+    }
+    
+    function handlePreprocessorMessage(ev) {
+        switch(ev.detail.type) {
+            case "ProjectSave": {
+                window.electronAPI.projectSave({
+                    preprocessor: tabs.members[1].properties["data"],
+                    postprocessor: tabs.members[2].properties["data"]
+                })
+                break
+            }
         }
     }
 
@@ -62,6 +82,9 @@
             case "File":
                 handleFileMessage(ev)
                 break
+            case "Preprocessor":
+                handlePreprocessorMessage(ev)
+                break
             default:
                 console.log("Unhandled message from tab component " + ev.detail.origin)
                 return
@@ -72,7 +95,7 @@
 <main class="flex flex-col main-container">
     {#if platform === 'darwin'}
     <div class="flex flex-row text-center justify-center mt-2 text-sm">
-        <p>SimSUNDT [{version}] - {projectName}</p>
+        <p>SimSUNDT [{version}] - {currentProject["name"]}</p>
     </div>
     {/if}
     <div class="flex flex-row text-sm font-medium text-center text-gray-300 mt-1" style="z-index: 4;">

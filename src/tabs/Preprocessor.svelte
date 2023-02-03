@@ -1,37 +1,24 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { onMount } from 'svelte';
-
-    // TypeScript class definition imports
     import { Button } from '../lib/buttonDef'
-    
-    // TypeScript class data definition imports
-    import { treeMethod, treeTransmitter, treeReceiver, treeDefect } from '../lib/treeData'
-    import { UTDefectIsoTreeBinder } from '../lib/utDefectIsoTreeBinder'
-    import { UTDefectIsoSaver } from '../lib/utDefectIsoSaver'
+    import { UTDefectIsoSaver } from "../lib/utDefIsoSaver";
     import { UTDefectRunner } from '../lib/utDefectRunner';
-    import { TreeUtil } from '../lib/treeUtil'
     import { MiscParameterisation } from '../lib/miscParameterisationDef'
-
-    // Component imports
     import TreeComponent from '../components/Tree.svelte'
     import ButtonComponent from '../components/Button.svelte'
     import HorizontalProgressbarComponent from '../components/HorizontalProgressbar.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
+    import { tree } from '../lib/tree.js'
+
+    let treeData = {}
 
     // Used in all tab components to pass properties (supresses dev console warning)
     export let properties
 
-    let dispatch = createEventDispatcher()
+    const dispatch = createEventDispatcher()
 
-    onMount(() => {
-        dispatch('message', {
-            origin: "Generic",
-            type: "UnhideViewport"
-        })
-    })
-
-    // Set up output log
+    // Set up output log, format: {icon: "info", message: "Example...", color: "#4d4d4d"}
     let mainLogContents: Array<object> = new Array<object>()
 
     // Set up some tree settings
@@ -42,8 +29,6 @@
     let miscParameters: MiscParameterisation = new MiscParameterisation("5")
 
     // UTDefectIsoSaver & variable binding setup
-    let utDefSaver: UTDefectIsoSaver = new UTDefectIsoSaver()
-    let utDefTreeBinder: UTDefectIsoTreeBinder = new UTDefectIsoTreeBinder(utDefSaver, treeMethod, treeTransmitter, treeReceiver, treeDefect, miscParameters)
     let utDefRunner: UTDefectRunner = new UTDefectRunner("", true, false)
 
     // utDefRunner to log subscription
@@ -62,14 +47,25 @@
 
     // Simulate section buttons
     let runButton: Button = new Button("Run", "#55b13c", "play_arrow", async () => {
-        utDefTreeBinder.Update()
-        utDefSaver.Save()
+        let saver = undefined
+
+        // Try to instantiate a new saver and run the runner
+        try {
+            saver = new UTDefectIsoSaver(properties.data, miscParameters)
+            saver.Save()
+        } catch (err) {
+            mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
+            return
+        }
+
+        // Run the runner if saver was initialized
         utDefRunner.Run()
     })
     let stopButton: Button = new Button("Stop", "#ba3822", "stop", async () => {
         utDefRunner.Stop()
     })
     let cloudRunButton: Button = new Button("Cloud", "#55b13c", "cloud_sync", () => {
+        console.log(treeData)
         alert('test')
     })
     let configureRunButton: Button = new Button("Configure", "#807a7a", "settings", () => {
@@ -94,6 +90,22 @@
     async function UpdateDefaultBinaryPath() {
         defaultPath = await window.electronAPI.getDefaultBinaryPath()
     }
+
+    function handleTreeMessage(ev) {
+        if (ev.detail.type == "Save") {
+            dispatch('message', {
+                origin: "Preprocessor",
+                type: "ProjectSave"
+            })
+        }
+    }
+
+    onMount(() => {
+        dispatch('message', {
+            origin: "Generic",
+            type: "UnhideViewport"
+        })
+    })
 
     UpdateDefaultBinaryPath()
 
@@ -149,10 +161,7 @@
             </div>
             {#if !treeMinimized}
             <div class="h-full rounded-md my-1 mb-2" style="overflow: auto;">
-                <TreeComponent tree={treeMethod}/>
-                <TreeComponent tree={treeTransmitter}/>
-                <TreeComponent tree={treeReceiver}/>
-                <TreeComponent tree={treeDefect}/>
+                <TreeComponent tree={tree} data={properties.data} pad={false} on:message={handleTreeMessage}></TreeComponent>
             </div>
             {/if}
         </div>

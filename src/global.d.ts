@@ -13,7 +13,8 @@ export interface IElectronAPI {
     projectLoadByModal: () => Promise<object>,
     projectLoadByPath: (projectPath: string) => Promise<object>,
     projectNewChooseLocation: () => Promise<string>,
-    projectNewCreate: (projectName, pathToProject, overwrite) => Promise<object>
+    projectNewCreate: (projectName, pathToProject, overwrite) => Promise<object>,
+    projectSave: (data) => Promise<object>
 }
 
 declare global {

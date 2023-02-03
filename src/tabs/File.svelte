@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { onMount } from "svelte";
     import { Button } from "../lib/buttonDef";
+    import { tree, ConstructDefaultTreeData } from "../lib/tree";
     import ButtonComponent from '../components/Button.svelte';
 
     export let properties
@@ -33,7 +34,7 @@
             dispatch('message', {
                 origin: "File",
                 type: "ProjectUpdate",
-                projectName: v["data"]["name"]
+                project: v["data"]
             })
         })
 
@@ -49,7 +50,7 @@
             dispatch('message', {
                 origin: "File",
                 type: "ProjectUpdate",
-                projectName: v["data"]["name"]
+                project: v["data"]
             })
         })
 
@@ -86,12 +87,12 @@
         const loaded = window.electronAPI.projectNewCreate(newProjectName, newProjectPath, overwrite)
 
         loaded.then((v) => {
-            console.log(v)
+            v["data"].preprocessor = ConstructDefaultTreeData({}, tree.children)
 
             dispatch('message', {
                 origin: "File",
                 type: "ProjectUpdate",
-                projectName: v["data"]["name"]
+                project: v["data"]
             })
         })
     }

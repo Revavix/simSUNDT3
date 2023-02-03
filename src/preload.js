@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     projectLoadByModal: () => ipcRenderer.invoke('project-load-by-modal'),
     projectLoadByPath: (projectPath) => ipcRenderer.invoke('project-load-by-path', projectPath),
     projectNewChooseLocation: () => ipcRenderer.invoke('project-new-choose-loc'),
-    projectNewCreate: (projectName, pathToProject, overwrite) => ipcRenderer.invoke('project-new-create', projectName, pathToProject, overwrite)
+    projectNewCreate: (projectName, pathToProject, overwrite) => ipcRenderer.invoke('project-new-create', projectName, pathToProject, overwrite),
+    projectSave: (data) => ipcRenderer.invoke('project-save', data)
 })

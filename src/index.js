@@ -158,6 +158,17 @@ function createWindowAndIPC () {
       return Promise.resolve(loaded)
     }
   })
+
+  ipcMain.handle('project-save', async(event, data) => {
+    const saved = projectHandler.Save(data)
+
+    if (saved["status"] == "ERROR") {
+      return Promise.reject(saved)
+    } else {
+      updateProjectCache(projectHandler.currentProject, projectHandler.currentProjectPath)
+      return Promise.resolve(saved)
+    }
+  })
 }
 
 app.whenReady().then(() => {
