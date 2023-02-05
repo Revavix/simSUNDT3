@@ -1,13 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { onMount } from 'svelte';
-
     import DensityPlot from '../components/DensityPlot.svelte';
     import LinePlot from '../components/LinePlot.svelte';
     import PlotModebar from '../components/PlotModebar.svelte';
-
-    // Used in all tab components to pass properties (supresses dev console warning)
-    export let properties
     
     let dispatch = createEventDispatcher()
 

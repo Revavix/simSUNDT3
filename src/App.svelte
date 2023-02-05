@@ -1,110 +1,58 @@
 <script lang="ts">
-    // TypeScript class definition imports
-    import { Tabs, Tab } from './lib/tabDef'
-
-    // TypeScript class data definition imports
-
-    // Component imports
-    import TabsComponent from './components/Tabs.svelte'
-
-    // Tab imports
-    import FileTab from './tabs/File.svelte'
-    import HelpTab from './tabs/Help.svelte'
-    import PreprocessorTab from './tabs/Preprocessor.svelte'
-    import ResultsTab from './tabs/Results.svelte'
+    import { ProjectCaching, ProjectHandler } from "./lib/project"
+    import File from './tabs/File.svelte'
+    import Help from './tabs/Help.svelte'
+    import Preprocessor from './tabs/Preprocessor.svelte'
+    import Results from './tabs/Results.svelte'
     import { onMount } from 'svelte';
-
-    // Page imports
     import Viewport from './components/Viewport.svelte'
+    
+    let tabs = ["File", "Preprocessor", "Results", "Help"]
+    let activeTab = "File"
 
-    // Set up tabs
-    let tabs = new Tabs(
-        [
-        new Tab("File", FileTab, {}),
-        new Tab("Preprocessor", PreprocessorTab, {
-            data: {}
-        }),
-        new Tab("Results", ResultsTab, {
-            data: {}
-        }),
-        new Tab("Help", HelpTab, {})
-        ]
-    )
-    tabs.activeIdx = 1
+    let projectCaching = new ProjectCaching()
+    let projectHandler = new ProjectHandler()
 
     let platform = 'darwin'
     let version = 'dev'
-    let currentProject = {
-        name: "Untitled Project"
-    }
-    let viewportDisplay = "block"
 
     onMount(async () => {
         platform = await window.electronAPI.getPlatform()
     })
-
-    // Dispatch handlers
-    function handleFileMessage(ev) {
-        switch (ev.detail.type) {
-            case "ProjectUpdate":
-                currentProject = ev.detail.project
-                tabs.members[1].properties["data"] = currentProject["data"]["preprocessor"]
-                tabs.members[2].properties["data"] = currentProject["data"]["postprocessor"]
-                tabs.activeIdx = 1
-                break
-            default:
-                console.log("Unhandled type message from File tab " + ev.detail.type)
-                return
-        }
-    }
-    
-    function handlePreprocessorMessage(ev) {
-        switch(ev.detail.type) {
-            case "ProjectSave": {
-                window.electronAPI.projectSave({
-                    preprocessor: tabs.members[1].properties["data"],
-                    postprocessor: tabs.members[2].properties["data"]
-                })
-                break
-            }
-        }
-    }
-
-    function handleMessages(ev) {
-        switch(ev.detail.origin) {
-            case "Generic":
-                if (ev.detail.type == "HideViewport") {
-                    viewportDisplay = "hidden"
-                } else if (ev.detail.type == "UnhideViewport") {
-                    viewportDisplay = "block"
-                }
-                break
-            case "File":
-                handleFileMessage(ev)
-                break
-            case "Preprocessor":
-                handlePreprocessorMessage(ev)
-                break
-            default:
-                console.log("Unhandled message from tab component " + ev.detail.origin)
-                return
-        }
-    }
 </script>
 
 <main class="flex flex-col main-container">
     {#if platform === 'darwin'}
     <div class="flex flex-row text-center justify-center mt-2 text-sm">
-        <p>SimSUNDT [{version}] - {currentProject["name"]}</p>
+        <p>SimSUNDT [{version}] - {projectHandler.currentProject.name}</p>
     </div>
     {/if}
-    <div class="flex flex-row text-sm font-medium text-center text-gray-300 mt-1" style="z-index: 4;">
-        <TabsComponent bind:tabs={tabs}></TabsComponent>
+    <div class="flex flex-row text-sm font-medium text-center text-gray-300 mt-1" style="z-index: 99;">
+        <ul class="flex flex-row">
+            {#each tabs as tab}
+                <li class="mr-2">
+                    {#if activeTab == tab}
+                        <button class="inline-block text-gray-200 rounded-t-lg border-b-2 border-yellow-600 active">{tab}</button>
+                    {:else}
+                        <button class="inline-block rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" on:click={() => activeTab = tab}>{tab}</button>
+                    {/if}
+                </li>
+            {/each}
+        </ul>
     </div>
-    <svelte:component this={tabs.members[tabs.activeIdx].component} bind:properties={tabs.members[tabs.activeIdx].properties} on:message={handleMessages}></svelte:component>
-    <div class="absolute-under {viewportDisplay}">
+    {#if activeTab == "File"}
+        <File bind:projectCaching={projectCaching} bind:projectHandler={projectHandler} bind:currentTab={activeTab}/>
+    {:else if activeTab == "Preprocessor"}
+        <Preprocessor bind:projectHandler={projectHandler}/>
+    {:else if activeTab == "Results"}
+        <Results/>
+    {:else if activeTab == "Help"}
+        <Help/>
+    {/if}
+    <div class="absolute-under" class:visible={activeTab === "Preprocessor" || activeTab === "Results"} class:invisible={activeTab === "File" || activeTab === "Help"}>
         <Viewport/>
     </div>
+
 </main>
 
 <style>

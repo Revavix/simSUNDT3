@@ -1,62 +1,43 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
+    import { slide } from 'svelte/transition';
     import { onMount } from "svelte";
     import { Button } from "../lib/buttonDef";
     import { tree, ConstructDefaultTreeData } from "../lib/tree";
     import ButtonComponent from '../components/Button.svelte';
+    import Alert from '../components/Alert.svelte'
 
-    export let properties
+    export let projectHandler
+    export let projectCaching
+    export let currentTab
+
+    let activeAlerts = []
 
     let dispatch = createEventDispatcher()
-    let projects = []
     let showNewModal = false
     let newProjectName = ""
     let newProjectPath = ""
 
     onMount(() => {
-        // Get project list from API
-        window.electronAPI.projectListLatest().then((v) => {
-            projects = v
-        })
-        
-        dispatch('message', {
-            origin: "Generic",
-            type: "HideViewport"
+        // Get project list from cache
+        projectCaching.Refresh().then(() => {
+            projectCaching.cache = projectCaching.cache
         })
     })
 
-    async function requestLoadByName(project) {
-        console.log(project.path)
+    async function addNewAlert(text, timeout) {
+        activeAlerts.push(text)
 
-        const loaded = window.electronAPI.projectLoadByPath(project.path)
+        setTimeout(() => {
+            const idx = activeAlerts.indexOf(text)
 
-        loaded.then((v) => {
-            dispatch('message', {
-                origin: "File",
-                type: "ProjectUpdate",
-                project: v["data"]
-            })
-        })
-
-        loaded.catch((v) => {
-            // TODO: Display error message
-        })
-    }
-
-    async function requestLoadModal() {
-        const loaded = window.electronAPI.projectLoadByModal()
-
-        loaded.then((v) => {
-            dispatch('message', {
-                origin: "File",
-                type: "ProjectUpdate",
-                project: v["data"]
-            })
-        })
-
-        loaded.catch((v) => {
-            // TODO: Display error message
-        })
+            if (idx > -1) {
+                activeAlerts.splice(idx, 1)
+                activeAlerts = activeAlerts
+            }
+        }, timeout)
+        
+        activeAlerts = activeAlerts
     }
 
     async function closeNewModal() {
@@ -73,33 +54,64 @@
         alert("Not implemented yet")
     }
 
-    async function requestNewChooseLocation() {
-        const chosen = window.electronAPI.projectNewChooseLocation()
+    async function requestLoadByName(project) {
+        const loaded = await projectHandler.Load(project.path)
 
-        chosen.then((v) => {
-            if (v != "") {
-                newProjectPath = v
+        if (loaded.status == "OK") {
+            currentTab = "Preprocessor"
+            projectCaching.Write(projectHandler.currentProject, project.path)
+        } else {
+            addNewAlert("Invalid project loaded, please try another project.", 6000)
+        }
+    }
+
+    async function requestLoadModal() {
+        const fileToLoad = await window.electronAPI.openFileModal(projectHandler.projectHomeDir, [
+            {
+                name: "Project",
+                extensions: [".ssproj"]
+            },
+            { 
+                name: 'All Files', 
+                extensions: ['*'] 
             }
-        })
+        ])
+
+        if (fileToLoad == "") {
+            return
+        }
+
+        const loaded = await projectHandler.Load(fileToLoad)
+
+        if (loaded.status == "OK") {
+            currentTab = "Preprocessor"
+            projectCaching.Write(projectHandler.currentProject, fileToLoad)
+        } else {
+            addNewAlert("Invalid project loaded, please try another project.", 6000)
+        }
+    }
+
+    async function requestNewChooseLocation() {
+        const chosen = await window.electronAPI.openFolderModal(projectHandler.projectHomeDir)
+
+        newProjectPath = chosen
     }
 
     async function requestNewCreate(overwrite) {
-        const loaded = window.electronAPI.projectNewCreate(newProjectName, newProjectPath, overwrite)
+        const loaded = await projectHandler.New(newProjectName, newProjectPath, overwrite)
 
-        loaded.then((v) => {
-            v["data"].preprocessor = ConstructDefaultTreeData({}, tree.children)
-
-            dispatch('message', {
-                origin: "File",
-                type: "ProjectUpdate",
-                project: v["data"]
-            })
-        })
+        if (loaded.status == "OK") {
+            currentTab = "Preprocessor"
+            projectCaching.Write(projectHandler.currentProject, newProjectPath + "/" + newProjectName + ".ssproj")
+        } else {
+            addNewAlert("Something went wrong when attempting to create new project, please try again.", 6000)
+        }
     }
 </script>
 
 <div>
-    <div class="flex flex-col w-full h-full mt-12">
+    <!-- Main content -->
+    <div class="flex flex-col w-full h-full mt-24">
         <div class="flex flex-row w-full justify-center space-x-2">
             <div class="flex flex-col w-48">
                 <a href="#" class="block max-w-sm p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" on:click={(e) => openNewModal()}>
@@ -135,7 +147,7 @@
                     Latest projects
                 </div>
                 <div class="flex flex-row border-2 rounded-lg w-full"/>
-                {#each projects as p}
+                {#each projectCaching.cache as p}
                 <div class="flex flex-row rounded-md shadow-md w-full bg-stone-300 py-2 my-1 hover:bg-gray-100"> 
                     <a href="#" class="flex flex-row w-full" on:click={(e) => requestLoadByName(p)}>
                         <div class="flex flex-col ml-2">
@@ -151,6 +163,7 @@
         </div>
     </div>
 
+    <!-- Modals -->
     {#if showNewModal}
     <div class="absolute-bg bg-stone-600 opacity-75"/>
     <div class="absolute-above-center w-6/12 h-6/12">
@@ -221,6 +234,15 @@
         </div>
     </div>
     {/if}
+
+    <!-- Alert -->
+    <div class="mx-auto w-6/12 mt-20 cursor-default" style="position: absolute; left: 0; right: 0; top: 0">
+        {#each activeAlerts as alert}
+        <div transition:slide>
+            <Alert text={alert}/>
+        </div>
+        {/each}
+    </div>
 </div>
 
 <style>

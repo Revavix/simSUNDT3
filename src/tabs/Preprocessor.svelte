@@ -11,10 +11,9 @@
     import OutputLogComponent from '../components/OutputLog.svelte'
     import { tree } from '../lib/tree.js'
 
-    let treeData = {}
+    export let projectHandler
 
-    // Used in all tab components to pass properties (supresses dev console warning)
-    export let properties
+    let treeData = {}
 
     const dispatch = createEventDispatcher()
 
@@ -51,7 +50,8 @@
 
         // Try to instantiate a new saver and run the runner
         try {
-            saver = new UTDefectIsoSaver(properties.data, miscParameters)
+            saver = new UTDefectIsoSaver(projectHandler.currentProject.data.preprocessor.tree, 
+                projectHandler.currentProject.data.preprocessor.misc)
             saver.Save()
         } catch (err) {
             mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
@@ -93,18 +93,12 @@
 
     function handleTreeMessage(ev) {
         if (ev.detail.type == "Save") {
-            dispatch('message', {
-                origin: "Preprocessor",
-                type: "ProjectSave"
-            })
+            projectHandler.Save()
         }
     }
 
     onMount(() => {
-        dispatch('message', {
-            origin: "Generic",
-            type: "UnhideViewport"
-        })
+        
     })
 
     UpdateDefaultBinaryPath()
@@ -161,7 +155,7 @@
             </div>
             {#if !treeMinimized}
             <div class="h-full rounded-md my-1 mb-2" style="overflow: auto;">
-                <TreeComponent tree={tree} data={properties.data} pad={false} on:message={handleTreeMessage}></TreeComponent>
+                <TreeComponent tree={tree} data={projectHandler.currentProject.data.preprocessor.tree} pad={false} on:message={handleTreeMessage}></TreeComponent>
             </div>
             {/if}
         </div>
