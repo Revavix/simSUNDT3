@@ -1,68 +1,105 @@
 <script lang="ts">
-    // TypeScript class definition imports
-    import { Button } from '../lib/buttonDef'
-    
-    // TypeScript class data definition imports
-    import { treeMethod, treeTransmitter, treeReceiver, treeDefect } from '../lib/treeData'
-    import { UTDefectIsoTreeBinder } from '../lib/utDefectIsoTreeBinder'
-    import { UTDefectIsoSaver } from '../lib/utDefectIsoSaver'
-    import { UTDefectRunner } from '../lib/utDefectRunner';
-    import { TreeUtil } from '../lib/treeUtil'
-    import { MiscParameterisation } from '../lib/miscParameterisationDef'
-
-    // Component imports
+    import { createEventDispatcher } from "svelte";
+    import { onMount } from 'svelte';
+    import { UTDefectIsoSaver } from "../lib/utDefIsoSaver";
+    import { UTDefectRunner } from '../lib/utDefRunner';
     import TreeComponent from '../components/Tree.svelte'
-    import ButtonComponent from '../components/Button.svelte'
+    import Button from '../components/Button.svelte'
     import HorizontalProgressbarComponent from '../components/HorizontalProgressbar.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
+    import { tree } from '../lib/tree.js'
 
-    // Page imports
-    import Viewport from '../pages/Viewport.svelte'
+    export let projectHandler
 
-    // Set up output log
-    let mainLogContents: Array<object> = new Array<object>()
+    const dispatch = createEventDispatcher()
+    let mainLogContents = []
+    let treeMinimized = false
+    let showConfigureModal = false
+    let utDefRunner = new UTDefectRunner("")
+    let utDefRunnerIsRunning = false
 
-    // Set up some tree settings
-    let treeMinimized: boolean = false
-    let showConfigureModal: boolean = false
-
-    // Misc variables not defined in tree to be forwarded to tree binder
-    let miscParameters: MiscParameterisation = new MiscParameterisation("5")
-
-    // UTDefectIsoSaver & variable binding setup
-    let utDefSaver: UTDefectIsoSaver = new UTDefectIsoSaver()
-    let utDefTreeBinder: UTDefectIsoTreeBinder = new UTDefectIsoTreeBinder(utDefSaver, treeMethod, treeTransmitter, treeReceiver, treeDefect, miscParameters)
-    let utDefRunner: UTDefectRunner = new UTDefectRunner("", true, false)
-
-    // utDefRunner to log subscription
     utDefRunner.statusMessage.subscribe(value => {
-        mainLogContents.push(value)
+        if (value.hasOwnProperty("message") && value.hasOwnProperty("icon") && value.hasOwnProperty("color")) {
+            mainLogContents.push(value)
 
-        // Force update variable to trigger svelte reactivity...
-        mainLogContents = mainLogContents
+            // Force update variable to trigger svelte reactivity...
+            mainLogContents = mainLogContents
+        }
     })
 
-    // utDefRunner running status
-    let utDefRunnerIsRunning: boolean = false
     utDefRunner.running.subscribe(value => {
         utDefRunnerIsRunning = value
     })
 
     // Simulate section buttons
-    let runButton: Button = new Button("Run", "#55b13c", "play_arrow", async () => {
-        utDefTreeBinder.Update()
-        utDefSaver.Save()
-        utDefRunner.Run()
-    })
-    let stopButton: Button = new Button("Stop", "#ba3822", "stop", async () => {
-        utDefRunner.Stop()
-    })
-    let cloudRunButton: Button = new Button("Cloud", "#55b13c", "cloud_sync", () => {
-        alert('test')
-    })
-    let configureRunButton: Button = new Button("Configure", "#807a7a", "settings", () => {
-        showConfigureModal == false ? showConfigureModal = true : showConfigureModal = false
-    })
+    let runButton = {
+        label: "Run",
+        color: "#55b13c",
+        icon: "play_arrow",
+        action: async () => {
+            let saver = undefined
+
+            // Try to instantiate a new saver and run the runner
+            try {
+                saver = new UTDefectIsoSaver(projectHandler.currentProject.data.preprocessor.tree, 
+                    projectHandler.currentProject.data.preprocessor.misc)
+                saver.Save()
+            } catch (err) {
+                mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
+                return
+            }
+
+            // Run the runner if saver was initialized
+            utDefRunner.Run()
+        },
+        disabled: false
+    }
+
+    let stopButton = {
+        label: "Stop",
+        color: "#ba3822",
+        icon: "stop",
+        action: async () => {
+            utDefRunner.Stop()
+        },
+        disabled: false
+    }
+
+    let configureButton = {
+        label: "Configure",
+        color: "#807a7a",
+        icon: "settings",
+        action: async () => {
+            showConfigureModal == false ? showConfigureModal = true : showConfigureModal = false
+        },
+        disabled: false
+    }
+
+    // Tree buttons
+    let treeMinButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "expand_more",
+        action:  () => {treeMinimized = false},
+        disabled: false
+    }
+
+    let treeMaxButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "expand_less",
+        action:  () => {treeMinimized = true},
+        disabled: false
+    }
+
+    // Configure modal buttons
+    let closeConfigureModalButton = {
+        label: "",
+        color: "#807a7a",
+        icon: "close",
+        action:  () => {showConfigureModal = false},
+        disabled: false
+    }
 
     // Progress Bar vars and store subscribes
     let progress: number = 0
@@ -83,6 +120,16 @@
         defaultPath = await window.electronAPI.getDefaultBinaryPath()
     }
 
+    function handleTreeMessage(ev) {
+        if (ev.detail.type == "Save") {
+            projectHandler.Save()
+        }
+    }
+
+    onMount(() => {
+        
+    })
+
     UpdateDefaultBinaryPath()
 
     // Variable watchers
@@ -92,13 +139,14 @@
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 4;">
         <div class="flex flex-col w-20 pt-1 -space-y-1">
-            {#if !utDefRunnerIsRunning}
-            <ButtonComponent btn={runButton}></ButtonComponent>
-            {:else}
-            <ButtonComponent btn={stopButton}></ButtonComponent>
-            {/if}
-            <ButtonComponent btn={cloudRunButton}></ButtonComponent>
-            <ButtonComponent btn={configureRunButton}></ButtonComponent>
+            <div class="flex flex-col mb-auto">
+                {#if !utDefRunnerIsRunning}
+                <Button data={runButton}></Button>
+                {:else}
+                <Button data={stopButton}></Button>
+                {/if}
+                <Button data={configureButton}></Button>
+            </div>
             <div class="flex flex-row w-full justify-center mt-auto pt-2">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
                 Simulate
@@ -107,7 +155,7 @@
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
         <div class="flex flex-col w-20 pt-1 -space-y-1">
-            <select bind:value={miscParameters.accuracy} class="pl-1 mb-auto bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" required> 
+            <select bind:value={projectHandler.currentProject.data.preprocessor.misc.accuracy} on:change={projectHandler.Save()} class="pl-1 mb-auto bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" required> 
                 <option value=5>Highest</option>
                 <option value=4>High</option>
                 <option value=3>Medium</option>
@@ -129,18 +177,15 @@
                 </div>
                 <div class="flex flex-col ml-auto">
                     {#if treeMinimized}
-                    <ButtonComponent btn={new Button("", "#4d4d4d", "expand_more", () => {treeMinimized = false})}/>
+                    <Button data={treeMinButton}/>
                     {:else}
-                    <ButtonComponent btn={new Button("", "#4d4d4d", "expand_less", () => {treeMinimized = true})}/>
+                    <Button data={treeMaxButton}/>
                     {/if}
                 </div>
             </div>
             {#if !treeMinimized}
             <div class="h-full rounded-md my-1 mb-2" style="overflow: auto;">
-                <TreeComponent tree={treeMethod}/>
-                <TreeComponent tree={treeTransmitter}/>
-                <TreeComponent tree={treeReceiver}/>
-                <TreeComponent tree={treeDefect}/>
+                <TreeComponent tree={tree} data={projectHandler.currentProject.data.preprocessor.tree} pad={false} on:message={handleTreeMessage}></TreeComponent>
             </div>
             {/if}
         </div>
@@ -150,34 +195,24 @@
         <div class="py-1"/>
         <HorizontalProgressbarComponent bind:progress={progress} bind:maxValue={maxProgress}/>
     </div>
-    <div class="absolute-under">
-        <Viewport/>
-    </div>
 
     {#if showConfigureModal}
     <div class="absolute-bg bg-stone-600 opacity-75"/>
     <div class="absolute-above-center w-6/12 h-6/12">
         <div class="relative w-full h-full md:h-auto">
             <div class="relative rounded-lg shadow bg-stone-200">
-                <div class="flex items-start justify-between p-3 rounded-t bg-gradient-to-r from-stone-300 to-stone-200">
+                <div class="flex items-start justify-between p-3 rounded-t">
                     <h3 class="text-md font-semibold text-gray-600">
-                        Runner Configuration
+                        Configuration
                     </h3>
                     <div class="bg-transparent rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
-                        <ButtonComponent btn={new Button("", "#807a7a", "close", () => {showConfigureModal = false})}></ButtonComponent>
+                        <Button data={closeConfigureModalButton}/>
                     </div>
                 </div>
                 <div class="p-3 space-y-2">
                     <div>
-                        <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Path to UTDefect binary</label>
+                        <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Binary path</label>
                         <input bind:value={utDefRunner.sourceBinaryPath} type="text" id="runner_path" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Eg: {defaultPath}" required>
-                    </div>
-                    <div>
-                        <label class="inline-flex relative items-center cursor-pointer">
-                            <input bind:checked={utDefRunner.stdMode} type="checkbox" value="" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                            <span class="ml-3 text-sm font-medium" style="color:#4d4d4d;">Standard Output Mode</span>
-                        </label>
                     </div>
                 </div>
                 <div class="p-3 space-y-2">
@@ -193,17 +228,6 @@
 </div>
 
 <style>
-  .absolute-under {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      z-index: 1;
-  }
   .absolute-bottom-above
   {
     position: absolute;

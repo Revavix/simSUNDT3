@@ -1,7 +1,6 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
-    import { Button } from '../lib/buttonDef'
-    import ButtonComponent from '../components/Button.svelte'
+    import Button from '../components/Button.svelte'
 
     // Expects a Plotly.js plot
     export let plot: Promise<object>
@@ -9,51 +8,79 @@
     let plotDiv
     let originalXRange = [0, 0]
     let originalYRange = [0, 0]
+    
+    let panModeButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "pan_tool_alt",
+        action:  () => {
+            Plotly.relayout(plotDiv, {
+                dragmode: 'pan'
+            })
 
-    let panModeBtn: Button = new Button("", "#4d4d4d", "pan_tool_alt", () => {
-        Plotly.relayout(plotDiv, {
-            dragmode: 'pan'
-        })
+            // Force update for Svelte
+            plotDiv = plotDiv
 
-        // Force update for Svelte
-        plotDiv = plotDiv
+            // Re-enable zoom buttons in pan mode
+            zoomOutButton.disabled = false
+            zoomInButton.disabled = false
+        },
+        disabled: false
+    }
 
-        // Re-enable zoom buttons in pan mode
-        zoomOutBtn.disabled = false
-        zoomInBtn.disabled = false
-    })
+    let zoomModeButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "search",
+        action:  () => {
+            Plotly.relayout(plotDiv, {
+                dragmode: 'zoom'
+            })
 
-    let zoomModeBtn: Button = new Button("", "#4d4d4d", "search", () => {
-        Plotly.relayout(plotDiv, {
-            dragmode: 'zoom'
-        })
+            // Force update for Svelte
+            plotDiv = plotDiv
 
-        // Force update for Svelte
-        plotDiv = plotDiv
+            // Disable zoom buttons in zoom mode, unexpected behavior outside of bounds
+            zoomOutButton.disabled = true
+            zoomInButton.disabled = true
+        },
+        disabled: false
+    }
 
-        // Disable zoom buttons in zoom mode, unexpected behavior outside of bounds
-        zoomOutBtn.disabled = true
-        zoomInBtn.disabled = true
-    })
+    let zoomOutButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "zoom_out",
+        action:  () => {
+            zoom(2)
+        },
+        disabled: false
+    }
 
-    let zoomOutBtn: Button = new Button("", "#4d4d4d", "zoom_out", () => {
-        zoom(2)
-    })
-    zoomOutBtn.disabled = true
+    let zoomInButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "zoom_out",
+        action:  () => {
+            zoom(0.5)
+        },
+        disabled: false
+    }
 
-    let zoomInBtn: Button = new Button("", "#4d4d4d", "zoom_in", () => {
-        zoom(0.5)
-    })
-    zoomInBtn.disabled = true
-
-    let zoomResetBtn: Button = new Button("", "#4d4d4d", "zoom_out_map", () => {
-        Plotly.relayout(plotDiv, {
-            'xaxis.range': originalXRange, 
-            'xaxis.autorange': true, 
-            'yaxis.range': originalYRange, 
-            'yaxis.autorange': true
-        })
-    })
+    let zoomResetButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "zoom_out_map",
+        action:  () => {
+            Plotly.relayout(plotDiv, {
+                'xaxis.range': originalXRange, 
+                'xaxis.autorange': true, 
+                'yaxis.range': originalYRange, 
+                'yaxis.autorange': true
+            })
+        },
+        disabled: false
+    }
 
     $: plot, update()
 
@@ -107,22 +134,22 @@
     {#if plotDiv != undefined}
         {#if plotDiv._fullLayout.dragmode == "zoom"}
         <div class="flex flex-col w-full mx-0.5">
-            <ButtonComponent btn={panModeBtn}></ButtonComponent>
+            <Button data={panModeButton}></Button>
         </div>
         {:else}
         <div class="flex flex-col w-full mx-0.5">
-            <ButtonComponent btn={zoomModeBtn}></ButtonComponent>
+            <Button data={zoomModeButton}></Button>
         </div>
         {/if}
     {/if}
     <div class="flex flex-col w-full mx-0.5">
-        <ButtonComponent btn={zoomOutBtn}></ButtonComponent>
+        <Button data={zoomOutButton}></Button>
     </div>
     <div class="flex flex-col w-full mx-0.5">
-        <ButtonComponent btn={zoomInBtn}></ButtonComponent>
+        <Button data={zoomInButton}></Button>
     </div>
     <div class="flex flex-col w-full mx-0.5">
-        <ButtonComponent btn={zoomResetBtn}></ButtonComponent>
+        <Button data={zoomResetButton}></Button>
     </div>
 </div>
 

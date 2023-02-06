@@ -1,9 +1,18 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { onMount } from 'svelte';
     import DensityPlot from '../components/DensityPlot.svelte';
     import LinePlot from '../components/LinePlot.svelte';
     import PlotModebar from '../components/PlotModebar.svelte';
-    import Viewport from "../pages/Viewport.svelte";
+    
+    let dispatch = createEventDispatcher()
+
+    onMount(() => {
+        dispatch('message', {
+            origin: "Generic",
+            type: "UnhideViewport"
+        })
+    })
 
     let interpolationLevel = 0
 
@@ -49,13 +58,20 @@
                     5
                 </div>
             </div>
-            <div class="flex flex-row w-full h-full justify-center mt-auto pt-7">
+            <div class="flex flex-row w-full justify-center mt-auto pt-7">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
                 Data
                 </div>
             </div>
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
+        <div class="flex flex-col w-24 pt-1 -space-y-1">
+            <div class="flex flex-row w-full justify-center mt-auto">
+                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                Rectification
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Interaction Panel -->
 
@@ -113,11 +129,6 @@
             </div>
         </div>
     </div>
-
-
-    <div class="absolute-under">
-        <Viewport/>
-    </div>
 </div>
 
 <style>
@@ -131,5 +142,8 @@
       width: 100%;
       overflow: hidden;
       z-index: 1;
+  }
+  .line-vert {
+    border-left: 1px solid #7f7f7f;
   }
 </style>
