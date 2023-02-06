@@ -1,19 +1,39 @@
 <script lang="ts">
-    import { Button } from '../lib/buttonDef'
-    import ButtonComponent from './Button.svelte';
-    import type { OutputLogItem } from '../lib/outputLogDef'
+    import Button from './Button.svelte';
 
     export let contents: Array<object>
     let minimized: boolean = false
 
     function updateMinState() {
-        console.log(minimized)
-
         if (minimized == true) {
             minimized = false
         } else {
             minimized = true
         } 
+    }
+
+    let copyButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "content_copy",
+        action: () => {},
+        disabled: false
+    }
+
+    let minButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "expand_less",
+        action: updateMinState,
+        disabled: false
+    }
+
+    let maxButton = {
+        label: "",
+        color: "#4d4d4d",
+        icon: "expand_more",
+        action: updateMinState,
+        disabled: false
     }
 </script>
 
@@ -23,13 +43,13 @@
             Output ({contents.length})
         </div>
         <div class="flex flex-col ml-auto">
-            <ButtonComponent btn={new Button("", "#4d4d4d", "content_copy", null)}/>
+            <Button data={copyButton}/>
         </div>
         <div class="flex flex-col ml-2">
             {#if minimized}
-            <ButtonComponent btn={new Button("", "#4d4d4d", "expand_less", updateMinState)}/>
+            <Button data={minButton}/>
             {:else}
-            <ButtonComponent btn={new Button("", "#4d4d4d", "expand_more", updateMinState)}/>
+            <Button data={maxButton}/>
             {/if}
         </div>
     </div>

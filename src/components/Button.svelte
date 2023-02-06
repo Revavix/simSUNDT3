@@ -1,24 +1,24 @@
 <script lang="ts">
-    export let btn
+    export let data
 
     function exec()
     {
-        btn.action()
+        data.action()
     }
 
     let brightnessClass: string = ''
 
-    $: btn.disabled, btn.disabled ? brightnessClass = 'lower-opacity' : brightnessClass = ''
+    $: data.disabled, data.disabled ? brightnessClass = 'lower-opacity' : brightnessClass = ''
 
 </script>
 
-<button class="flex flex-row w-full hover:bg-gray-300 hover:rounded-sm {brightnessClass}" on:click={exec} disabled={btn.disabled}>
-    <div class="flex flex-col" style="font-family:'Material Icons'; font-size:{btn.size}px; color:{btn.color}">
-        {btn.icon}
+<button class="flex flex-row w-full hover:bg-gray-300 hover:rounded-sm {brightnessClass}" on:click={exec} disabled={data.disabled}>
+    <div class="flex flex-col" style="font-family:'Material Icons'; font-size:{data.size}px; color:{data.color}">
+        {data.icon}
     </div>
-    {#if btn.label != ""}
+    {#if data.label != ""}
     <div class="flex flex-col pl-2" style="font-size:11px; color:#4d4d4d;">
-        {btn.label}
+        {data.label}
     </div>
     {/if}
 </button>

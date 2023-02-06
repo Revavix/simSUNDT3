@@ -5,7 +5,6 @@ const os = require('os')
 const fs = require('fs')
 const fsPromises = require('fs/promises')
 const { spawn } = require('child_process')
-const { ProjectHandler } = require('./electron_lib/projectHandler')
 const { GenericIpc, UTDefectIpc } = require('./ipc')
 
 function updateProjectCache(project, path) {

@@ -12,8 +12,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     extname: (path) => ipcRenderer.invoke('extname', path),
     openFolderModal: (defaultPath) => ipcRenderer.invoke('open-folder-modal', defaultPath),
     openFileModal: (defaultPath, filters) => ipcRenderer.invoke('open-file-modal', defaultPath, filters),
-    utdefectStartStd: (pathToBinary, inputPath) => ipcRenderer.invoke('utdef-start-std', pathToBinary, inputPath),
-    utdefectGetProgressStd: () => ipcRenderer.invoke('utdef-get-prog-std'),
-    utdefectAlive: () => ipcRenderer.invoke('utdef-active'),
-    utdefectTerminate: () => ipcRenderer.invoke('utdef-terminate'),
+    utDefStart: (pathToBinary, pathToProgessFile) => ipcRenderer.invoke('utdef-start', pathToBinary, pathToProgessFile),
+    utDefStartStd: (pathToBinary, inputPath) => ipcRenderer.invoke('utdef-start-std', pathToBinary, inputPath),
+    utDefGetProgressStd: () => ipcRenderer.invoke('utdef-get-prog-std'),
+    utDefAlive: () => ipcRenderer.invoke('utdef-active'),
+    utDefTerminate: () => ipcRenderer.invoke('utdef-terminate'),
 })

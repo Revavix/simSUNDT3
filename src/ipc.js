@@ -25,9 +25,13 @@ class GenericIpc {
         })
 
         ipcMain.handle('copy-file', async(ev, src, target) => {
-            fs.copyFile(src, target, () => {
-                process.stdout.write("Copied file from " + src + " to " + target + "\n")
-            })
+            try {
+                fs.copyFileSync(src, target)
+
+                return Promise.resolve(true)
+            } catch (err) {
+                return Promise.resolve(false)
+            }
         })
 
         ipcMain.handle('read-file', async(ev, filePath) => {
@@ -165,6 +169,34 @@ class UTDefectIpc {
             })
     
             return true
+        })
+
+        ipcMain.handle('utdef-start', async(ev, pathToBinary, pathToProgessFile) => {
+            this.childProcess = spawn(pathToBinary)
+
+            process.stdout.write("Starting UTDef process from Electron using path " + pathToBinary + "\n")
+
+            this.childProcess.on('spawn', function () {
+                this.active = true
+            })
+
+            const progressReadStream = fs.createReadStream(pathToProgessFile)
+
+            progressReadStream.on('line', function(line) {
+                let strData = (line.toString()).split(/[\s,]+/)
+                this.currentProgress = parseInt(strData[0])
+                this.maxProgress = parseInt(strData[1])
+        
+                process.stdout.write("UTDefect produced output: " + strData + " to fileStream\n")
+            })
+
+            this.childProcess.on('close', function() {
+                this.active = false
+                // @ts-ignore
+                this.childProcess.kill()
+            })
+
+            return Promise.resolve(true)
         })
     
         ipcMain.handle('utdef-get-prog-std', async(event) => {

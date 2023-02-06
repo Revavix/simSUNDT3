@@ -5,15 +5,16 @@ export interface IElectronAPI {
     readFile: (path: string) => Promise<string>
     writeFile: (path: string, data: string) => Promise<boolean>,
     writeFileByLines: (path: string, data: Array<string>) => Promise<boolean>,
-    copyFile: (src: string, target: string) => Promise<void>,
+    copyFile: (src: string, target: string) => Promise<boolean>,
     fileExists: (src: string) => Promise<boolean>,
     extname: (path: string) => Promise<string>,
     openFolderModal: (defaultPath) => Promise<string>,
     openFileModal: (defaultPath, filters) => Promise<string>,
-    utdefectStartStd: (pathToBinary: string, inputPath: string) => Promise<boolean>,
-    utdefectGetProgressStd: () => Promise<object>,
-    utdefectAlive: () => Promise<boolean>,
-    utdefectTerminate: () => Promise<void>,
+    utDefStart: (pathToBinary: string, pathToProgessFile: string) => Promise<boolean>,
+    utDefStartStd: (pathToBinary: string, inputPath: string) => Promise<boolean>,
+    utDefGetProgressStd: () => Promise<object>,
+    utDefAlive: () => Promise<boolean>,
+    utDefTerminate: () => Promise<void>,
 }
 
 declare global {

@@ -1,10 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { slide } from 'svelte/transition';
-    import { onMount } from "svelte";
-    import { Button } from "../lib/buttonDef";
+    import { onMount } from "svelte";;
     import { tree, ConstructDefaultTreeData } from "../lib/tree";
-    import ButtonComponent from '../components/Button.svelte';
+    import Button from '../components/Button.svelte';
     import Alert from '../components/Alert.svelte'
 
     export let projectHandler
@@ -107,6 +106,15 @@
             addNewAlert("Something went wrong when attempting to create new project, please try again.", 6000)
         }
     }
+
+    // Buttons
+    let closeNewModalButton = {
+        label: "",
+        color: "#807a7a",
+        icon: "close",
+        action:  closeNewModal,
+        disabled: false
+    }
 </script>
 
 <div>
@@ -174,7 +182,7 @@
                         New project
                     </h3>
                     <div class="bg-transparent rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
-                        <ButtonComponent btn={new Button("", "#807a7a", "close", () => {closeNewModal()})}></ButtonComponent>
+                        <Button data={closeNewModalButton}></Button>
                     </div>
                 </div>
                 <div class="p-3 flex flex-col w-full">

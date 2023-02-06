@@ -225,7 +225,7 @@ export class UTDefectIsoSaver {
         // Check if folder exists under saves
         let pharr = [0, 0]
         let homeDir = await window.electronAPI.getHomeDir()
-        let saveLoc = homeDir + "/Documents/simSUNDT/utdefdat"
+        let saveLoc = homeDir + "/Documents/simSUNDT/tmp/utdefdat"
 
         let writeArray = []
         writeArray.push("Indefa")
