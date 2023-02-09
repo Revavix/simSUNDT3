@@ -12,16 +12,20 @@
 
     let activeAlerts = []
 
-    let dispatch = createEventDispatcher()
     let showNewModal = false
     let newProjectName = ""
     let newProjectPath = ""
 
-    onMount(() => {
+    onMount(async () => {
         // Get project list from cache
-        projectCaching.Refresh().then(() => {
+        await new Promise(r => setTimeout(r, 200));
+
+        const refreshed = await projectCaching.Refresh()
+            
+        if (refreshed) {
             projectCaching.cache = projectCaching.cache
-        })
+        }
+        
     })
 
     async function addNewAlert(text, timeout) {
@@ -156,7 +160,7 @@
                 </div>
                 <div class="flex flex-row border-2 rounded-lg w-full"/>
                 {#each projectCaching.cache as p}
-                <div class="flex flex-row rounded-md shadow-md w-full bg-stone-300 py-2 my-1 hover:bg-gray-100"> 
+                <div class="flex flex-row rounded-md shadow-md w-full bg-stone-300 py-2 my-1 hover:bg-gray-100" transition:slide|local> 
                     <a href="#" class="flex flex-row w-full" on:click={(e) => requestLoadByName(p)}>
                         <div class="flex flex-col ml-2">
                             <p class="font-lg text-simsundt-gray">{p.name}</p>

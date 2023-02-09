@@ -1,8 +1,9 @@
-const { ipcMain, dialog, BrowserWindow } = require('electron')
+const { app, ipcMain, dialog, BrowserWindow } = require('electron')
 const os = require('os')
 const fs = require('fs')
 const path = require('path')
 const { spawn } = require('child_process')
+const readline = require('readline');
 
 class GenericIpc {
     constructor() {
@@ -34,6 +35,16 @@ class GenericIpc {
             }
         })
 
+        ipcMain.handle('rmdir', async(ev, dirPath) => {
+            try {
+                fs.rmSync(dirPath, {recursive: true, force: true})
+            } catch (err) {
+                return Promise.resolve(false)
+            }
+
+            return Promise.resolve(true)
+        })
+
         ipcMain.handle('read-file', async(ev, filePath) => {
             return fs.readFileSync(filePath).toString()
         })
@@ -60,15 +71,13 @@ class GenericIpc {
                 }
             }
         
-            process.stdout.write(filePath + "\n")
-        
             try {
                 await fs.promises.access(String(filePath), 
                 fs.constants.R_OK | fs.constants.W_OK)
             } catch {
                 const result = await fs.promises.mkdir(String(filePath), { recursive: true })
         
-                process.stdout.write(result + "\n")
+                process.stdout.write("tmp folder does not exists, writing new at " + result + "\n")
             }
         
             let stream = fs.createWriteStream(
@@ -94,9 +103,9 @@ class GenericIpc {
                 await fs.promises.access(String(src), 
                 fs.constants.R_OK | fs.constants.W_OK)
         
-                return true
+                return Promise.resolve(true)
             } catch {
-                return false
+                return Promise.resolve(false)
             }
         })
 
@@ -171,29 +180,53 @@ class UTDefectIpc {
             return true
         })
 
-        ipcMain.handle('utdef-start', async(ev, pathToBinary, pathToProgessFile) => {
-            this.childProcess = spawn(pathToBinary)
+        ipcMain.handle('utdef-start', async(ev, pathToBinaryFolder) => {
+            let classInstance = this
+            let execBinaryName
+            let progressFileName = "utdefcontrol"
 
-            process.stdout.write("Starting UTDef process from Electron using path " + pathToBinary + "\n")
+            if (process.platform == 'darwin' || process.platform == 'linux') {
+                execBinaryName = "UTDef6"
+            } else if (process.platform == 'win32') {
+                execBinaryName = "UTDef6.exe"
+            } else {
+                return Promise.resolve(false)
+            }
+
+            await new Promise(r => setTimeout(r, 500));
+
+            process.stdout.write("Starting UTDef process from Electron using path " + pathToBinaryFolder + "/" + execBinaryName + "\n")
+
+            this.childProcess = spawn(pathToBinaryFolder + "/" + execBinaryName, {
+                cwd: pathToBinaryFolder
+            })
 
             this.childProcess.on('spawn', function () {
-                this.active = true
+                process.stdout.write("Process spawned, setting active to true\n")
+                classInstance.active = true
             })
 
-            const progressReadStream = fs.createReadStream(pathToProgessFile)
+            // Delay before listening to utdefcontrol
+            await new Promise(r => setTimeout(r, 500));
 
-            progressReadStream.on('line', function(line) {
-                let strData = (line.toString()).split(/[\s,]+/)
-                this.currentProgress = parseInt(strData[0])
-                this.maxProgress = parseInt(strData[1])
-        
-                process.stdout.write("UTDefect produced output: " + strData + " to fileStream\n")
-            })
+            const progressReadInterval = setInterval(() => {
+                const data = fs.readFileSync(pathToBinaryFolder + "/" + progressFileName,
+                {encoding: 'utf-8', flag: 'r'}).split("\n")
+                const line = data[data.length-2]
+
+                try {
+                    let strData = (line.toString()).match(/[\d]+/g)
+                    classInstance.currentProgress = parseInt(strData[0])
+                    classInstance.maxProgress = parseInt(strData[1]);
+                } catch (err) {
+                    
+                }
+            }, 200)
 
             this.childProcess.on('close', function() {
-                this.active = false
-                // @ts-ignore
-                this.childProcess.kill()
+                classInstance.active = false
+                clearInterval(progressReadInterval)
+                process.stdout.write("UTDef process closed\n")
             })
 
             return Promise.resolve(true)
@@ -213,5 +246,31 @@ class UTDefectIpc {
     }
 }
 
+class WindowIpc {
+    constructor() {
+        ipcMain.handle('minimize', async(ev) => {
+            BrowserWindow.fromWebContents(ev.sender).minimize()
+        })
+
+        ipcMain.handle('unmaximize', async(ev) => {
+            BrowserWindow.fromWebContents(ev.sender).unmaximize()
+        })
+
+        ipcMain.handle('maximize', async(ev) => {
+            BrowserWindow.fromWebContents(ev.sender).maximize()
+        })
+
+        ipcMain.handle('close', async(ev) => {
+            BrowserWindow.fromWebContents(ev.sender).close()
+            app.quit()
+        })
+
+        ipcMain.handle('is-maximized', async(ev) => {
+            return Promise.resolve(BrowserWindow.fromWebContents(ev.sender).isMaximized())
+        })
+    }
+}
+
 module.exports.GenericIpc = GenericIpc
 module.exports.UTDefectIpc = UTDefectIpc
+module.exports.WindowIpc = WindowIpc
