@@ -9,6 +9,7 @@ export interface IElectronAPI {
     copyFile: (src: string, target: string) => Promise<boolean>,
     fileExists: (src: string) => Promise<boolean>,
     extname: (path: string) => Promise<string>,
+    mkdir: (path: string) => Promise<boolean>,
     openFolderModal: (defaultPath) => Promise<string>,
     openFileModal: (defaultPath, filters) => Promise<string>,
     utDefStart: (pathToBinaryFolder: string) => Promise<boolean>,

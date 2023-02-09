@@ -551,10 +551,9 @@ export class UTDefectIsoSaver {
             }
         }
 
-        //console.log("[DEBUG] Writing utdefdat array:\n" + writeArray)
-
         let writeSuccessful = await window.electronAPI.writeFileByLines(saveLoc, writeArray)
-        //console.log(writeSuccessful)
+        
+        return Promise.resolve(writeSuccessful)
     }
 
     

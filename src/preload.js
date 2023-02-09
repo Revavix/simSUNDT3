@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     copyFile: (src, target) => ipcRenderer.invoke('copy-file', src, target),
     fileExists: (src) => ipcRenderer.invoke('file-exists', src),
     extname: (path) => ipcRenderer.invoke('extname', path),
+    mkdir: (path) => ipcRenderer.invoke('mkdir', path),
     openFolderModal: (defaultPath) => ipcRenderer.invoke('open-folder-modal', defaultPath),
     openFileModal: (defaultPath, filters) => ipcRenderer.invoke('open-file-modal', defaultPath, filters),
     utDefStart: (pathToBinaryFolder) => ipcRenderer.invoke('utdef-start', pathToBinaryFolder),

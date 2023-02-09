@@ -24,6 +24,15 @@
     onMount(async () => {
         platform = await window.electronAPI.getPlatform()
         maximized = await window.electronAPI.isMaximized()
+
+        // Ensure simSUNDT folder structure is present on App startup
+        const homeDir = await window.electronAPI.getHomeDir()
+        const simSundtFolderExists = await window.electronAPI.fileExists(homeDir + "/Documents/simSUNDT/")
+
+        if (!simSundtFolderExists) {
+            await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/")
+            await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/Projects")
+        }
     })
 
     const minimizeButton = {
@@ -95,6 +104,7 @@
                 <p>SimSUNDT {version}</p>
             </div>
         </div>
+        <div class="flex flex-row mt-2 text-xs">{projectHandler.currentProject.name}</div>
         <div class="flex flex-row ml-auto -mr-3" style="z-index: 99">
             <!-- Minimize -->
             <div class="flex flex-col px-1 rounded-b hover:bg-stone-400">

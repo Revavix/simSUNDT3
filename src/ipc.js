@@ -31,13 +31,14 @@ class GenericIpc {
 
                 return Promise.resolve(true)
             } catch (err) {
+                process.stdout.write(err.toString())
                 return Promise.resolve(false)
             }
         })
 
         ipcMain.handle('rmdir', async(ev, dirPath) => {
             try {
-                fs.rmSync(dirPath, {recursive: true, force: true})
+                await fs.promises.rm(dirPath, {recursive: true, force: true})
             } catch (err) {
                 return Promise.resolve(false)
             }
@@ -60,50 +61,16 @@ class GenericIpc {
         })
 
         ipcMain.handle('write-file-by-lines', async(ev, filePath, data) => {
-            const splitPath = String(filePath).split("/")
-            filePath = ""
-        
-            for(let i = 0; i < splitPath.length-1; i++) {
-                filePath += splitPath[i]
-        
-                if (i != splitPath.length-2){
-                filePath += "/"
-                }
-            }
-        
-            try {
-                await fs.promises.access(String(filePath), 
-                fs.constants.R_OK | fs.constants.W_OK)
-            } catch {
-                const result = await fs.promises.mkdir(String(filePath), { recursive: true })
-        
-                process.stdout.write("tmp folder does not exists, writing new at " + result + "\n")
-            }
-        
-            let stream = fs.createWriteStream(
-                String(filePath) + "/" + splitPath[splitPath.length-1]
-            )
-        
-            if (!(data instanceof Array)) {
-                return false;
-            }
-        
             data.forEach(element => {
-                stream.write(element)
-                stream.write("\n")
+                fs.appendFileSync(filePath, element + "\n", )
             });
-            
-            stream.close()
         
-            return true;
+            return Promise.resolve(true);
         })
 
         ipcMain.handle('file-exists', async(ev, src) => {
             try {
-                await fs.promises.access(String(src), 
-                fs.constants.R_OK | fs.constants.W_OK)
-        
-                return Promise.resolve(true)
+                return Promise.resolve(fs.existsSync(src))
             } catch {
                 return Promise.resolve(false)
             }
@@ -111,6 +78,22 @@ class GenericIpc {
 
         ipcMain.handle('extname', async(ev, trgtPath) => {
             return path.extname(trgtPath)
+        })
+
+        ipcMain.handle('mkdir', async(ev, folderPath) => {
+            let dirMade = undefined
+
+            try {
+                dirMade = await fs.promises.mkdir(folderPath, {recursive: true})
+            } catch (err) {
+                return Promise.resolve(false)
+            }
+
+            if (dirMade != undefined) {
+                return Promise.resolve(true)
+            } else {
+                return Promise.resolve(false)
+            }
         })
 
         ipcMain.handle('open-folder-modal', async(ev, defaultPath) => {
@@ -193,8 +176,6 @@ class UTDefectIpc {
                 return Promise.resolve(false)
             }
 
-            await new Promise(r => setTimeout(r, 500));
-
             process.stdout.write("Starting UTDef process from Electron using path " + pathToBinaryFolder + "/" + execBinaryName + "\n")
 
             this.childProcess = spawn(pathToBinaryFolder + "/" + execBinaryName, {
@@ -217,7 +198,7 @@ class UTDefectIpc {
                 try {
                     let strData = (line.toString()).match(/[\d]+/g)
                     classInstance.currentProgress = parseInt(strData[0])
-                    classInstance.maxProgress = parseInt(strData[1]);
+                    classInstance.maxProgress = parseInt(strData[1])
                 } catch (err) {
                     
                 }
@@ -225,6 +206,8 @@ class UTDefectIpc {
 
             this.childProcess.on('close', function() {
                 classInstance.active = false
+                classInstance.currentProgress = 0
+                classInstance.maxProgress = 100
                 clearInterval(progressReadInterval)
                 process.stdout.write("UTDef process closed\n")
             })

@@ -40,17 +40,22 @@
 
             // Try to instantiate a new saver and run the runner
             try {
+                const homeDir = await window.electronAPI.getHomeDir()
+                await window.electronAPI.rmDir(homeDir + "/Documents/simSUNDT/tmp")
+                await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/tmp")
+
                 saver = new UTDefectIsoSaver(projectHandler.currentProject.data.preprocessor.tree, 
                     projectHandler.currentProject.data.preprocessor.misc)
-                saver.Save()
+                const saved = await saver.Save()
+
+                if (saved) {
+                    utDefRunner.Run(projectHandler.currentProject.data.preprocessor.misc.binaryPath)
+                }
             } catch (err) {
                 mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
                 mainLogContents = mainLogContents
                 return
             }
-
-            // Run the runner if saver was initialized
-            utDefRunner.Run(projectHandler.currentProject.data.preprocessor.misc.binaryPath)
         },
         disabled: false
     }

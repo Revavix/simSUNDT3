@@ -1,5 +1,3 @@
-
-
 import { writable } from 'svelte/store';
 
 export class UTDefectRunner {
@@ -25,11 +23,10 @@ export class UTDefectRunner {
         }
 
         this.statusMessage.set({icon: "info", message: "Starting simulation...", color: "#4d4d4d"})
-       
-        const cleaned = await window.electronAPI.rmDir(pathToBinaryFolder)
+
         const copied = await window.electronAPI.copyFile(sourceBinaryPath, pathToBinaryFolder + "/" + execName)
 
-        if (!copied || !cleaned) {
+        if (!copied) {
             this.statusMessage.set({
                 icon: "warning", 
                 message: "Simulation canceled, something went wrong in simulation preparation, please try again.", 
