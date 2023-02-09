@@ -15,6 +15,7 @@ export const tree = {
                             name: "Symmetry",
                             type: "Dropdown",
                             disabled: false,
+                            default: 2,
                             values: [
                                 {
                                     text: "Isotropic",
@@ -39,6 +40,7 @@ export const tree = {
                                     name: "Alloy",
                                     type: "Dropdown",
                                     disabled: false,
+                                    default: 1,
                                     values: [
                                         {
                                             text: "Steel",
@@ -49,24 +51,28 @@ export const tree = {
                                 longitudinalVelocity: {
                                     name: "Longitudinal Velocity",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 5900
                                 },
                                 transversalVelocity: {
                                     name: "Transversal Velocity",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 3230
                                 },
                                 damping: {
                                     name: "Damping",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
                         density: {
                             name: "Density",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 8.2
                         },
                         constants: {
                             name: "Constants",
@@ -76,47 +82,56 @@ export const tree = {
                                 c11: {
                                     name: "C11",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 250
                                 },
                                 c22: {
                                     name: "C22",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 250
                                 },
                                 c33: {
                                     name: "C33",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 240
                                 },
                                 c12: {
                                     name: "C12",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 108
                                 },
                                 c13: {
                                     name: "C13",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 84
                                 },
                                 c23: {
                                     name: "C23",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 84
                                 },
                                 c44: {
                                     name: "C44",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 116
                                 },
                                 c55: {
                                     name: "C55",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 116
                                 },
                                 c66: {
                                     name: "C66",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 71
                                 }
                             }
                         },
@@ -128,17 +143,20 @@ export const tree = {
                                 phi: {
                                     name: "Phi",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 theta: {
                                     name: "Theta",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 psi: {
                                     name: "Psi",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
@@ -153,6 +171,7 @@ export const tree = {
                             name: "Method",
                             type: "Dropdown",
                             disabled: false,
+                            default: 1,
                             values: [
                                 {
                                     text: "Pulse Echo",
@@ -176,6 +195,7 @@ export const tree = {
                             name: "Transmitter",
                             type: "Dropdown",
                             disabled: false,
+                            default: 2,
                             values: [
                                 {
                                     text: "Contact",
@@ -195,6 +215,7 @@ export const tree = {
                             name: "Receiver",
                             type: "Dropdown",
                             disabled: false,
+                            default: 2,
                             values: [
                                 {
                                     text: "Contact",
@@ -221,6 +242,7 @@ export const tree = {
                             name: "Type",
                             type: "Dropdown",
                             disabled: false,
+                            default: 1,
                             values: [
                                 {
                                     text: "None",
@@ -239,12 +261,14 @@ export const tree = {
                         diameter: {
                             name: "Diameter",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 2.4
                         },
                         depth: {
                             name: "Depth",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 30
                         }
                     },
                 },
@@ -261,32 +285,38 @@ export const tree = {
                                 xs: {
                                     name: "X - Start",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 xe: {
                                     name: "X - End",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 60
                                 },
                                 xi: {
                                     name: "X - Increment",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 2
                                 },
                                 ys: {
                                     name: "Y - Start",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: -20
                                 },
                                 ye: {
                                     name: "Y - End",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 20
                                 },
                                 yi: {
                                     name: "Y - Increment",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 2
                                 }
                             }
                         },
@@ -299,6 +329,7 @@ export const tree = {
                                     name: "Type",
                                     type: "Dropdown",
                                     disabled: false,
+                                    default: "No Weld Specified",
                                     values: [
                                         {
                                             text: "None",
@@ -322,17 +353,20 @@ export const tree = {
                                         inputEnergy: {
                                             name: "Input Energy",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         initialTemperature: {
                                             name: "Initial Temperature",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         heatEfficiency: {
                                             name: "Heat Effiency",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         }
                                     }
                                 },
@@ -344,27 +378,32 @@ export const tree = {
                                         b1: {
                                             name: "b\u2081",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 10
                                         },
                                         b2: {
                                             name: "b\u2082",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 3
                                         },
                                         b3: {
                                             name: "b\u2083",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 6
                                         },
                                         t1: {
                                             name: "t\u2081",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 10
                                         },
                                         t2: {
                                             name: "t\u2082",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 4
                                         }
                                     }
                                 },
@@ -376,42 +415,50 @@ export const tree = {
                                         specificHeat: {
                                             name: "Specific Heat",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         initialGrainSize: {
                                             name: "Initial Grain Size",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         density: {
                                             name: "Density",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         meltingTemperature: {
                                             name: "Melting Temperature",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         temperatureDiffusivity: {
                                             name: "Temperature Diffusivity",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         activationEnergy: {
                                             name: "Activation Energy",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         exponentialGrowthConstant: {
                                             name: "Exponential Growth Constant",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         grainBoundaryEnergyConstant: {
                                             name: "Grain Boundary Energy Constant",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         }
                                     }
                                 },
@@ -423,42 +470,50 @@ export const tree = {
                                         xs: {
                                             name: "X - Start",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         xe: {
                                             name: "X - End",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         ys: {
                                             name: "Y - Start",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         ye: {
                                             name: "Y - End",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         depth: {
                                             name: "Depth",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         thickness: {
                                             name: "Thickness",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         grainSize: {
                                             name: "Grain Size",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         initial: {
                                             name: "Initial",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         }
                                     }
                                 },
@@ -469,17 +524,20 @@ export const tree = {
                                         percentageOfSDH: {
                                             name: "% of SDH",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         diameter: {
                                             name: "Diameter",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         },
                                         depth: {
                                             name: "Depth",
                                             type: "Number",
-                                            disabled: false
+                                            disabled: false,
+                                            default: 0
                                         }
                                     }
                                 }
@@ -496,6 +554,7 @@ export const tree = {
                             name: "Type",
                             type: "Dropdown",
                             disabled: false,
+                            default: 1,
                             values: [
                                 {
                                     text: "Automatic",
@@ -514,32 +573,38 @@ export const tree = {
                         start: {
                             name: "Start",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         },
                         end: {
                             name: "End",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 50
                         },
                         increment: {
                             name: "Increment",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0.1
                         },
                         depth: {
                             name: "Depth",
                             type: "Number",
                             disabled: false,
+                            default: 0
                         },
                         x: {
                             name: "X",
                             type: "Number",
                             disabled: false,
+                            default: 0
                         },
                         y: {
                             name: "Y",
                             type: "Number",
                             disabled: false,
+                            default: 0
                         }
                     },
                 }
@@ -559,6 +624,7 @@ export const tree = {
                             name: "Shape",
                             type: "Dropdown",
                             disabled: false,
+                            default: -2,
                             values: [
                                 {
                                     text: "Rectangular",
@@ -573,7 +639,8 @@ export const tree = {
                         autoNumElements: {
                             name: "Auto Num of Elements",
                             type: "Checkbox",
-                            disabled: false
+                            disabled: false,
+                            default: true
                         },
                         x: {
                             name: "X",
@@ -583,17 +650,20 @@ export const tree = {
                                 length: {
                                     name: "Length",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 9.5
                                 },
                                 elements: {
                                     name: "Elements",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 16
                                 },
                                 gap: {
                                     name: "Gap",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
@@ -605,17 +675,20 @@ export const tree = {
                                 length: {
                                     name: "Length",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 5.5
                                 },
                                 elements: {
                                     name: "Elements",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 2
                                 },
                                 gap: {
                                     name: "Gap",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         }
@@ -630,6 +703,7 @@ export const tree = {
                             name: "Type",
                             type: "Dropdown",
                             disabled: false,
+                            default: -1,
                             values: [
                                 {
                                     text: "Cosine Square",
@@ -648,12 +722,14 @@ export const tree = {
                         frequency: {
                             name: "Frequency",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 2
                         },
                         bandwidth: {
                             name: "Bandwidth",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 2
                         },
                         input: {
                             name: "Input",
@@ -663,32 +739,38 @@ export const tree = {
                                 f1: {
                                     name: "F1",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 f2: {
                                     name: "F2",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: -3.5
                                 },
                                 f3: {
                                     name: "F3",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 4.75
                                 },
                                 f4: {
                                     name: "F4",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 6.5
                                 },
                                 af: {
                                     name: "Height at F2 (AF)",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 100
                                 },
                                 bf: {
                                     name: "Height at F3 (BF)",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 100
                                 }
                             }
                         }
@@ -703,6 +785,7 @@ export const tree = {
                             name: "Type",
                             type: "Dropdown",
                             disabled: false,
+                            default: 0,
                             values: [
                                 {
                                     text: "Unfocused",
@@ -721,7 +804,8 @@ export const tree = {
                         focalDistance: {
                             name: "Focal Distance",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
@@ -733,12 +817,14 @@ export const tree = {
                         x: {
                             name: "X",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         },
                         y: {
                             name: "Y",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
@@ -751,6 +837,7 @@ export const tree = {
                             name: "Type",
                             type: "Dropdown",
                             disabled: false,
+                            default: 0,
                             values: [
                                 {
                                     text: "Longitudinal",
@@ -769,7 +856,8 @@ export const tree = {
                         suppression: {
                             name: "Suppression",
                             type: "Checkbox",
-                            disabled: false
+                            disabled: false,
+                            default: false
                         }
                     }
                 },
@@ -781,12 +869,14 @@ export const tree = {
                         angle: {
                             name: "Angle",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 45
                         },
                         skewAngle: {
                             name: "Skew Angle",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
@@ -798,27 +888,32 @@ export const tree = {
                         longitudinalWavespeed: {
                             name: "Longitudinal Wavespeed",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 6320
                         },
                         transversalWavespeed: {
                             name: "Transversal Wavespeed",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 3130
                         },
                         density: {
                             name: "Density",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 2.7
                         },
                         angle: {
                             name: "Angle",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 49
                         },
                         width: {
                             name: "Width",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 2
                         }
                     }
                 },
@@ -830,17 +925,20 @@ export const tree = {
                         phi: {
                             name: "Phi",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 45
                         },
                         theta: {
                             name: "Theta",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         },
                         psi: {
                             name: "Psi",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
@@ -852,29 +950,34 @@ export const tree = {
                         densityRatio: {
                             name: "Density Ratio",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         },
                         fluidWavespeed: {
                             name: "Fluid Wavespeed",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         },
                         damping: {
                             name: "Damping",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
                 couplant: {
                     name: "Couplant",
                     type: "Number",
-                    disabled: false
+                    disabled: false,
+                    default: 0
                 },
                 distanceToProbe: {
                     name: "Distance - Probe/Surface",
                     type: "Number",
-                    disabled: false
+                    disabled: false,
+                    default: 0
                 }
             }
         },
@@ -892,6 +995,7 @@ export const tree = {
                             name: "Shape",
                             type: "Dropdown",
                             disabled: false,
+                            default: -1,
                             values: [
                                 {
                                     text: "Rectangular",
@@ -906,7 +1010,8 @@ export const tree = {
                         autoNumElements: {
                             name: "Auto Num of Elements",
                             type: "Checkbox",
-                            disabled: false
+                            disabled: false,
+                            default: false
                         },
                         x: {
                             name: "X",
@@ -916,17 +1021,20 @@ export const tree = {
                                 length: {
                                     name: "Length",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 9.5
                                 },
                                 elements: {
                                     name: "Elements",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 16
                                 },
                                 gap: {
                                     name: "Gap",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
@@ -938,17 +1046,20 @@ export const tree = {
                                 length: {
                                     name: "Length",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 5.5
                                 },
                                 elements: {
                                     name: "Elements",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 2
                                 },
                                 gap: {
                                     name: "Gap",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         }
@@ -963,6 +1074,7 @@ export const tree = {
                             name: "Type",
                             type: "Dropdown",
                             disabled: false,
+                            default: 0,
                             values: [
                                 {
                                     text: "Unfocused",
@@ -981,7 +1093,8 @@ export const tree = {
                         focalDistance: {
                             name: "Focal Distance",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
@@ -993,12 +1106,14 @@ export const tree = {
                         x: {
                             name: "X",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         },
                         y: {
                             name: "Y",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
@@ -1010,7 +1125,8 @@ export const tree = {
                         suppression: {
                             name: "Suppression",
                             type: "Checkbox",
-                            disabled: false
+                            disabled: false,
+                            default: false
                         }
                     }
                 },
@@ -1022,12 +1138,14 @@ export const tree = {
                         angle: {
                             name: "Angle",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 45
                         },
                         skewAngle: {
                             name: "Skew Angle",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
@@ -1039,27 +1157,32 @@ export const tree = {
                         longitudinalWavespeed: {
                             name: "Longitudinal Wavespeed",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 6320
                         },
                         transversalWavespeed: {
                             name: "Transversal Wavespeed",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 3130
                         },
                         density: {
                             name: "Density",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 2.7
                         },
                         angle: {
                             name: "Angle",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 49
                         },
                         width: {
                             name: "Width",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 2
                         }
                     }
                 },
@@ -1071,34 +1194,40 @@ export const tree = {
                         phi: {
                             name: "Phi",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 45
                         },
                         theta: {
                             name: "Theta",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         },
                         psi: {
                             name: "Psi",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 0
                         }
                     }
                 },
                 couplant: {
                     name: "Couplant",
                     type: "Number",
-                    disabled: false
+                    disabled: false,
+                    default: 0
                 },
                 distanceToProbe: {
                     name: "Distance - Probe/Surface",
                     type: "Number",
-                    disabled: false
+                    disabled: false,
+                    default: 0
                 },
                 focusDepth: {
                     name: "Focus Depth",
                     type: "Number",
-                    disabled: false
+                    disabled: false,
+                    default: 0
                 },
             }
         },
@@ -1115,12 +1244,14 @@ export const tree = {
                         x: {
                             name: "X",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 15
                         },
                         y: {
                             name: "Y",
                             type: "Number",
-                            disabled: false
+                            disabled: false,
+                            default: 10
                         }
                     }
                 },
@@ -1133,6 +1264,7 @@ export const tree = {
                             name: "Variant",
                             type: "Dropdown",
                             disabled: false,
+                            default: 1,
                             values: [
                                 {
                                     text: "Spherical Cavity", 
@@ -1176,32 +1308,38 @@ export const tree = {
                                 diameter: {
                                     name: "Diameter",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 5
                                 },
                                 centreDepth: {
                                     name: "Centre Depth",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 30
                                 },
                                 diameterParallel: {
                                     name: "Diameter Parallel",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 5
                                 },
                                 diameterPerpendicular: {
                                     name: "Diameter Perpendicular",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 30
                                 },
                                 height: {
                                     name: "Height",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 5
                                 },
                                 lengthParallel: {
                                     name: "Length, Parallel Y-axis",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 30
                                 }
                             }
                         },
@@ -1213,22 +1351,26 @@ export const tree = {
                                 tilt: {
                                     name: "Diameter",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 skew: {
                                     name: "Centre Depth",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 tiltOfCrack: {
                                     name: "Tilt of Crack",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 tiltOfSurface: {
                                     name: "Tilt of Surface",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
@@ -1240,22 +1382,26 @@ export const tree = {
                                 relativeDensity: {
                                     name: "Relative Density",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 longitudinalVelocity: {
                                     name: "Longitudinal Velocity",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 transversalVelocity: {
                                     name: "Transversal Velocity",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 damping: {
                                     name: "Damping",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
@@ -1268,6 +1414,7 @@ export const tree = {
                                     name: "Variant",
                                     type: "Dropdown",
                                     disabled: false,
+                                    default: 1,
                                     values: [
                                         {
                                             text: "Open", 
@@ -1286,12 +1433,14 @@ export const tree = {
                                 stressQuotient: {
                                     name: "Stress Quotient",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0.5
                                 },
                                 contactDiameter: {
                                     name: "Contact Diameter",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
@@ -1310,17 +1459,20 @@ export const tree = {
                                 enabled: {
                                     name: "Enabled",
                                     type: "Checkbox",
-                                    disabled: false
+                                    disabled: false,
+                                    default: false
                                 },
                                 depth: {
                                     name: "Depth",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 5
                                 },
                                 tiltFromHorizontal: {
                                     name: "Tilt from Horizontal",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
@@ -1332,17 +1484,20 @@ export const tree = {
                                 enabled: {
                                     name: "Enabled",
                                     type: "Checkbox",
-                                    disabled: false
+                                    disabled: false,
+                                    default: false
                                 },
                                 rmsHeight: {
                                     name: "RMS Height",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 },
                                 corrLength: {
                                     name: "Corr. Length",
                                     type: "Number",
-                                    disabled: false
+                                    disabled: false,
+                                    default: 0
                                 }
                             }
                         },
@@ -1350,6 +1505,7 @@ export const tree = {
                             name: "Integration",
                             type: "Dropdown",
                             disabled: false,
+                            default: 1,
                             values: [
                                 {
                                     text: "Exact", 
@@ -1373,17 +1529,9 @@ export function ConstructDefaultTreeData(data, children) {
         if (value.type == "Expandable") {
             data[key] = {}
             ConstructDefaultTreeData(data[key], value.children)
-        } else if (value.type == "Number") {
+        } else {
             data[key] = {
-                value: 0
-            }
-        } else if (value.type == "Dropdown") {
-            data[key] = {
-                value: value.values[0].value
-            }
-        } else if (value.type == "Checkbox") {
-            data[key] = {
-                value: false
+                value: value.default
             }
         }
     }

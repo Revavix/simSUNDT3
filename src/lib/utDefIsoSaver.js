@@ -5,14 +5,14 @@ export class UTDefectIsoSaver {
     {
         this.LP = convertNFRToLP(data.transmitter.spectrum.stype.value)
         this.LS = data.method.utTechnique.method.value
-        this.XS = data.method.size.xs.value
-        this.XE = data.method.size.xe.value
-        this.XI = data.method.size.xi.value
-        this.YS = data.method.size.ys.value
-        this.YE = data.method.size.ye.value
-        this.YI = data.method.size.yi.value
-        this.CP = data.method.material.metalProperties.longitudinalVelocity.value
-        this.CS = data.method.material.metalProperties.transversalVelocity.value 
+        this.XS = data.method.mesh.size.xs.value
+        this.XE = data.method.mesh.size.xe.value
+        this.XI = data.method.mesh.size.xi.value
+        this.YS = data.method.mesh.size.ys.value
+        this.YE = data.method.mesh.size.ye.value
+        this.YI = data.method.mesh.size.yi.value
+        this.CP = data.method.material.metalProperties.longitudinalVelocity.value / 1000
+        this.CS = data.method.material.metalProperties.transversalVelocity.value / 1000
         this.DBA = data.method.material.metalProperties.damping.value
         this.NFR = data.transmitter.spectrum.stype.value
         this.FREQ = data.transmitter.spectrum.frequency.value
@@ -31,20 +31,20 @@ export class UTDefectIsoSaver {
         this.YD = data.method.timeWindow.y.value  
         this.ZD = data.method.timeWindow.depth.value  
         this.IMODE = [
-            convertFocusAndTechniqueToIMODE(data.transmitter.focus.ftype.value, data.method.utTechnique.transmitter),
-            convertFocusAndTechniqueToIMODE(data.receiver.focus.ftype.value, data.method.utTechnique.receiver)
+            convertFocusAndTechniqueToIMODE(data.transmitter.focus.ftype.value, data.method.utTechnique.transmitter.value),
+            convertFocusAndTechniqueToIMODE(data.receiver.focus.ftype.value, data.method.utTechnique.receiver.value)
         ]
         this.INSTY = [
             data.transmitter.wave.suppression.value == true ? 1 : 0, 
             data.receiver.wave.suppression.value == true ? 1 : 0
         ]
         this.PGA = [
-            data.transmitter.beamAngles.angle, 
-            data.receiver.beamAngles.angle
+            data.transmitter.beamAngles.angle.value, 
+            data.receiver.beamAngles.angle.value
         ]
         this.PSI = [
-            data.transmitter.beamAngles.skewAngle, 
-            data.receiver.beamAngles.skewAngle
+            data.transmitter.beamAngles.skewAngle.value, 
+            data.receiver.beamAngles.skewAngle.value
         ]
         this.ISHA = [
             convertAutoElementsToISHA(data.transmitter.shapeAndElements.autoNumElements.value,
@@ -65,8 +65,8 @@ export class UTDefectIsoSaver {
             data.receiver.shapeAndElements.y.length.value
         ]
         this.PD = [
-            data.transmitter.shapeAndElements.distance.value, 
-            data.receiver.shapeAndElements.distance.value
+            data.transmitter.distanceToProbe.value, 
+            data.receiver.distanceToProbe.value
         ]
         this.NAWX = [
             data.transmitter.shapeAndElements.x.elements.value, 
@@ -89,12 +89,12 @@ export class UTDefectIsoSaver {
             data.receiver.wedge.density.value
         ]
         this.CPW = [
-            data.transmitter.wedge.longitudinalVelocity.value, 
-            data.receiver.wedge.longitudinalVelocity.value
+            data.transmitter.wedge.longitudinalWavespeed.value, 
+            data.receiver.wedge.longitudinalWavespeed.value
         ]
         this.CSW = [
-            data.transmitter.wedge.transversalVelocity.value, 
-            data.receiver.wedge.transversalVelocity.value
+            data.transmitter.wedge.transversalWavespeed.value, 
+            data.receiver.wedge.transversalWavespeed.value
         ]
         this.PCW = [
             data.transmitter.wedge.width.value, 
@@ -551,10 +551,9 @@ export class UTDefectIsoSaver {
             }
         }
 
-        //console.log("[DEBUG] Writing utdefdat array:\n" + writeArray)
-
         let writeSuccessful = await window.electronAPI.writeFileByLines(saveLoc, writeArray)
-        //console.log(writeSuccessful)
+        
+        return Promise.resolve(writeSuccessful)
     }
 
     

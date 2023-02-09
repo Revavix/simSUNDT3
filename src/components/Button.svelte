@@ -6,13 +6,21 @@
         data.action()
     }
 
+    function hoverColor() {
+        if (data.hasOwnproperty("hoverColor")) {
+            return "#d6d3d1"
+        } else {
+            return "#000000"
+        }
+    }
+
     let brightnessClass: string = ''
 
     $: data.disabled, data.disabled ? brightnessClass = 'lower-opacity' : brightnessClass = ''
 
 </script>
 
-<button class="flex flex-row w-full hover:bg-gray-300 hover:rounded-sm {brightnessClass}" on:click={exec} disabled={data.disabled}>
+<button class="flex flex-row w-full hover:{hoverColor} hover:rounded-sm {brightnessClass}" on:click={exec} disabled={data.disabled}>
     <div class="flex flex-col" style="font-family:'Material Icons'; font-size:{data.size}px; color:{data.color}">
         {data.icon}
     </div>

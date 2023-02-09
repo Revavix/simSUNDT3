@@ -12,10 +12,10 @@ export function convertNFRToLP(n) {
 }
 
 export function convertFocusAndTechniqueToIMODE(focusType, technique) {
-    if (focusType < 0) {
-        return focusType + technique
+    if (technique < 0) {
+        return technique + focusType
     } else {
-        return focusType - technique
+        return technique - focusType
     }
 }
 

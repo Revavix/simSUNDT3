@@ -2,20 +2,19 @@
     import { createEventDispatcher } from "svelte";
     import { onMount } from 'svelte';
     import { UTDefectIsoSaver } from "../lib/utDefIsoSaver";
-    import { UTDefectRunner } from '../lib/utDefRunner';
     import TreeComponent from '../components/Tree.svelte'
     import Button from '../components/Button.svelte'
     import HorizontalProgressbarComponent from '../components/HorizontalProgressbar.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
     import { tree } from '../lib/tree.js'
 
+    export let utDefRunner
     export let projectHandler
 
     const dispatch = createEventDispatcher()
     let mainLogContents = []
     let treeMinimized = false
     let showConfigureModal = false
-    let utDefRunner = new UTDefectRunner("")
     let utDefRunnerIsRunning = false
 
     utDefRunner.statusMessage.subscribe(value => {
@@ -41,16 +40,22 @@
 
             // Try to instantiate a new saver and run the runner
             try {
+                const homeDir = await window.electronAPI.getHomeDir()
+                await window.electronAPI.rmDir(homeDir + "/Documents/simSUNDT/tmp")
+                await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/tmp")
+
                 saver = new UTDefectIsoSaver(projectHandler.currentProject.data.preprocessor.tree, 
                     projectHandler.currentProject.data.preprocessor.misc)
-                saver.Save()
+                const saved = await saver.Save()
+
+                if (saved) {
+                    utDefRunner.Run(projectHandler.currentProject.data.preprocessor.misc.binaryPath)
+                }
             } catch (err) {
                 mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
+                mainLogContents = mainLogContents
                 return
             }
-
-            // Run the runner if saver was initialized
-            utDefRunner.Run()
         },
         disabled: false
     }
@@ -133,7 +138,7 @@
     UpdateDefaultBinaryPath()
 
     // Variable watchers
-    $: utDefRunner.sourceBinaryPath, utDefRunner.sourceBinaryPath === '' ? runButton.disabled = true : runButton.disabled = false
+    $: projectHandler.currentProject.data.preprocessor.misc.binaryPath, projectHandler.currentProject.data.preprocessor.misc.binaryPath === '' ? runButton.disabled = true : runButton.disabled = false 
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
@@ -212,7 +217,7 @@
                 <div class="p-3 space-y-2">
                     <div>
                         <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Binary path</label>
-                        <input bind:value={utDefRunner.sourceBinaryPath} type="text" id="runner_path" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Eg: {defaultPath}" required>
+                        <input bind:value={projectHandler.currentProject.data.preprocessor.misc.binaryPath} type="text" id="runner_path" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Eg: {defaultPath}" required  on:change={projectHandler.Save()}>
                     </div>
                 </div>
                 <div class="p-3 space-y-2">
