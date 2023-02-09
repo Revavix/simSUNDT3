@@ -6,7 +6,6 @@
   "version": "0.1.0",
   "main": "src/index.js",
   "scripts": {
-    "dev-win": "",
     "dev": "concurrently 'npm run web:watch' 'sleep 1 && npm run electron:start'",
     "web:watch": "vite",
     "electron:start": "NODE_ENV=development electron src",
