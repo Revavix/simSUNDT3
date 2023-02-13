@@ -1,6 +1,7 @@
 <script lang="ts">
     import { ProjectCaching, ProjectHandler } from "./lib/project"
     import { UTDefectRunner } from './lib/utDefRunner';
+    import { UTDefResultParser } from "./lib/utDefResultParser";
     import File from './tabs/File.svelte'
     import Help from './tabs/Help.svelte'
     import Preprocessor from './tabs/Preprocessor.svelte'
@@ -15,6 +16,7 @@
     let projectCaching = new ProjectCaching()
     let projectHandler = new ProjectHandler()
     let utDefRunner = new UTDefectRunner()
+    let utDefResultParser = new UTDefResultParser()
 
     let platform = 'darwin'
     let version = '3'
@@ -143,9 +145,9 @@
     {#if activeTab == "File"}
         <File bind:projectCaching={projectCaching} bind:projectHandler={projectHandler} bind:currentTab={activeTab}/>
     {:else if activeTab == "Preprocessor"}
-        <Preprocessor bind:projectHandler={projectHandler} bind:utDefRunner={utDefRunner}/>
+        <Preprocessor bind:projectHandler={projectHandler} bind:utDefRunner={utDefRunner} bind:utDefResultParser={utDefResultParser}/>
     {:else if activeTab == "Results"}
-        <Results/>
+        <Results bind:projectHandler={projectHandler} bind:utDefResultParser={utDefResultParser}/>
     {:else if activeTab == "Help"}
         <Help/>
     {/if}

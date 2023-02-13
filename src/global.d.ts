@@ -4,6 +4,7 @@ export interface IElectronAPI {
     getHomeDir: () => Promise<string>,
     rmDir: (dirPath: string) => Promise<boolean>,
     readFile: (path: string) => Promise<string>,
+    readFileBytes: (path: string) => Promise<Uint8Array>,
     writeFile: (path: string, data: string) => Promise<boolean>,
     writeFileByLines: (path: string, data: Array<string>) => Promise<boolean>,
     copyFile: (src: string, target: string) => Promise<boolean>,

@@ -1,9 +1,8 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
-    import { onMount } from 'svelte';
+    import { densityAndSignalData } from '../lib/stores'
 
     // Format [[x, y, v], [x, y, v]]
-    export let rawData = []
     export let plot
 
     let plotDiv
@@ -23,18 +22,18 @@
         dragmode: 'pan'
     }
 
-    onMount(() => {
-        let data = [
+    densityAndSignalData.subscribe(v => {
+        let plotData = [
             {
-                x: rawData.map(x => x[0]),
-                y: rawData.map(x => x[1]),
-                z: rawData.map(x => x[2]),
+                x: v.data.map(x => x.x),
+                y: v.data.map(x => x.y),
+                z: v.data.map(x => x.z),
                 zsmooth: false,
                 type: 'heatmap'
             }
         ]
 
-        plot = Plotly.react(plotDiv, data, layout, plotlyCfg)
+        plot = Plotly.react(plotDiv, plotData, layout, plotlyCfg)
     })
 </script>
 
