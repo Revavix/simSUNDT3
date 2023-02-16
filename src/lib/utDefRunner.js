@@ -64,9 +64,11 @@ export class UTDefectRunner {
         this.running.set(false)
         this.maxRunProgress.set(100)
         this.runProgress.set(0)
+
+        return Promise.resolve(true)
     }
 
-    Stop() {
+    async Stop() {
         window.electronAPI.utDefTerminate()
     }
 }

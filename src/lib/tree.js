@@ -710,7 +710,7 @@ export const tree = {
                                     value: -1
                                 },
                                 {
-                                    text: "Elliptic",
+                                    text: "Monochromatic",
                                     value: 1
                                 },
                                 {
@@ -723,13 +723,13 @@ export const tree = {
                             name: "Frequency",
                             type: "Number",
                             disabled: false,
-                            default: 2
+                            default: 1.25
                         },
                         bandwidth: {
                             name: "Bandwidth",
                             type: "Number",
                             disabled: false,
-                            default: 2
+                            default: 1
                         },
                         input: {
                             name: "Input",

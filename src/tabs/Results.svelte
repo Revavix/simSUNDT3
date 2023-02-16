@@ -1,39 +1,38 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { onMount } from 'svelte';
+    import { densityAndSignalData, interpolationMode } from '../lib/stores'
     import DensityPlot from '../components/DensityPlot.svelte';
     import LinePlot from '../components/LinePlot.svelte';
     import PlotModebar from '../components/PlotModebar.svelte';
+    import APlot from '../components/APlot.svelte';
+    import CPlot from '../components/CPlot.svelte';
+    import { onMount } from 'svelte';
+    import Spinner from '../components/Spinner.svelte';
     
-    let dispatch = createEventDispatcher()
+    export let projectHandler
+    export let utDefResultParser
+
+    let interpolationOn = false
+    let interpolationLevel = 0
+    let loading = false
 
     onMount(() => {
-        dispatch('message', {
-            origin: "Generic",
-            type: "UnhideViewport"
+        loading = true
+
+        utDefResultParser.Parse(projectHandler.currentProject.data.postprocessor).then(v => {
+            densityAndSignalData.set(v)
+            loading = false
         })
     })
 
-    let interpolationLevel = 0
-
-    // Avoid modifying these, they are used by the PlotModebar, and defined in the respective plot components
-    let aScanPlot
-    let bScanPlot
-    let cScanPlot
-    let dScanPlot
-
-    let data = [
-        [0, 0, 1],
-        [0, 1, 4],
-        [1, 1, 4],
-        [1, 0, 6]
-    ]
-
-    let ascanData = [
-        [0, 1],
-        [1, 1.5],
-        [2, -3]
-    ]
+    function changeInterpolation() {
+        if (interpolationLevel == 1 && interpolationOn) {
+            interpolationMode.set(['fast'])
+        } else if (interpolationLevel == 2 && interpolationOn) {
+            interpolationMode.set(['best'])
+        } else {
+            interpolationMode.set([false])
+        }
+    }
 </script>
 
 <div id="postprocessor-tab">
@@ -41,7 +40,7 @@
         <div class="flex flex-col w-24 pt-1 -space-y-1">
             <div class="flex flex-row w-full items-center">
                 <div class="flex flex-col mx-1" style="font-size:10px; color:#4d4d4d;">
-                    <input id="default-checkbox" type="checkbox" value="" class="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <input id="default-checkbox" type="checkbox" bind:checked={interpolationOn} class="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" on:change={changeInterpolation}>
                 </div>
                 <div class="flex flex-col mx-1" style="font-size:10px; color:#4d4d4d;">
                     Interpolate
@@ -52,7 +51,7 @@
                     1
                 </div>
                 <div class="flex flex-col w-10/12">
-                    <input name="interpSlider" type="range" bind:value={interpolationLevel} min="1" max="5" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                    <input name="interpSlider" type="range" bind:value={interpolationLevel} min="1" max="2" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" on:change={changeInterpolation}>
                 </div>
                 <div class="flex flex-col w-1/12 mx-1" style="font-size:10px; color:#4d4d4d;">
                     5
@@ -75,35 +74,23 @@
     </div>
     <!-- Interaction Panel -->
 
-    <div class="w-full grid grid-cols-2 gap-2 mt-2" style="z-index: 99; height: calc(100vh - 202px);">
-        <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99; max-height: calc(50vh - 101px);">
-            <div class="flex flex-row">
-                <div class="flex flex-col">
-                    <p class="pt-1 px-2" style="color:#4d4d4d">C-Scan</p>
-                </div>
-                <div class="flex flex-col ml-auto mr-2">
-                    <PlotModebar bind:plot={cScanPlot}/>
-                </div>
-            </div>
-            <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">
-                <DensityPlot bind:plot={cScanPlot} bind:rawData={data} />
-            </div>
+    <div class="w-full grid grid-cols-2 gap-2 mt-2" style="z-index: 99; height: calc(100vh - 206px);">
+        <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99;">
+            {#if loading}
+            <Spinner/>
+            {:else}
+            <CPlot/>
+            {/if}
         </div>
         <div class="rounded-md bg-stone-300" style="z-index: 99;">
-            <div class="flex flex-row">
-                <div class="flex flex-col">
-                    <p class="pt-1 px-2" style="color:#4d4d4d">A-Scan</p>
-                </div>
-                <div class="flex flex-col ml-auto mr-2">
-                    <PlotModebar bind:plot={aScanPlot}/>
-                </div>
-            </div>
-            <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">
-                <LinePlot bind:plot={aScanPlot} bind:rawData={ascanData}/>
-            </div>
+            {#if loading}
+            <Spinner/>
+            {:else}
+            <APlot/>
+            {/if}
         </div>
         <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99; max-height: calc(50vh - 101px);">
-            <div class="flex flex-row">
+            <!--<div class="flex flex-row">
                 <div class="flex flex-col">
                     <p class="pt-1 px-2" style="color:#4d4d4d">B-Scan</p>
                 </div>
@@ -113,10 +100,10 @@
             </div>
             <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">
                 <DensityPlot bind:plot={bScanPlot}/>
-            </div>
+            </div>-->
         </div>
         <div class="rounded-md bg-stone-300" style="z-index: 99;">
-            <div class="flex flex-row">
+            <!--<div class="flex flex-row">
                 <div class="flex flex-col">
                     <p class="pt-1 px-2" style="color:#4d4d4d">D-Scan</p>
                 </div>
@@ -126,7 +113,7 @@
             </div>
             <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">
                 <DensityPlot bind:plot={dScanPlot}/>
-            </div>
+            </div>-->
         </div>
     </div>
 </div>

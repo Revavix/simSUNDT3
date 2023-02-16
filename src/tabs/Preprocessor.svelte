@@ -10,6 +10,7 @@
 
     export let utDefRunner
     export let projectHandler
+    export let utDefResultParser
 
     const dispatch = createEventDispatcher()
     let mainLogContents = []
@@ -36,21 +37,29 @@
         color: "#55b13c",
         icon: "play_arrow",
         action: async () => {
-            let saver = undefined
-
             // Try to instantiate a new saver and run the runner
             try {
                 const homeDir = await window.electronAPI.getHomeDir()
                 await window.electronAPI.rmDir(homeDir + "/Documents/simSUNDT/tmp")
                 await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/tmp")
 
-                saver = new UTDefectIsoSaver(projectHandler.currentProject.data.preprocessor.tree, 
+                const saver = new UTDefectIsoSaver(projectHandler.currentProject.data.preprocessor.tree, 
                     projectHandler.currentProject.data.preprocessor.misc)
                 const saved = await saver.Save()
 
-                if (saved) {
-                    utDefRunner.Run(projectHandler.currentProject.data.preprocessor.misc.binaryPath)
+                if (!saved) {
+                    return
                 }
+
+                const run = await utDefRunner.Run(projectHandler.currentProject.data.preprocessor.misc.binaryPath)
+
+                if (!run) {
+                    return
+                }
+                
+                projectHandler.currentProject.data.postprocessor = await utDefResultParser.Extract(homeDir + "/Documents/simSUNDT/tmp")
+
+                projectHandler.Save()
             } catch (err) {
                 mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
                 mainLogContents = mainLogContents
@@ -131,8 +140,11 @@
         }
     }
 
-    onMount(() => {
-        
+    onMount(async () => {
+        const homeDir = await window.electronAPI.getHomeDir()
+
+        //let test = new UTDefResultParser()
+        //test.Parse(homeDir + "/Documents/simSUNDT/tmp")
     })
 
     UpdateDefaultBinaryPath()

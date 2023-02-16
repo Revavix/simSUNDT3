@@ -60,7 +60,7 @@
     let zoomInButton = {
         label: "",
         color: "#4d4d4d",
-        icon: "zoom_out",
+        icon: "zoom_in",
         action:  () => {
             zoom(0.5)
         },

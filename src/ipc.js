@@ -50,9 +50,26 @@ class GenericIpc {
             return fs.readFileSync(filePath).toString()
         })
 
+        ipcMain.handle('read-file-bytes', async(ev, filePath) => {
+            const bytes = fs.readFileSync(filePath)
+
+            return new Uint8Array(bytes)
+        })
+
         ipcMain.handle('write-file', async(ev, filePath, data) => {
             try {
                 fs.writeFileSync(filePath, data)
+
+                return true
+            } catch (err) {
+                return false
+            }
+        })
+
+        ipcMain.handle('write-file-binary', async(ev, filePath, data) => {
+            try {
+                let buf = Buffer.from(data).toString('binary')
+                fs.writeFileSync(filePath, buf)
 
                 return true
             } catch (err) {

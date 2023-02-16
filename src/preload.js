@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getHomeDir: () => ipcRenderer.invoke('os-get-home-dir'),
     rmDir: (dirPath) => ipcRenderer.invoke('rmdir', dirPath),
     readFile: (path) => ipcRenderer.invoke('read-file', path),
+    readFileBytes: (path) => ipcRenderer.invoke('read-file-bytes', path),
     writeFile: (path, data) => ipcRenderer.invoke('write-file', path, data),
     writeFileByLines: (path, data) => ipcRenderer.invoke('write-file-by-lines', path, data),
     copyFile: (src, target) => ipcRenderer.invoke('copy-file', src, target),
