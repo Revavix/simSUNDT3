@@ -710,7 +710,7 @@ export const tree = {
                                     value: -1
                                 },
                                 {
-                                    text: "Elliptic",
+                                    text: "Monochromatic",
                                     value: 1
                                 },
                                 {
