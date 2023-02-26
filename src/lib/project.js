@@ -1,62 +1,5 @@
 import { tree, ConstructDefaultTreeData } from "./tree";
-
-export class ProjectCaching {
-    homeDir = ""
-    cache = []
-
-    constructor() {
-        window.electronAPI.getHomeDir().then((v) => {
-            this.homeDir = v
-        })
-    }
-
-    async Write(project, path) {
-        let exists = await window.electronAPI.fileExists(this.homeDir + "/Documents/simSUNDT/files.sscache")
-        let data = {}
-
-        if (exists) {
-            data = JSON.parse(await window.electronAPI.readFile(this.homeDir + "/Documents/simSUNDT/files.sscache"))
-        }
-        
-        data[project.name] = {
-            path: path,
-            lastSaved: project.lastSaved
-        }
-        
-        return await window.electronAPI.writeFile(this.homeDir + "/Documents/simSUNDT/files.sscache", JSON.stringify(data))
-    }
-
-    async Refresh() {
-        this.cache = []
-        const exists = await window.electronAPI.fileExists(this.homeDir + "/Documents/simSUNDT/files.sscache")
-
-        if (exists) {
-            let data = JSON.parse(await window.electronAPI.readFile(this.homeDir + "/Documents/simSUNDT/files.sscache"))
-            let deletedKeys = false
-        
-            for (const [key, value] of Object.entries(data)) {
-                if (await window.electronAPI.fileExists(value.path)) {
-                    this.cache.push(
-                        {
-                            name: key,
-                            path: value.path,
-                            lastSaved: value.lastSaved
-                        }
-                    )
-                } else {
-                    deletedKeys = true
-                    delete data[key]
-                }
-            }
-        
-            if (deletedKeys) {
-                window.electronAPI.writeFile(this.homeDir + "/Documents/simSUNDT/files.sscache", JSON.stringify(data))
-            }
-        }
-
-        return Promise.resolve(true)
-    }
-}
+import { writeCache } from "./utils";
 
 export class ProjectHandler {
     projectHomeDir = ""
@@ -79,20 +22,17 @@ export class ProjectHandler {
         window.electronAPI.getHomeDir().then((v) => {
             this.projectHomeDir = v + "/Documents/simSUNDT/Projects"
         })
+
+        // Create a new project on app instantiation
+        this.New()
     }
 
     // Creates a new project and assigns it as the current project
-    async New(projectName, path, overwrite) {
-        const exists = await window.electronAPI.fileExists(path + "/" + projectName + ".ssproj")
-
-        if (exists && overwrite == false) {
-            return Promise.resolve({status: "ERROR", msg: "Project already exists", data: {}})
-        }
-
+    async New() {
         let date = new Date()
 
         this.currentProject = {
-            name: projectName,
+            name: "Untitled Project",
             lastSaved: date.toLocaleDateString() + " " + date.toLocaleTimeString(),
             data: {
                 preprocessor: {
@@ -106,16 +46,9 @@ export class ProjectHandler {
                 postprocessor: {}
             }
         }
-        this.currentProjectPath = path + "/" + projectName + ".ssproj"
+        this.currentProjectPath = undefined
 
-        let dataToSave = JSON.stringify(this.currentProject)
-
-        try {
-            const write = await window.electronAPI.writeFile(path + "/" + projectName + ".ssproj", dataToSave)
-            return Promise.resolve({status: "OK", msg: "", data: this.currentProject})
-        } catch (err) {
-            return Promise.resolve({status: "ERROR", msg: "Filesystem error occured", data: err})
-        }
+        return Promise.resolve({status: "OK", msg: "", data: ""})
     }
 
     async Save() {
@@ -123,15 +56,18 @@ export class ProjectHandler {
             return Promise.resolve({status: "ERROR", msg: "The current project path is invalid, unable to save", data: ""})
         }
 
-        let date = new Date()
-
-        this.currentProject["lastSaved"] = date.toLocaleDateString() + " " + date.toLocaleTimeString()
-
-        let dataToSave = JSON.stringify(this.currentProject)
-
         try {
-            const write = await window.electronAPI.writeFile(this.currentProjectPath, dataToSave)
-            Promise.resolve({status: "OK", msg: "", data: this.currentProject})
+            // Update date
+            let date = new Date()
+            this.currentProject["lastSaved"] = date.toLocaleDateString() + " " + date.toLocaleTimeString()
+
+            // Save the project using new date data and currently stored data
+            await window.electronAPI.writeFile(this.currentProjectPath, JSON.stringify(this.currentProject))
+
+            // Update cache
+            await writeCache(this.currentProject, this.currentProjectPath)
+
+            return Promise.resolve({status: "OK", msg: "", data: this.currentProject})
         } catch (err) {
             return Promise.resolve({status: "ERROR", msg: "Filesystem error occured", data: err})
         }

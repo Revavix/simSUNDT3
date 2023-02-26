@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     mkdir: (path) => ipcRenderer.invoke('mkdir', path),
     openFolderModal: (defaultPath) => ipcRenderer.invoke('open-folder-modal', defaultPath),
     openFileModal: (defaultPath, filters) => ipcRenderer.invoke('open-file-modal', defaultPath, filters),
+    openSaveModal: (defaultPath, filters) => ipcRenderer.invoke('open-save-modal', defaultPath, filters),
     utDefStart: (pathToBinaryFolder) => ipcRenderer.invoke('utdef-start', pathToBinaryFolder),
     utDefStartStd: (pathToBinary, inputPath) => ipcRenderer.invoke('utdef-start-std', pathToBinary, inputPath),
     utDefGetProgressStd: () => ipcRenderer.invoke('utdef-get-prog-std'),

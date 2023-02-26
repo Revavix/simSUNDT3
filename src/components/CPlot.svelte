@@ -2,10 +2,8 @@
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
     import { densityAndSignalData, selectedSignalData, interpolationMode } from '../lib/stores'
-    import { onMount } from 'svelte';
 
     let smoothing = false
-    let clickHandler
     let plot
     let div
     let layout = {
@@ -26,12 +24,9 @@
         dragmode: 'pan'
     }
 
-    onMount(() => {
-        densityAndSignalData.update(n => n)
-    })
+    densityAndSignalData.subscribe(async (v) => {
+        await setTimeout(() => {}, 100)
 
-
-    densityAndSignalData.subscribe(v => {
         if (div == undefined) {
             return
         }

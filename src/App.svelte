@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { ProjectCaching, ProjectHandler } from "./lib/project"
+    import { ProjectHandler } from "./lib/project"
     import { UTDefectRunner } from './lib/utDefRunner';
     import { UTDefResultParser } from "./lib/utDefResultParser";
+    import { slide } from "svelte/transition";
     import File from './tabs/File.svelte'
     import Help from './tabs/Help.svelte'
     import Preprocessor from './tabs/Preprocessor.svelte'
@@ -9,11 +10,13 @@
     import { onMount } from 'svelte';
     import Viewport from './components/Viewport.svelte'
     import Button from "./components/Button.svelte"
+    import Alert from "./components/Alert.svelte";
     
     let tabs = ["File", "Preprocessor", "Results", "Help"]
     let activeTab = "File"
+    let unsaved = true
+    let activeAlerts = []
 
-    let projectCaching = new ProjectCaching()
     let projectHandler = new ProjectHandler()
     let utDefRunner = new UTDefectRunner()
     let utDefResultParser = new UTDefResultParser()
@@ -82,7 +85,7 @@
     <!-- OS specific top bar -->
     {#if platform === 'darwin'}
     <div class="flex flex-row text-center justify-center mt-2 text-sm">
-        <p>SimSUNDT [{version}] - {projectHandler.currentProject.name}</p>
+        <p>SimSUNDT [{version}] - {projectHandler.currentProject.name} {unsaved == false ? '' : '(Unsaved)'}</p>
     </div>
     {:else if platform == 'win32'}
     <div class="flex flex-row">
@@ -143,9 +146,9 @@
         </ul>
     </div>
     {#if activeTab == "File"}
-        <File bind:projectCaching={projectCaching} bind:projectHandler={projectHandler} bind:currentTab={activeTab}/>
+        <File bind:projectHandler={projectHandler} bind:currentTab={activeTab} bind:unsaved={unsaved} bind:activeAlerts={activeAlerts}/>
     {:else if activeTab == "Preprocessor"}
-        <Preprocessor bind:projectHandler={projectHandler} bind:utDefRunner={utDefRunner} bind:utDefResultParser={utDefResultParser}/>
+        <Preprocessor bind:projectHandler={projectHandler} bind:utDefRunner={utDefRunner} bind:utDefResultParser={utDefResultParser} bind:unsaved={unsaved}/>
     {:else if activeTab == "Results"}
         <Results bind:projectHandler={projectHandler} bind:utDefResultParser={utDefResultParser}/>
     {:else if activeTab == "Help"}
@@ -153,6 +156,15 @@
     {/if}
     <div class="absolute-under" class:visible={activeTab === "Preprocessor" || activeTab === "Results"} class:invisible={activeTab === "File" || activeTab === "Help"}>
         <Viewport/>
+    </div>
+
+    <!-- Alert -->
+    <div class="mx-auto w-6/12 mt-12 cursor-default" style="position: absolute; left: 0; right: 0; top: 0; z-index: 999;">
+        {#each activeAlerts as alert}
+        <div class="mt-0.5" transition:slide>
+            <Alert text={alert.t} color={alert.c} icon={alert.i}/>
+        </div>
+        {/each}
     </div>
 
 </main>
