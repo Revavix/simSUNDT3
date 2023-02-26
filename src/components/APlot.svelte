@@ -4,7 +4,6 @@
     import { selectedSignalData } from '../lib/stores.js'
 
     let plot
-
     let div
     let layout = {
         paper_bgcolor: 'rgba(0, 0, 0, 0)',

@@ -8,11 +8,11 @@
     import OutputLogComponent from '../components/OutputLog.svelte'
     import { tree } from '../lib/tree.js'
 
+    export let unsaved
     export let utDefRunner
     export let projectHandler
     export let utDefResultParser
 
-    const dispatch = createEventDispatcher()
     let mainLogContents = []
     let treeMinimized = false
     let showConfigureModal = false
@@ -58,8 +58,7 @@
                 }
                 
                 projectHandler.currentProject.data.postprocessor = await utDefResultParser.Extract(homeDir + "/Documents/simSUNDT/tmp")
-
-                projectHandler.Save()
+                unsaved = true
             } catch (err) {
                 mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
                 mainLogContents = mainLogContents
@@ -136,7 +135,7 @@
 
     function handleTreeMessage(ev) {
         if (ev.detail.type == "Save") {
-            projectHandler.Save()
+            unsaved = true
         }
     }
 
@@ -172,7 +171,7 @@
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
         <div class="flex flex-col w-20 pt-1 -space-y-1">
-            <select bind:value={projectHandler.currentProject.data.preprocessor.misc.accuracy} on:change={projectHandler.Save()} class="pl-1 mb-auto bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" required> 
+            <select bind:value={projectHandler.currentProject.data.preprocessor.misc.accuracy} class="pl-1 mb-auto bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" required on:change={() => unsaved = true}> 
                 <option value=5>Highest</option>
                 <option value=4>High</option>
                 <option value=3>Medium</option>
@@ -229,7 +228,7 @@
                 <div class="p-3 space-y-2">
                     <div>
                         <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Binary path</label>
-                        <input bind:value={projectHandler.currentProject.data.preprocessor.misc.binaryPath} type="text" id="runner_path" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Eg: {defaultPath}" required  on:change={projectHandler.Save()}>
+                        <input bind:value={projectHandler.currentProject.data.preprocessor.misc.binaryPath} type="text" id="runner_path" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Eg: {defaultPath}" required on:change={() => unsaved = true}/>
                     </div>
                 </div>
                 <div class="p-3 space-y-2">

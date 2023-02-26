@@ -144,6 +144,21 @@ class GenericIpc {
                 return Promise.resolve(filePaths[0])
             }
         })
+
+        ipcMain.handle('open-save-modal', async(ev, defaultPath, filters) => {
+            let win = BrowserWindow.fromWebContents(ev.sender)
+
+            const { canceled, filePath } = await dialog.showSaveDialog(win, {
+                defaultPath: defaultPath,
+                filters: filters
+            })
+
+            if (canceled) {
+                return ""
+            } else {
+                return Promise.resolve(filePath)
+            }
+        })
     }
 }
 

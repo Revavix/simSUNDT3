@@ -65,7 +65,6 @@ export class UTDefResultParser
                 return Promise.resolve({})
             }
         } catch (err) {
-            console.log(err)
             return Promise.resolve({})
         }
 

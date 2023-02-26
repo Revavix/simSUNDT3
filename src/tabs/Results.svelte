@@ -1,10 +1,9 @@
 <script lang="ts">
     import { densityAndSignalData, interpolationMode } from '../lib/stores'
-    import DensityPlot from '../components/DensityPlot.svelte';
-    import LinePlot from '../components/LinePlot.svelte';
-    import PlotModebar from '../components/PlotModebar.svelte';
     import APlot from '../components/APlot.svelte';
     import CPlot from '../components/CPlot.svelte';
+    import BPlot from '../components/BPlot.svelte';
+    import DPlot from '../components/DPlot.svelte';
     import { onMount } from 'svelte';
     import Spinner from '../components/Spinner.svelte';
     
@@ -13,14 +12,18 @@
 
     let interpolationOn = false
     let interpolationLevel = 0
-    let loading = false
+    let status = "Loading"
 
     onMount(() => {
-        loading = true
-
         utDefResultParser.Parse(projectHandler.currentProject.data.postprocessor).then(v => {
-            densityAndSignalData.set(v)
-            loading = false
+
+            if (Object.keys(v).length != 0) {
+                densityAndSignalData.set(v)
+                status = "Ok"
+            } else {
+                densityAndSignalData.update(n => n)
+                status = "Invalid"
+            }
         })
     })
 
@@ -76,44 +79,56 @@
 
     <div class="w-full grid grid-cols-2 gap-2 mt-2" style="z-index: 99; height: calc(100vh - 206px);">
         <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99;">
-            {#if loading}
+            {#if status == "Loading"}
             <Spinner/>
-            {:else}
+            {:else if status == "Invalid"}
+            <div class="flex flex-col w-full h-full items-center justify-center">
+                <div class="flex flex-row" style="font-family:'Material Icons'; font-size:128px; color:#4d4d4d;">
+                    dangerous
+                </div>
+            </div>
+            {:else if status == "Ok"}
             <CPlot/>
             {/if}
         </div>
         <div class="rounded-md bg-stone-300" style="z-index: 99;">
-            {#if loading}
+            {#if status == "Loading"}
             <Spinner/>
-            {:else}
+            {:else if status == "Invalid"}
+            <div class="flex flex-col w-full h-full items-center justify-center">
+                <div class="flex flex-row" style="font-family:'Material Icons'; font-size:128px; color:#4d4d4d;">
+                    dangerous
+                </div>
+            </div>
+            {:else if status == "Ok"}
             <APlot/>
             {/if}
         </div>
         <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99; max-height: calc(50vh - 101px);">
-            <!--<div class="flex flex-row">
-                <div class="flex flex-col">
-                    <p class="pt-1 px-2" style="color:#4d4d4d">B-Scan</p>
-                </div>
-                <div class="flex flex-col ml-auto mr-2">
-                    <PlotModebar bind:plot={bScanPlot}/>
+            {#if status == "Loading"}
+            <Spinner/>
+            {:else if status == "Invalid"}
+            <div class="flex flex-col w-full h-full items-center justify-center">
+                <div class="flex flex-row" style="font-family:'Material Icons'; font-size:128px; color:#4d4d4d;">
+                    dangerous
                 </div>
             </div>
-            <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">
-                <DensityPlot bind:plot={bScanPlot}/>
-            </div>-->
+            {:else if status == "Ok"}
+            <BPlot/>
+            {/if}
         </div>
         <div class="rounded-md bg-stone-300" style="z-index: 99;">
-            <!--<div class="flex flex-row">
-                <div class="flex flex-col">
-                    <p class="pt-1 px-2" style="color:#4d4d4d">D-Scan</p>
-                </div>
-                <div class="flex flex-col ml-auto mr-2">
-                    <PlotModebar bind:plot={dScanPlot}/>
+            {#if status == "Loading"}
+            <Spinner/>
+            {:else if status == "Invalid"}
+            <div class="flex flex-col w-full h-full items-center justify-center">
+                <div class="flex flex-row" style="font-family:'Material Icons'; font-size:128px; color:#4d4d4d;">
+                    dangerous
                 </div>
             </div>
-            <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">
-                <DensityPlot bind:plot={dScanPlot}/>
-            </div>-->
+            {:else if status == "Ok"}
+            <DPlot/>
+            {/if}
         </div>
     </div>
 </div>
