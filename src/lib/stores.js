@@ -9,8 +9,9 @@ export const densityAndSignalData = writable({
     yi: 0.5
 })
 
-export const selectedSignalData = writable([
-    {x: 0, y: 0}
-])
+export const selectedSignalData = writable({
+    data: [{x: 0, y: 0}],
+    amplitude: 1
+})
 
 export const interpolationMode = writable([])

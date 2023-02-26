@@ -3,6 +3,8 @@
     import PlotModebar from "./PlotModebar.svelte";
     import { selectedSignalData } from '../lib/stores.js'
 
+    export let rectification
+
     let plot
     let div
     let layout = {
@@ -26,16 +28,74 @@
             return
         }
 
+        let rectifiedData = []
+
+        if (rectification == 2) {
+            rectifiedData = rectifyFullwave(v.data, v.amplitude)
+        } else if (rectification == 3) { 
+            rectifiedData = rectifyHalfwavePositive(v.data, v.amplitude)
+        } else if (rectification == 4) { 
+            rectifiedData = rectifyHalfwaveNegative(v.data, v.amplitude)
+        } else {
+            rectifiedData = unrectified(v.data, v.amplitude)
+        }
+
         let data = [
             {
-                x: v.map(x => x.x),
-                y: v.map(x => x.y),
+                x: rectifiedData.map(x => x.x),
+                y: rectifiedData.map(x => x.y),
                 type: 'scatter',
             }
         ]
 
         plot = Plotly.newPlot(div, data, layout, cfg)
     })
+
+    function clamp(num, min, max) {
+        return Math.min(Math.max(num, min), max);
+    }
+
+    function unrectified(arr, amplitude) {
+        let r = []
+
+        arr.forEach(element => {
+            r.push({x: element.x, y: element.y / amplitude})
+        });
+
+        return r
+    }
+
+    function rectifyFullwave(arr, amplitude) {
+        let r = []
+
+        arr.forEach(element => {
+            r.push({x: element.x, y: Math.abs(element.y / amplitude)})
+        });
+
+        return r
+    }
+
+    function rectifyHalfwavePositive(arr, amplitude) {
+        let r = []
+
+        arr.forEach(element => {
+            r.push({x: element.x, y: clamp(element.y / amplitude, 0, 1)})
+        });
+
+        return r
+    }
+
+    function rectifyHalfwaveNegative(arr, amplitude) {
+        let r = []
+
+        arr.forEach(element => {
+            r.push({x: element.x, y: clamp(element.y / amplitude, -1, 0)})
+        });
+
+        return r
+    }
+
+    $: rectification, selectedSignalData.update(n => n)
 </script>
 
 
