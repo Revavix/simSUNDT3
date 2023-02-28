@@ -11,7 +11,7 @@
     export let utDefResultParser
 
     let interpolationOn = false
-    let interpolationLevel = 0
+    let interpolationLevel = 1
     let status = "Loading"
     let rectification
 

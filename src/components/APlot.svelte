@@ -101,7 +101,7 @@
 
 <div class="flex flex-row">
     <div class="flex flex-col">
-        <p class="pt-1 px-2" style="color:#4d4d4d">A-Scan</p>
+        <p class="pt-1 px-2" style="color:#4d4d4d">Pulse Amplitude (A)</p>
     </div>
     <div class="flex flex-col ml-auto mr-2">
         <PlotModebar bind:plot={plot}/>

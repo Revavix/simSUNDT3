@@ -1,14 +1,9 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
-    import { densityAndSignalData, selectedSignalData, interpolationMode } from '../lib/stores'
+    import { densityAndSignalData, selectedSignalData, selectedSideData, selectedEndData, interpolationMode } from '../lib/stores'
 
     let mode = "A"
-    let lastModePositions = {
-        a: [0, 0],
-        b: [0, 0],
-        d: [0, 0]
-    }
     let smoothing = false
     let plot
     let div
@@ -28,6 +23,34 @@
         responsive: true,
         displayModeBar: false,
         dragmode: 'pan'
+    }
+
+    function constructSideData(data, xp, points) {
+        let ret = []
+
+        data.forEach(element => {
+            if (element.x == xp) {
+                for(let i = 0; i < points; i++) {
+                    ret.push({x: element.y, y: i, z: element.r[i].y})
+                }
+            }
+        });
+
+        return ret
+    }
+
+    function constructEndData(data, yp, points) {
+        let ret = []
+
+        data.forEach(element => {
+            if (element.y == yp) {
+                for(let i = 0; i < points; i++) {
+                    ret.push({x: element.x, y: i, z: element.r[i].y})
+                }
+            }
+        });
+
+        return ret
     }
 
     densityAndSignalData.subscribe(async (v) => {
@@ -52,8 +75,9 @@
         div.on('plotly_click', function(d) {
             for(var i=0; i < d.points.length; i++){
                 v.data.find((coordData) => {
+                    // Only update if the coordinate has data in it
                     if (coordData.x == d.points[i].x && coordData.y == d.points[i].y) {
-
+                        // Update annotations according to chosen mode
                         if (mode == "A") {
                             layout.annotations[0] = {
                                 x: coordData.x,
@@ -71,38 +95,19 @@
                                 }
                             }
                             
+                            // Set A-scan
                             selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
                         } else if (mode == "B") {
                             layout.annotations[1] = {
-                                align: "center",
-                                x: 0,
-                                y: coordData.y,
-                                xref: 'paper',
-                                axref: 'paper',
-                                yref: 'y',
-                                text: 'B',
-                                arrowcolor: "#333333",
-                                xanchor: "left",
-                                showarrow: true,
-                                arrowhead: 0,
-                                ax: 1,
-                                ay: 0,
-                                font: {
-                                    size: 12,
-                                    color: "black"
-                                }
-                            }
-                        } else if (mode == "D") {
-                            layout.annotations[2] = {
                                 align: "center",
                                 x: coordData.x,
                                 y: 0,
                                 xref: 'x',
                                 yref: 'paper',
                                 ayref: 'paper',
-                                text: 'D',
+                                text: 'B',
                                 arrowcolor: "#333333",
-                                yanchor: "bottom",
+                                xanchor: "left",
                                 showarrow: true,
                                 arrowhead: 0,
                                 ax: 0,
@@ -112,6 +117,30 @@
                                     color: "black"
                                 }
                             }
+
+                            selectedSideData.set(constructSideData(v.data, coordData.x, v.numberOfSignalPoints))
+                        } else if (mode == "D") {
+                            layout.annotations[2] = {
+                                align: "center",
+                                x: 0,
+                                y: coordData.y,
+                                xref: 'paper',
+                                yref: 'y',
+                                axref: 'paper',
+                                text: 'D',
+                                arrowcolor: "#333333",
+                                yanchor: "bottom",
+                                showarrow: true,
+                                arrowhead: 0,
+                                ax: 1,
+                                ay: 0,
+                                font: {
+                                    size: 12,
+                                    color: "black"
+                                }
+                            }
+
+                            selectedEndData.set(constructEndData(v.data, coordData.y, v.numberOfSignalPoints))
                         }
 
                         Plotly.relayout(div, layout)
@@ -129,7 +158,7 @@
 
 <div class="flex flex-row">
     <div class="flex flex-col">
-        <p class="pt-1 px-2" style="color:#4d4d4d">C-Scan</p>
+        <p class="pt-1 px-2" style="color:#4d4d4d">Top View (C)</p>
     </div>
     <div class="flex flex-row pt-1">
         <button class="flex flex-col pr-1.5 {mode == "A" ? "opacity-100" : "opacity-40"}" style="font-size:12px; color:#4d4d4d;" on:click={() => mode = "A"}>
