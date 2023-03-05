@@ -95,7 +95,7 @@
                 </div>
             </div>
             {:else if status == "Ok"}
-            <CPlot/>
+            <CPlot bind:rectification={rectification}/>
             {/if}
         </div>
         <div class="rounded-md bg-stone-300" style="z-index: 99;">
@@ -121,7 +121,7 @@
                 </div>
             </div>
             {:else if status == "Ok"}
-            <BPlot/>
+            <BPlot bind:rectification={rectification}/>
             {/if}
         </div>
         <div class="rounded-md bg-stone-300" style="z-index: 99;">
@@ -134,7 +134,7 @@
                 </div>
             </div>
             {:else if status == "Ok"}
-            <DPlot/>
+            <DPlot bind:rectification={rectification}/>
             {/if}
         </div>
     </div>

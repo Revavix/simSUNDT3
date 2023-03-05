@@ -2,6 +2,9 @@
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
     import { selectedSideData } from "../lib/stores";
+    import { rectifyXYZ } from '../lib/utils';
+
+    export let rectification
 
     let smoothing = false
     let plot
@@ -30,18 +33,22 @@
             return
         }
 
+        let rectifiedData = rectifyXYZ(v.data, v.amplitude, rectification)
+
         let data = [
             {
-                x: v.map(d => d.x),
-                y: v.map(d => d.y),
-                z: v.map(d => d.z),
+                x: rectifiedData.map(d => d.x),
+                y: rectifiedData.map(d => d.y),
+                z: rectifiedData.map(d => d.z),
                 zsmooth: smoothing,
                 type: 'heatmap'
             }
         ]
 
-        plot = Plotly.newPlot(div, data, layout, cfg)
+        plot = Plotly.react(div, data, layout, cfg)
     })
+
+    $: rectification, selectedSideData.update(n => n)
 </script>
 
 <div class="flex flex-row">

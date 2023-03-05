@@ -2,6 +2,9 @@
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
     import { densityAndSignalData, selectedSignalData, selectedSideData, selectedEndData, interpolationMode } from '../lib/stores'
+    import { constructDotAnnotation, constructHorizontalLineAnnotation, constructVerticalLineAnnotation } from '../lib/annotations'
+
+    export let rectification
 
     let mode = "A"
     let smoothing = false
@@ -25,21 +28,7 @@
         dragmode: 'pan'
     }
 
-    function constructSideData(data, xp, points) {
-        let ret = []
-
-        data.forEach(element => {
-            if (element.x == xp) {
-                for(let i = 0; i < points; i++) {
-                    ret.push({x: element.y, y: i, z: element.r[i].y})
-                }
-            }
-        });
-
-        return ret
-    }
-
-    function constructEndData(data, yp, points) {
+    function constructSideData(data, yp, points) {
         let ret = []
 
         data.forEach(element => {
@@ -53,12 +42,49 @@
         return ret
     }
 
+    function constructEndData(data, xp, points) {
+        let ret = []
+
+        data.forEach(element => {
+            if (element.x == xp) {
+                for(let i = 0; i < points; i++) {
+                    ret.push({x: element.y, y: i, z: element.r[i].y})
+                }
+            }
+        });
+
+        return ret
+    }
+
     densityAndSignalData.subscribe(async (v) => {
         await setTimeout(() => {}, 100)
 
         if (div == undefined) {
             return
         }
+
+        let midPointX = Math.floor(((v.columns-1) * v.xi) / 2) + v.xs
+        let midPointY = Math.floor(((v.rows-1) * v.yi) / 2) + v.ys
+
+        layout.annotations = [
+            constructDotAnnotation(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', -v.yi * 10),
+            constructVerticalLineAnnotation(midPointX, 'D'),
+            constructHorizontalLineAnnotation(midPointY, 'B')
+        ]
+
+        v.data.find((coordData) => {
+            if (coordData.x == midPointX && coordData.y == midPointY) {
+                selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
+                selectedEndData.set({
+                    data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints),
+                    amplitude: v.amplitudeMax
+                })
+                selectedSideData.set({
+                    data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints),
+                    amplitude: v.amplitudeMax
+                })
+            }
+        })
 
         let data = [
             {
@@ -79,68 +105,29 @@
                     if (coordData.x == d.points[i].x && coordData.y == d.points[i].y) {
                         // Update annotations according to chosen mode
                         if (mode == "A") {
-                            layout.annotations[0] = {
-                                x: coordData.x,
-                                y: coordData.y,
-                                xref: 'x',
-                                yref: 'y',
-                                text: 'A [' + coordData.x + ', ' + coordData.y + ']',
-                                showarrow: true,
-                                arrowhead: 7,
-                                ax: 0,
-                                ay: -v.yi * 10,
-                                font: {
-                                    size: 12,
-                                    color: "black"
-                                }
-                            }
+                            layout.annotations[0] = constructDotAnnotation(
+                                coordData.x, 
+                                coordData.y, 
+                                'A [' + coordData.x + ', ' + coordData.y + ']',
+                                -v.yi * 10
+                            )
                             
                             // Set A-scan
                             selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
-                        } else if (mode == "B") {
-                            layout.annotations[1] = {
-                                align: "center",
-                                x: coordData.x,
-                                y: 0,
-                                xref: 'x',
-                                yref: 'paper',
-                                ayref: 'paper',
-                                text: 'B',
-                                arrowcolor: "#333333",
-                                xanchor: "left",
-                                showarrow: true,
-                                arrowhead: 0,
-                                ax: 0,
-                                ay: 1,
-                                font: {
-                                    size: 12,
-                                    color: "black"
-                                }
-                            }
-
-                            selectedSideData.set(constructSideData(v.data, coordData.x, v.numberOfSignalPoints))
                         } else if (mode == "D") {
-                            layout.annotations[2] = {
-                                align: "center",
-                                x: 0,
-                                y: coordData.y,
-                                xref: 'paper',
-                                yref: 'y',
-                                axref: 'paper',
-                                text: 'D',
-                                arrowcolor: "#333333",
-                                yanchor: "bottom",
-                                showarrow: true,
-                                arrowhead: 0,
-                                ax: 1,
-                                ay: 0,
-                                font: {
-                                    size: 12,
-                                    color: "black"
-                                }
-                            }
+                            layout.annotations[1] = constructVerticalLineAnnotation(coordData.x, 'D')
 
-                            selectedEndData.set(constructEndData(v.data, coordData.y, v.numberOfSignalPoints))
+                            selectedEndData.set({
+                                data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints),
+                                amplitude: v.amplitudeMax
+                            })
+                        } else if (mode == "B") {
+                            layout.annotations[2] = constructHorizontalLineAnnotation(coordData.y, 'B')
+
+                            selectedSideData.set({
+                                data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints),
+                                amplitude: v.amplitudeMax
+                            })
                         }
 
                         Plotly.relayout(div, layout)

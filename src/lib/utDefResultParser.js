@@ -106,6 +106,8 @@ export class UTDefResultParser
         }
 
         return Promise.resolve({
+            xs: xStart,
+            ys: yStart,
             xi: xIncrement,
             yi: yIncrement,
             columns: dataDensityParsed[0],
