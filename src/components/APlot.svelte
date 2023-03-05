@@ -2,6 +2,9 @@
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
     import { selectedSignalData } from '../lib/stores.js'
+    import { rectifyXY } from '../lib/utils';
+
+    export let rectification
 
     let plot
     let div
@@ -26,22 +29,26 @@
             return
         }
 
+        let rectifiedData = rectifyXY(v.data, v.amplitude, rectification)
+
         let data = [
             {
-                x: v.map(x => x.x),
-                y: v.map(x => x.y),
+                x: rectifiedData.map(x => x.x),
+                y: rectifiedData.map(x => x.y),
                 type: 'scatter',
             }
         ]
 
-        plot = Plotly.newPlot(div, data, layout, cfg)
+        plot = Plotly.react(div, data, layout, cfg)
     })
+
+    $: rectification, selectedSignalData.update(n => n)
 </script>
 
 
 <div class="flex flex-row">
     <div class="flex flex-col">
-        <p class="pt-1 px-2" style="color:#4d4d4d">A-Scan</p>
+        <p class="pt-1 px-2" style="color:#4d4d4d">Pulse Amplitude (A)</p>
     </div>
     <div class="flex flex-col ml-auto mr-2">
         <PlotModebar bind:plot={plot}/>

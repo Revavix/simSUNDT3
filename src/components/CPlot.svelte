@@ -1,8 +1,12 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
-    import { densityAndSignalData, selectedSignalData, interpolationMode } from '../lib/stores'
+    import { densityAndSignalData, selectedSignalData, selectedSideData, selectedEndData, interpolationMode } from '../lib/stores'
+    import { constructDotAnnotation, constructHorizontalLineAnnotation, constructVerticalLineAnnotation } from '../lib/annotations'
 
+    export let rectification
+
+    let mode = "A"
     let smoothing = false
     let plot
     let div
@@ -24,12 +28,63 @@
         dragmode: 'pan'
     }
 
+    function constructSideData(data, yp, points) {
+        let ret = []
+
+        data.forEach(element => {
+            if (element.y == yp) {
+                for(let i = 0; i < points; i++) {
+                    ret.push({x: element.x, y: i, z: element.r[i].y})
+                }
+            }
+        });
+
+        return ret
+    }
+
+    function constructEndData(data, xp, points) {
+        let ret = []
+
+        data.forEach(element => {
+            if (element.x == xp) {
+                for(let i = 0; i < points; i++) {
+                    ret.push({x: element.y, y: i, z: element.r[i].y})
+                }
+            }
+        });
+
+        return ret
+    }
+
     densityAndSignalData.subscribe(async (v) => {
         await setTimeout(() => {}, 100)
 
         if (div == undefined) {
             return
         }
+
+        let midPointX = Math.floor(((v.columns-1) * v.xi) / 2) + v.xs
+        let midPointY = Math.floor(((v.rows-1) * v.yi) / 2) + v.ys
+
+        layout.annotations = [
+            constructDotAnnotation(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', -v.yi * 10),
+            constructVerticalLineAnnotation(midPointX, 'D'),
+            constructHorizontalLineAnnotation(midPointY, 'B')
+        ]
+
+        v.data.find((coordData) => {
+            if (coordData.x == midPointX && coordData.y == midPointY) {
+                selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
+                selectedEndData.set({
+                    data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints),
+                    amplitude: v.amplitudeMax
+                })
+                selectedSideData.set({
+                    data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints),
+                    amplitude: v.amplitudeMax
+                })
+            }
+        })
 
         let data = [
             {
@@ -46,56 +101,34 @@
         div.on('plotly_click', function(d) {
             for(var i=0; i < d.points.length; i++){
                 v.data.find((coordData) => {
+                    // Only update if the coordinate has data in it
                     if (coordData.x == d.points[i].x && coordData.y == d.points[i].y) {
-                        selectedSignalData.set(coordData.r)
+                        // Update annotations according to chosen mode
+                        if (mode == "A") {
+                            layout.annotations[0] = constructDotAnnotation(
+                                coordData.x, 
+                                coordData.y, 
+                                'A [' + coordData.x + ', ' + coordData.y + ']',
+                                -v.yi * 10
+                            )
+                            
+                            // Set A-scan
+                            selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
+                        } else if (mode == "D") {
+                            layout.annotations[1] = constructVerticalLineAnnotation(coordData.x, 'D')
 
-                        /*layout.shapes = [
-                            {
-                                type: 'circle',
-                                xref: 'x',
-                                yref: 'y',
-                                x0: coordData.x - v.xi/2,
-                                x1: coordData.x + v.xi/2,
-                                y0: coordData.y - v.yi/2,
-                                y1: coordData.y + v.yi/2,
-                                opacity: 0.8,
-                                fillcolor: 'none',
-                                line: {
-                                    width: (v.xi + v.yi) / 2.5,
-                                    color: 'black'
-                                }
-                            }
-                        ]*/
+                            selectedEndData.set({
+                                data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints),
+                                amplitude: v.amplitudeMax
+                            })
+                        } else if (mode == "B") {
+                            layout.annotations[2] = constructHorizontalLineAnnotation(coordData.y, 'B')
 
-                        layout.annotations = [
-                            {
-                                x: coordData.x,
-                                y: coordData.y,
-                                xref: 'x',
-                                yref: 'y',
-                                text: 'A [' + coordData.x + ', ' + coordData.y + ']',
-                                showarrow: true,
-                                arrowhead: 7,
-                                ax: 0,
-                                ay: -v.yi * 10,
-                                font: {
-                                    size: 12,
-                                    color: "black"
-                                }
-                            },
-                            /*{
-                                x: coordData.x,
-                                y: coordData.y,
-                                xref: 'x',
-                                yref: 'y',
-                                text: 'A',
-                                showarrow: false,
-                                font: {
-                                    size: 10,
-                                    color: "black"
-                                }
-                            }*/
-                        ]
+                            selectedSideData.set({
+                                data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints),
+                                amplitude: v.amplitudeMax
+                            })
+                        }
 
                         Plotly.relayout(div, layout)
                     }
@@ -112,7 +145,18 @@
 
 <div class="flex flex-row">
     <div class="flex flex-col">
-        <p class="pt-1 px-2" style="color:#4d4d4d">C-Scan</p>
+        <p class="pt-1 px-2" style="color:#4d4d4d">Top View (C)</p>
+    </div>
+    <div class="flex flex-row pt-1">
+        <button class="flex flex-col pr-1.5 {mode == "A" ? "opacity-100" : "opacity-40"}" style="font-size:12px; color:#4d4d4d;" on:click={() => mode = "A"}>
+            A
+        </button>
+        <button class="flex flex-col pr-1.5 {mode == "B" ? "opacity-100" : "opacity-40"}" style="font-size:12px; color:#4d4d4d;" on:click={() => mode = "B"}>
+            B
+        </button>
+        <button class="flex flex-col {mode == "D" ? "opacity-100" : "opacity-40"}" style="font-size:12px; color:#4d4d4d;" on:click={() => mode = "D"}>
+            D
+        </button>
     </div>
     <div class="flex flex-col ml-auto mr-2">
         <PlotModebar bind:plot={plot}/>

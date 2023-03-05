@@ -3,8 +3,6 @@
     import { onMount } from "svelte";;
     import { fileCache } from '../lib/stores';
     import { fetchCache } from '../lib/utils';
-    import Button from '../components/Button.svelte';
-    import Alert from '../components/Alert.svelte'
 
     export let projectHandler
     export let currentTab

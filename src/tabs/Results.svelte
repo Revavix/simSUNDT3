@@ -11,8 +11,9 @@
     export let utDefResultParser
 
     let interpolationOn = false
-    let interpolationLevel = 0
+    let interpolationLevel = 1
     let status = "Loading"
+    let rectification
 
     onMount(() => {
         utDefResultParser.Parse(projectHandler.currentProject.data.postprocessor).then(v => {
@@ -50,14 +51,14 @@
                 </div>
             </div>
             <div class="flex flex-row w-full items-center">
-                <div class="flex flex-col w-1/12 mx-1" style="font-size:10px; color:#4d4d4d;">
-                    1
+                <div class="flex flex-col w-1/12 ml-1 mr-4" style="font-size:10px; color:#4d4d4d;">
+                    Fast
                 </div>
                 <div class="flex flex-col w-10/12">
                     <input name="interpSlider" type="range" bind:value={interpolationLevel} min="1" max="2" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" on:change={changeInterpolation}>
                 </div>
                 <div class="flex flex-col w-1/12 mx-1" style="font-size:10px; color:#4d4d4d;">
-                    5
+                    Best
                 </div>
             </div>
             <div class="flex flex-row w-full justify-center mt-auto pt-7">
@@ -66,10 +67,16 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-col line-vert my-2 mx-2"/>
+        <div class="flex flex-col line-vert my-2 mx-4"/>
         <div class="flex flex-col w-24 pt-1 -space-y-1">
+            <select bind:value={rectification} class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md">
+                <option value=1>Unrectified</option>
+                <option value=2>Fullwave</option>
+                <option value=3>Halfwave+</option>
+                <option value=4>Halfwave-</option>
+            </select>
             <div class="flex flex-row w-full justify-center mt-auto">
-                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                <div class="flex flex-row select-none mt-auto" style="font-size:10px; color:#4d4d4d;">
                 Rectification
                 </div>
             </div>
@@ -88,7 +95,7 @@
                 </div>
             </div>
             {:else if status == "Ok"}
-            <CPlot/>
+            <CPlot bind:rectification={rectification}/>
             {/if}
         </div>
         <div class="rounded-md bg-stone-300" style="z-index: 99;">
@@ -101,7 +108,7 @@
                 </div>
             </div>
             {:else if status == "Ok"}
-            <APlot/>
+            <APlot bind:rectification={rectification}/>
             {/if}
         </div>
         <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99; max-height: calc(50vh - 101px);">
@@ -114,7 +121,7 @@
                 </div>
             </div>
             {:else if status == "Ok"}
-            <BPlot/>
+            <BPlot bind:rectification={rectification}/>
             {/if}
         </div>
         <div class="rounded-md bg-stone-300" style="z-index: 99;">
@@ -127,7 +134,7 @@
                 </div>
             </div>
             {:else if status == "Ok"}
-            <DPlot/>
+            <DPlot bind:rectification={rectification}/>
             {/if}
         </div>
     </div>
