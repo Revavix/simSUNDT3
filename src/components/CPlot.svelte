@@ -66,8 +66,6 @@
         let midPointX = Math.floor(((v.columns-1) * v.xi) / 2) + v.xs
         let midPointY = Math.floor(((v.rows-1) * v.yi) / 2) + v.ys
 
-        console.log(v)
-
         layout.annotations = [
             constructDotAnnotation(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', -v.yi * 10),
             constructVerticalLineAnnotation(midPointX, 'D'),
