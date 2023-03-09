@@ -162,11 +162,79 @@ class GenericIpc {
     }
 }
 
+class UTDefectMultithreadedIpc {
+    // Thread status and related UTDef info for each thread
+    status = {
+        'PROCESS_1': {
+            process: null,
+            progress: 0,
+            maxProgress: 100
+        },
+        'PROCESS_2': {
+            process: null,
+            progress: 0,
+            maxProgress: 100
+        },
+        'PROCESS_3': {
+            process: null,
+            progress: 0,
+            maxProgress: 100
+        },
+        'PROCESS_4': {
+            process: null,
+            progress: 0,
+            maxProgress: 100
+        }
+    }
+
+    constructor() {
+
+    }
+
+    // Add a thread to status and start listening for progress
+    async start(ev, executablePath) {
+        let threadId = 'INVALID'
+
+        Object.keys(this.status).forEach((key, index) => {
+            if (this.status[key].process == null) {
+                threadId = key
+            }
+        })
+
+        if (threadId != 'INVALID') {
+            this.status[threadId].process = spawn(executablePath, { cwd: path.parse(executablePath).dir })
+        }
+
+        return threadId
+    }
+
+    // Stop the given thread running UTDef
+    async stop(ev, threadId) {
+        this.status[threadId].kill()
+    }
+
+    // Get a status object of if the process is active and its current progress as per file readout
+    async get(ev, threadId) {
+        return {
+            active: this.status[threadId].process == null ? false : true,
+            progress: this.status[threadId].progress,
+            maxProgress: this.status[threadId].maxProgress
+        }
+    }
+}
+
 class UTDefectIpc {
     childProcess = null
     currentProgress = 0
     maxProgress = 0
     active = false
+
+    // [{
+    //     process: null
+    //     progress: 0
+    //     maxProgress: 100
+    //     
+    // }]
 
     constructor() {
         ipcMain.handle('utdef-start-std', async(event, pathToBinary, inputPath) => {

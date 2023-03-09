@@ -14,6 +14,7 @@
     export let utDefResultParser
 
     let mainLogContents = []
+    let parametricEnabled = false
     let treeMinimized = false
     let showConfigureModal = false
     let utDefRunnerIsRunning = false
@@ -153,7 +154,7 @@
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
-    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 4;">
+    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 4; overflow-x: auto; overflow-y: hidden;">
         <div class="flex flex-col w-20 pt-1 -space-y-1">
             <div class="flex flex-col mb-auto">
                 {#if !utDefRunnerIsRunning}
@@ -184,9 +185,21 @@
                 </div>
             </div>
         </div>
+        <div class="flex flex-col line-vert my-2 mx-2"/>
+        <div class="flex flex-col w-20 pt-1 -space-y-1">
+            <div class="flex flex-row mb-auto items-center">
+                <input bind:checked={parametricEnabled} type="checkbox" class="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <div class="px-2" style="font-size:12px; color:#4d4d4d;">Enabled</div>
+            </div>
+            <div class="flex flex-row w-full justify-center mt-auto pt-2">
+                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                Parametric
+                </div>
+            </div>
+        </div>
     </div>
     <div class="flex flex-row tree-view">
-        <div class="flex flex-col shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-3/12 mb-4 opacity-90 hover:opacity-100" style="z-index: 4; position:relative;">
+        <div class="flex flex-col shadow-lg rounded-lg px-2 mt-2 bg-stone-300 min-w-96 min-w-sm w-full sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg mb-4 opacity-90 hover:opacity-100" style="z-index: 4; position:relative; overflow: auto;">
             <div class="flex flex-row">
                 <div class="flex flex-col">
                     <p class="pt-1" style="color:#4d4d4d">Parameterisation</p>
@@ -200,17 +213,17 @@
                 </div>
             </div>
             {#if !treeMinimized}
-            <div class="h-full rounded-md my-1 mb-2" style="overflow: auto;">
-                <TreeComponent tree={tree} data={projectHandler.currentProject.data.preprocessor.tree} pad={false} on:message={handleTreeMessage}></TreeComponent>
+            <div class="h-full rounded-md my-1 mb-2 w-full px-2" style="overflow: auto;">
+                <TreeComponent tree={tree} data={projectHandler.currentProject.data.preprocessor.tree} pad={false} bind:parametricEnabled={parametricEnabled} on:message={handleTreeMessage}></TreeComponent>
             </div>
             {/if}
         </div>
     </div>
-    <div class="absolute-bottom-above pb-4 px-6 w-6/12 opacity-90 hover:opacity-100">
+    <!--<div class="absolute-bottom-above pb-4 px-6 w-6/12 opacity-90 hover:opacity-100">
         <OutputLogComponent bind:contents={mainLogContents}/>
         <div class="py-1"/>
         <HorizontalProgressbarComponent bind:progress={progress} bind:maxValue={maxProgress}/>
-    </div>
+    </div>-->
 
     {#if showConfigureModal}
     <div class="absolute-bg bg-stone-600 opacity-75"/>
@@ -281,7 +294,15 @@
   .line-vert {
     border-left: 1px solid #7f7f7f;
   }
-  div::-webkit-scrollbar {
-    display: none;
+  ::-webkit-scrollbar {
+    width: 14px;
+  }
+  ::-webkit-scrollbar-track {
+      background: rgb(168, 162, 158);
+      border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #4d4d4d;
+    border-radius: 10px;
   }
 </style>

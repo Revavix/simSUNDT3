@@ -1,13 +1,11 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { onMount } from 'svelte';
-    import { slide } from 'svelte/transition'
-
-    const dispatch = createEventDispatcher()
 
     export let tree
     export let data
     export let pad
+    export let parametricEnabled
     
 	const toggleExpansion = () => {
 		tree.expanded = !tree.expanded
@@ -27,7 +25,13 @@
             data = {}
         } else if (tree.type == "Number") {
             if (!data.hasOwnProperty("value")) {
-                data.value = 0
+                data.value = tree.default
+            }
+            if (!data.hasOwnProperty("end")) {
+                data.end = tree.default
+            }
+            if (!data.hasOwnProperty("increment")) {
+                data.increment = 1
             }
         } else if (tree.type == "Dropdown") {
             if (!data.hasOwnProperty("value")) {
@@ -47,48 +51,50 @@
 
         return data[key]
     }
-
-    function sendSaveRequestToPreprocessor() {
-        dispatch('message', {
-            type: "Save"
-        })
-    }
 </script>
 
 <ul class={ulCssPadding}>
 	<li>
         {#if tree.type == "Root"}
             {#each Object.entries(tree.children) as [k, v]}
-                <svelte:self tree={v} data={getData(k)} pad={false} on:message/>
+                <svelte:self tree={v} data={getData(k)} pad={false} bind:parametricEnabled={parametricEnabled}/>
             {/each}
 		{:else if tree.type == "Expandable"}
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<span on:click={toggleExpansion}>
-				<span class="arrow" class:arrowDown>&#x25b6</span>
+			<span class="whitespace-nowrap" style="font-size:16px;" on:click={toggleExpansion}>
+				<span class="arrow whitespace-nowrap" class:arrowDown>&#x25b6</span>
 				{tree.name}
 			</span>
 			{#if tree.expanded}
 				{#each Object.entries(tree.children) as [k, v]}
-					<svelte:self tree={v} data={getData(k)} pad={true} on:message/> <!-- data = {} -> data.method -->
+					<svelte:self tree={v} data={getData(k)} pad={true} bind:parametricEnabled={parametricEnabled}/> <!-- data = {} -> data.method -->
 				{/each}
 			{/if}
-        {:else if tree.type == "Number"}
-            <div class="flex flex-row disabled:opacity-75"> <!-- disabled={treeDisabled} -->
-                <span style="font-family:'Material Icons'; font-size:24px;">tag</span>
-                <span class="pl-1">{tree.name}</span>
-                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={sendSaveRequestToPreprocessor}>
+        {:else if tree.type == "Number" && tree.parametric == true && parametricEnabled}
+            <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
+                <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
+                <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
+                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
+                <input bind:value={data.end} type="number" class="pl-1 w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
+                <input bind:value={data.increment} type="number" class="pl-1 w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
+            </div>
+        {:else if tree.type == "Number" && (tree.parametric == false || !parametricEnabled) }
+            <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
+                <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
+                <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
+                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
             </div>
         {:else if tree.type == "Checkbox"}
         <div class="flex flex-row">
-            <span style="font-family:'Material Icons'; font-size:24px;">check_box</span>
-            <span class="pl-1">{tree.name}</span>
-            <input bind:checked={data.value} type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required on:change={sendSaveRequestToPreprocessor}>
+            <span style="font-family:'Material Icons'; font-size:20px;">check_box</span>
+            <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
+            <input bind:checked={data.value} type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required>
         </div>
         {:else if tree.type == "Dropdown"}
         <div class="flex flex-row">
-            <span style="font-family:'Material Icons'; font-size:24px;">list</span>
-            <span class="pl-1">{tree.name}</span>
-            <select bind:value={data.value} class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required on:change={sendSaveRequestToPreprocessor}> 
+            <span style="font-family:'Material Icons'; font-size:20px;">list</span>
+            <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
+            <select bind:value={data.value} class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required> 
                 {#each tree.values as opt}
                 <option value={opt.value}>{opt.text}</option>
                 {/each}
@@ -96,7 +102,7 @@
         </div>
 		{:else}
 			<span>
-				<span class="no-arrow"/>
+				<span class="no-arrow whitespace-nowrap"/>
 				{tree.name}
 			</span>
 		{/if}
