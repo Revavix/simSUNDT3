@@ -1,3 +1,6 @@
+import { constructIsoSaveData } from "./utDefSaverUtils"
+import { convertFocusAndTechniqueToIMODE } from "./utDefUtils"
+
 export const tree = {
     type: "Root",
     children: {
@@ -14,6 +17,7 @@ export const tree = {
                         symmetry: {
                             name: "Symmetry",
                             type: "Dropdown",
+                            identity: [null, null],
                             disabled: false,
                             default: 2,
                             values: [
@@ -39,6 +43,7 @@ export const tree = {
                                 alloy: {
                                     name: "Alloy",
                                     type: "Dropdown",
+                                    identity: [null, null],
                                     disabled: false,
                                     default: 1,
                                     values: [
@@ -51,6 +56,8 @@ export const tree = {
                                 longitudinalVelocity: {
                                     name: "Longitudinal Velocity",
                                     type: "Number",
+                                    identity: ["CP", null],
+                                    divisor: 1000, // mm/s to m/s
                                     parametric: true,
                                     disabled: false,
                                     default: 5900
@@ -58,6 +65,8 @@ export const tree = {
                                 transversalVelocity: {
                                     name: "Transversal Velocity",
                                     type: "Number",
+                                    identity: ["CS", null],
+                                    divisor: 1000, // mm/s to m/s
                                     parametric: true,
                                     disabled: false,
                                     default: 3230
@@ -65,6 +74,8 @@ export const tree = {
                                 damping: {
                                     name: "Damping",
                                     type: "Number",
+                                    identity: ["UNDECLARED_01", null],
+                                    divisor: 1,
                                     parametric: true,
                                     disabled: false,
                                     default: 0
@@ -74,6 +85,8 @@ export const tree = {
                         density: {
                             name: "Density",
                             type: "Number",
+                            identity: ["UNDECLARED_02", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 8.2
@@ -86,6 +99,8 @@ export const tree = {
                                 c11: {
                                     name: "C11",
                                     type: "Number",
+                                    identity: ["UNDECLARED_03", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 250
@@ -93,6 +108,8 @@ export const tree = {
                                 c22: {
                                     name: "C22",
                                     type: "Number",
+                                    identity: ["UNDECLARED_04", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 250
@@ -100,6 +117,8 @@ export const tree = {
                                 c33: {
                                     name: "C33",
                                     type: "Number",
+                                    identity: ["UNDECLARED_05", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 240
@@ -107,6 +126,8 @@ export const tree = {
                                 c12: {
                                     name: "C12",
                                     type: "Number",
+                                    identity: ["UNDECLARED_06", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 108
@@ -114,6 +135,8 @@ export const tree = {
                                 c13: {
                                     name: "C13",
                                     type: "Number",
+                                    identity: ["UNDECLARED_07", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 84
@@ -121,6 +144,8 @@ export const tree = {
                                 c23: {
                                     name: "C23",
                                     type: "Number",
+                                    identity: ["UNDECLARED_08", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 84
@@ -128,6 +153,8 @@ export const tree = {
                                 c44: {
                                     name: "C44",
                                     type: "Number",
+                                    identity: ["UNDECLARED_09", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 116
@@ -135,6 +162,8 @@ export const tree = {
                                 c55: {
                                     name: "C55",
                                     type: "Number",
+                                    identity: ["UNDECLARED_10", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 116
@@ -142,6 +171,8 @@ export const tree = {
                                 c66: {
                                     name: "C66",
                                     type: "Number",
+                                    identity: ["UNDECLARED_11", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 71
@@ -156,6 +187,8 @@ export const tree = {
                                 phi: {
                                     name: "Phi",
                                     type: "Number",
+                                    identity: ["UNDECLARED_12", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -163,6 +196,8 @@ export const tree = {
                                 theta: {
                                     name: "Theta",
                                     type: "Number",
+                                    identity: ["UNDECLARED_13", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -170,6 +205,8 @@ export const tree = {
                                 psi: {
                                     name: "Psi",
                                     type: "Number",
+                                    identity: ["UNDECLARED_14", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -186,6 +223,7 @@ export const tree = {
                         method: {
                             name: "Method",
                             type: "Dropdown",
+                            identity: ["LS", null],
                             disabled: false,
                             default: 1,
                             values: [
@@ -210,6 +248,7 @@ export const tree = {
                         transmitter: {
                             name: "Transmitter",
                             type: "Dropdown",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: 2,
                             values: [
@@ -230,6 +269,7 @@ export const tree = {
                         receiver: {
                             name: "Receiver",
                             type: "Dropdown",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: 2,
                             values: [
@@ -257,6 +297,7 @@ export const tree = {
                         ctype: {
                             name: "Type",
                             type: "Dropdown",
+                            identity: ["LCTY", null],
                             disabled: false,
                             default: 1,
                             values: [
@@ -277,6 +318,8 @@ export const tree = {
                         diameter: {
                             name: "Diameter",
                             type: "Number",
+                            identity: ["CA", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 2.4
@@ -284,6 +327,8 @@ export const tree = {
                         depth: {
                             name: "Depth",
                             type: "Number",
+                            identity: ["CZ", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 30
@@ -303,6 +348,8 @@ export const tree = {
                                 xs: {
                                     name: "X - Start",
                                     type: "Number",
+                                    identity: ["XS", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -310,6 +357,8 @@ export const tree = {
                                 xe: {
                                     name: "X - End",
                                     type: "Number",
+                                    identity: ["XE", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 60
@@ -317,6 +366,8 @@ export const tree = {
                                 xi: {
                                     name: "X - Increment",
                                     type: "Number",
+                                    identity: ["XI", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 2
@@ -324,6 +375,8 @@ export const tree = {
                                 ys: {
                                     name: "Y - Start",
                                     type: "Number",
+                                    identity: ["YS", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: -20
@@ -331,6 +384,8 @@ export const tree = {
                                 ye: {
                                     name: "Y - End",
                                     type: "Number",
+                                    identity: ["YE", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 20
@@ -338,6 +393,8 @@ export const tree = {
                                 yi: {
                                     name: "Y - Increment",
                                     type: "Number",
+                                    identity: ["YI", null],
+                                    divisor: 1,
                                     parametric: false,
                                     disabled: false,
                                     default: 2
@@ -352,6 +409,7 @@ export const tree = {
                                 wtype: {
                                     name: "Type",
                                     type: "Dropdown",
+                                    identity: ["WELD", null],
                                     disabled: false,
                                     default: "No Weld Specified",
                                     values: [
@@ -377,6 +435,8 @@ export const tree = {
                                         inputEnergy: {
                                             name: "Input Energy",
                                             type: "Number",
+                                            divisor: 1,
+                                            identity: ["LQ", null],
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -384,6 +444,8 @@ export const tree = {
                                         initialTemperature: {
                                             name: "Initial Temperature",
                                             type: "Number",
+                                            divisor: 1,
+                                            identity: ["T0", null],
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -391,6 +453,8 @@ export const tree = {
                                         heatEfficiency: {
                                             name: "Heat Effiency",
                                             type: "Number",
+                                            divisor: 1,
+                                            identity: ["NN", null],
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -405,6 +469,8 @@ export const tree = {
                                         b1: {
                                             name: "b\u2081",
                                             type: "Number",
+                                            identity: ["B1", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 10
@@ -412,6 +478,8 @@ export const tree = {
                                         b2: {
                                             name: "b\u2082",
                                             type: "Number",
+                                            identity: ["B2", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 3
@@ -419,6 +487,8 @@ export const tree = {
                                         b3: {
                                             name: "b\u2083",
                                             type: "Number",
+                                            identity: ["B3", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 6
@@ -426,6 +496,8 @@ export const tree = {
                                         t1: {
                                             name: "t\u2081",
                                             type: "Number",
+                                            identity: ["T1", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 10
@@ -433,6 +505,8 @@ export const tree = {
                                         t2: {
                                             name: "t\u2082",
                                             type: "Number",
+                                            identity: ["T2", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 4
@@ -447,6 +521,8 @@ export const tree = {
                                         specificHeat: {
                                             name: "Specific Heat",
                                             type: "Number",
+                                            identity: ["CC", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -454,6 +530,8 @@ export const tree = {
                                         initialGrainSize: {
                                             name: "Initial Grain Size",
                                             type: "Number",
+                                            identity: ["D0", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -461,6 +539,8 @@ export const tree = {
                                         density: {
                                             name: "Density",
                                             type: "Number",
+                                            identity: ["RA", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -468,6 +548,8 @@ export const tree = {
                                         meltingTemperature: {
                                             name: "Melting Temperature",
                                             type: "Number",
+                                            identity: ["TMP", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -475,6 +557,8 @@ export const tree = {
                                         temperatureDiffusivity: {
                                             name: "Temperature Diffusivity",
                                             type: "Number",
+                                            identity: ["KK", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -482,6 +566,8 @@ export const tree = {
                                         activationEnergy: {
                                             name: "Activation Energy",
                                             type: "Number",
+                                            identity: ["Q", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -489,6 +575,8 @@ export const tree = {
                                         exponentialGrowthConstant: {
                                             name: "Exponential Growth Constant",
                                             type: "Number",
+                                            identity: ["AA", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -496,6 +584,8 @@ export const tree = {
                                         grainBoundaryEnergyConstant: {
                                             name: "Grain Boundary Energy Constant",
                                             type: "Number",
+                                            identity: ["K0", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -510,6 +600,8 @@ export const tree = {
                                         xs: {
                                             name: "X - Start",
                                             type: "Number",
+                                            identity: ["HMX1", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -517,6 +609,8 @@ export const tree = {
                                         xe: {
                                             name: "X - End",
                                             type: "Number",
+                                            identity: ["HMX2", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -524,6 +618,8 @@ export const tree = {
                                         ys: {
                                             name: "Y - Start",
                                             type: "Number",
+                                            identity: ["HMY1", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -531,6 +627,8 @@ export const tree = {
                                         ye: {
                                             name: "Y - End",
                                             type: "Number",
+                                            identity: ["HMY2", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -538,6 +636,8 @@ export const tree = {
                                         depth: {
                                             name: "Depth",
                                             type: "Number",
+                                            identity: ["HMT0", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -545,6 +645,8 @@ export const tree = {
                                         thickness: {
                                             name: "Thickness",
                                             type: "Number",
+                                            identity: ["HMT1", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -552,6 +654,8 @@ export const tree = {
                                         grainSize: {
                                             name: "Grain Size",
                                             type: "Number",
+                                            identity: ["HMD0", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -559,6 +663,8 @@ export const tree = {
                                         initial: {
                                             name: "Initial",
                                             type: "Number",
+                                            identity: ["HMD1", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -572,6 +678,8 @@ export const tree = {
                                         percentageOfSDH: {
                                             name: "% of SDH",
                                             type: "Number",
+                                            identity: ["CALB2A", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -579,6 +687,8 @@ export const tree = {
                                         diameter: {
                                             name: "Diameter",
                                             type: "Number",
+                                            identity: ["CALB2D", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -586,6 +696,8 @@ export const tree = {
                                         depth: {
                                             name: "Depth",
                                             type: "Number",
+                                            identity: ["CALB2Z", null],
+                                            divisor: 1,
                                             parametric: false,
                                             disabled: false,
                                             default: 0
@@ -604,6 +716,7 @@ export const tree = {
                         twtype: {
                             name: "Type",
                             type: "Dropdown",
+                            identity: ["LTTY", null],
                             disabled: false,
                             default: 1,
                             values: [
@@ -624,6 +737,8 @@ export const tree = {
                         start: {
                             name: "Start",
                             type: "Number",
+                            identity: ["TS", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -631,6 +746,8 @@ export const tree = {
                         end: {
                             name: "End",
                             type: "Number",
+                            identity: ["TE", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 50
@@ -638,6 +755,8 @@ export const tree = {
                         increment: {
                             name: "Increment",
                             type: "Number",
+                            identity: ["TI", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 0.1
@@ -645,6 +764,8 @@ export const tree = {
                         depth: {
                             name: "Depth",
                             type: "Number",
+                            identity: ["ZD", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -652,6 +773,8 @@ export const tree = {
                         x: {
                             name: "X",
                             type: "Number",
+                            identity: ["XD", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -659,6 +782,8 @@ export const tree = {
                         y: {
                             name: "Y",
                             type: "Number",
+                            identity: ["YD", null],
+                            divisor: 1,
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -680,6 +805,7 @@ export const tree = {
                         shape: {
                             name: "Shape",
                             type: "Dropdown",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: -2,
                             values: [
@@ -696,6 +822,7 @@ export const tree = {
                         autoNumElements: {
                             name: "Auto Num of Elements",
                             type: "Checkbox",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: true
                         },
@@ -707,6 +834,8 @@ export const tree = {
                                 length: {
                                     name: "Length",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["PA", 0],
                                     parametric: true,
                                     disabled: false,
                                     default: 9.5
@@ -714,6 +843,8 @@ export const tree = {
                                 elements: {
                                     name: "Elements",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["NAWX", 0],
                                     parametric: true,
                                     disabled: false,
                                     default: 16
@@ -721,6 +852,8 @@ export const tree = {
                                 gap: {
                                     name: "Gap",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["GAPX", 0],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -735,6 +868,8 @@ export const tree = {
                                 length: {
                                     name: "Length",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["PB", 0],
                                     parametric: true,
                                     disabled: false,
                                     default: 5.5
@@ -742,6 +877,8 @@ export const tree = {
                                 elements: {
                                     name: "Elements",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["NAWY", 0],
                                     parametric: true,
                                     disabled: false,
                                     default: 2
@@ -749,6 +886,8 @@ export const tree = {
                                 gap: {
                                     name: "Gap",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["GAPY", 0],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -765,6 +904,7 @@ export const tree = {
                         stype: {
                             name: "Type",
                             type: "Dropdown",
+                            identity: ["NFR", null],
                             disabled: false,
                             default: -1,
                             values: [
@@ -785,6 +925,8 @@ export const tree = {
                         frequency: {
                             name: "Frequency",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["FREQ", null],
                             parametric: true,
                             disabled: false,
                             default: 1.25
@@ -792,6 +934,8 @@ export const tree = {
                         bandwidth: {
                             name: "Bandwidth",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["BANDW", null],
                             parametric: true,
                             disabled: false,
                             default: 1
@@ -804,6 +948,8 @@ export const tree = {
                                 f1: {
                                     name: "F1",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["F1", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -811,6 +957,8 @@ export const tree = {
                                 f2: {
                                     name: "F2",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["F2", null],
                                     parametric: false,
                                     disabled: false,
                                     default: -3.5
@@ -818,6 +966,8 @@ export const tree = {
                                 f3: {
                                     name: "F3",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["F3", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 4.75
@@ -825,6 +975,8 @@ export const tree = {
                                 f4: {
                                     name: "F4",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["F4", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 6.5
@@ -832,6 +984,8 @@ export const tree = {
                                 af: {
                                     name: "Height at F2 (AF)",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["AF", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 100
@@ -839,6 +993,8 @@ export const tree = {
                                 bf: {
                                     name: "Height at F3 (BF)",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["BF", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 100
@@ -855,6 +1011,7 @@ export const tree = {
                         ftype: {
                             name: "Type",
                             type: "Dropdown",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: 0,
                             values: [
@@ -875,6 +1032,8 @@ export const tree = {
                         focalDistance: {
                             name: "Focal Distance",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["FOC", 0],
                             parametric: true,
                             disabled: false,
                             default: 0
@@ -889,6 +1048,8 @@ export const tree = {
                         x: {
                             name: "X",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["XSEP", null],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -896,6 +1057,8 @@ export const tree = {
                         y: {
                             name: "Y",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["YSEP", null],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -910,6 +1073,7 @@ export const tree = {
                         wtype: {
                             name: "Type",
                             type: "Dropdown",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: 0,
                             values: [
@@ -930,6 +1094,7 @@ export const tree = {
                         suppression: {
                             name: "Suppression",
                             type: "Checkbox",
+                            identity: ["INSTY", 0],
                             disabled: false,
                             default: false
                         }
@@ -943,6 +1108,8 @@ export const tree = {
                         angle: {
                             name: "Angle",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["PGA", 0],
                             parametric: true,
                             disabled: false,
                             default: 45
@@ -950,6 +1117,8 @@ export const tree = {
                         skewAngle: {
                             name: "Skew Angle",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["PSI", 0],
                             parametric: true,
                             disabled: false,
                             default: 0
@@ -964,6 +1133,8 @@ export const tree = {
                         longitudinalWavespeed: {
                             name: "Longitudinal Wavespeed",
                             type: "Number",
+                            divisor: 1000, // mm/s to m/s
+                            identity: ["CPW", 0],
                             parametric: false,
                             disabled: false,
                             default: 6320
@@ -971,6 +1142,8 @@ export const tree = {
                         transversalWavespeed: {
                             name: "Transversal Wavespeed",
                             type: "Number",
+                            divisor: 1000, // mm/s to m/s
+                            identity: ["CSW", 0],
                             parametric: false,
                             disabled: false,
                             default: 3130
@@ -978,6 +1151,8 @@ export const tree = {
                         density: {
                             name: "Density",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["RHOW", 0],
                             parametric: false,
                             disabled: false,
                             default: 2.7
@@ -985,6 +1160,8 @@ export const tree = {
                         angle: {
                             name: "Angle",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["GW", 0],
                             parametric: false,
                             disabled: false,
                             default: 49
@@ -992,6 +1169,8 @@ export const tree = {
                         width: {
                             name: "Width",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["PCW", 0],
                             parametric: false,
                             disabled: false,
                             default: 2
@@ -1006,6 +1185,8 @@ export const tree = {
                         phi: {
                             name: "Phi",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["FPHI", 0],
                             parametric: false,
                             disabled: false,
                             default: 45
@@ -1013,6 +1194,8 @@ export const tree = {
                         theta: {
                             name: "Theta",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["FTHE", 0],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1020,6 +1203,8 @@ export const tree = {
                         psi: {
                             name: "Psi",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["FPSI", 0],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1034,6 +1219,8 @@ export const tree = {
                         densityRatio: {
                             name: "Density Ratio",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["RF", null],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1041,6 +1228,8 @@ export const tree = {
                         fluidWavespeed: {
                             name: "Fluid Wavespeed",
                             type: "Number",
+                            divisor: 1000, // mm/s to m/s
+                            identity: ["CF", null],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1048,6 +1237,8 @@ export const tree = {
                         damping: {
                             name: "Damping",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["DBF", null],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1057,6 +1248,8 @@ export const tree = {
                 couplant: {
                     name: "Couplant",
                     type: "Number",
+                    divisor: 1,
+                    identity: ["COUP", 0],
                     parametric: false,
                     disabled: false,
                     default: 0
@@ -1064,6 +1257,8 @@ export const tree = {
                 distanceToProbe: {
                     name: "Distance - Probe/Surface",
                     type: "Number",
+                    divisor: 1,
+                    identity: ["PD", 0],
                     parametric: false,
                     disabled: false,
                     default: 0
@@ -1083,6 +1278,7 @@ export const tree = {
                         shape: {
                             name: "Shape",
                             type: "Dropdown",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: -1,
                             values: [
@@ -1099,6 +1295,7 @@ export const tree = {
                         autoNumElements: {
                             name: "Auto Num of Elements",
                             type: "Checkbox",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: false
                         },
@@ -1110,6 +1307,8 @@ export const tree = {
                                 length: {
                                     name: "Length",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["PA", 1],
                                     parametric: true,
                                     disabled: false,
                                     default: 9.5
@@ -1117,6 +1316,8 @@ export const tree = {
                                 elements: {
                                     name: "Elements",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["NAWX", 1],
                                     parametric: true,
                                     disabled: false,
                                     default: 16
@@ -1124,6 +1325,8 @@ export const tree = {
                                 gap: {
                                     name: "Gap",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["GAPX", 1],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1138,6 +1341,8 @@ export const tree = {
                                 length: {
                                     name: "Length",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["PB", 1],
                                     parametric: true,
                                     disabled: false,
                                     default: 5.5
@@ -1145,6 +1350,8 @@ export const tree = {
                                 elements: {
                                     name: "Elements",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["NAWY", 1],
                                     parametric: true,
                                     disabled: false,
                                     default: 2
@@ -1152,6 +1359,8 @@ export const tree = {
                                 gap: {
                                     name: "Gap",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["GAPY", 1],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1168,6 +1377,7 @@ export const tree = {
                         ftype: {
                             name: "Type",
                             type: "Dropdown",
+                            identity: [null, null], // requires special function, apply converter rules
                             disabled: false,
                             default: 0,
                             values: [
@@ -1188,7 +1398,9 @@ export const tree = {
                         focalDistance: {
                             name: "Focal Distance",
                             type: "Number",
-                            parametric: false,
+                            divisor: 1,
+                            identity: ["FOC", 1],
+                            parametric: true,
                             disabled: false,
                             default: 0
                         }
@@ -1202,6 +1414,8 @@ export const tree = {
                         x: {
                             name: "X",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["UNDECLARED_15", null],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1209,6 +1423,8 @@ export const tree = {
                         y: {
                             name: "Y",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["UNDECLARED_16", null],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1223,6 +1439,7 @@ export const tree = {
                         suppression: {
                             name: "Suppression",
                             type: "Checkbox",
+                            identity: ["INSTY", 1],
                             disabled: false,
                             default: false
                         }
@@ -1236,6 +1453,8 @@ export const tree = {
                         angle: {
                             name: "Angle",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["PGA", 1],
                             parametric: true,
                             disabled: false,
                             default: 45
@@ -1243,6 +1462,8 @@ export const tree = {
                         skewAngle: {
                             name: "Skew Angle",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["PSI", 1],
                             parametric: true,
                             disabled: false,
                             default: 0
@@ -1257,6 +1478,8 @@ export const tree = {
                         longitudinalWavespeed: {
                             name: "Longitudinal Wavespeed",
                             type: "Number",
+                            divisor: 1000, // mm/s to m/s
+                            identity: ["CPW", 1],
                             parametric: false,
                             disabled: false,
                             default: 6320
@@ -1264,6 +1487,8 @@ export const tree = {
                         transversalWavespeed: {
                             name: "Transversal Wavespeed",
                             type: "Number",
+                            divisor: 1000, // mm/s to m/s
+                            identity: ["CSW", 1],
                             parametric: false,
                             disabled: false,
                             default: 3130
@@ -1271,6 +1496,8 @@ export const tree = {
                         density: {
                             name: "Density",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["RHOW", 1],
                             parametric: false,
                             disabled: false,
                             default: 2.7
@@ -1278,6 +1505,8 @@ export const tree = {
                         angle: {
                             name: "Angle",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["GW", 1],
                             parametric: false,
                             disabled: false,
                             default: 49
@@ -1285,6 +1514,8 @@ export const tree = {
                         width: {
                             name: "Width",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["PCW", 1],
                             parametric: false,
                             disabled: false,
                             default: 2
@@ -1299,6 +1530,8 @@ export const tree = {
                         phi: {
                             name: "Phi",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["FPHI", 1],
                             parametric: false,
                             disabled: false,
                             default: 45
@@ -1306,6 +1539,8 @@ export const tree = {
                         theta: {
                             name: "Theta",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["FTHE", 1],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1313,6 +1548,8 @@ export const tree = {
                         psi: {
                             name: "Psi",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["FPSI", 1],
                             parametric: false,
                             disabled: false,
                             default: 0
@@ -1322,6 +1559,8 @@ export const tree = {
                 couplant: {
                     name: "Couplant",
                     type: "Number",
+                    divisor: 1,
+                    identity: ["COUP", 1],
                     parametric: false,
                     disabled: false,
                     default: 0
@@ -1329,6 +1568,8 @@ export const tree = {
                 distanceToProbe: {
                     name: "Distance - Probe/Surface",
                     type: "Number",
+                    divisor: 1,
+                    identity: ["PD", 1],
                     parametric: false,
                     disabled: false,
                     default: 0
@@ -1336,6 +1577,8 @@ export const tree = {
                 focusDepth: {
                     name: "Focus Depth",
                     type: "Number",
+                    divisor: 1,
+                    identity: ["UNDECLARED_17", null],
                     parametric: false,
                     disabled: false,
                     default: 0
@@ -1355,6 +1598,8 @@ export const tree = {
                         x: {
                             name: "X",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["XDEF", null],
                             parametric: true,
                             disabled: false,
                             default: 15
@@ -1362,6 +1607,8 @@ export const tree = {
                         y: {
                             name: "Y",
                             type: "Number",
+                            divisor: 1,
+                            identity: ["YDEF", null],
                             parametric: true,
                             disabled: false,
                             default: 10
@@ -1376,6 +1623,7 @@ export const tree = {
                         variant: {
                             name: "Variant",
                             type: "Dropdown",
+                            identity: ["LDTY", null],
                             disabled: false,
                             default: 1,
                             values: [
@@ -1421,6 +1669,8 @@ export const tree = {
                                 diameter: {
                                     name: "Diameter",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["DA", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 5
@@ -1428,6 +1678,8 @@ export const tree = {
                                 centreDepth: {
                                     name: "Centre Depth",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["DA", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 30
@@ -1435,6 +1687,8 @@ export const tree = {
                                 diameterParallel: {
                                     name: "Diameter Parallel",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["DA", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 5
@@ -1442,6 +1696,8 @@ export const tree = {
                                 diameterPerpendicular: {
                                     name: "Diameter Perpendicular",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["DB", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 30
@@ -1449,6 +1705,8 @@ export const tree = {
                                 height: {
                                     name: "Height",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["A", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 5
@@ -1456,6 +1714,8 @@ export const tree = {
                                 lengthParallel: {
                                     name: "Length, Parallel Y-axis",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["B", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 30
@@ -1470,6 +1730,8 @@ export const tree = {
                                 tilt: {
                                     name: "Tilt",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["ETHA", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 0
@@ -1477,21 +1739,27 @@ export const tree = {
                                 skew: {
                                     name: "Skew",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["PHI", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 0
                                 },
                                 tiltOfCrack: {
                                     name: "Tilt of Crack",
-                                    parametric: true,
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["UNDECLARED_18", null],
+                                    parametric: true,
                                     disabled: false,
                                     default: 0
                                 },
                                 tiltOfSurface: {
                                     name: "Tilt of Surface",
-                                    parametric: true,
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["UNDECLARED_19", null],
+                                    parametric: true,
                                     disabled: false,
                                     default: 0
                                 }
@@ -1505,6 +1773,8 @@ export const tree = {
                                 relativeDensity: {
                                     name: "Relative Density",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["DRR", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1512,6 +1782,8 @@ export const tree = {
                                 longitudinalVelocity: {
                                     name: "Longitudinal Velocity",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["CPI", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1519,6 +1791,8 @@ export const tree = {
                                 transversalVelocity: {
                                     name: "Transversal Velocity",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["CSI", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1526,6 +1800,8 @@ export const tree = {
                                 damping: {
                                     name: "Damping",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["DBI", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1540,6 +1816,7 @@ export const tree = {
                                 variant: {
                                     name: "Variant",
                                     type: "Dropdown",
+                                    identity: ["LDC", null],
                                     disabled: false,
                                     default: 1,
                                     values: [
@@ -1560,6 +1837,8 @@ export const tree = {
                                 stressQuotient: {
                                     name: "Stress Quotient",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["DC", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0.5
@@ -1567,6 +1846,8 @@ export const tree = {
                                 contactDiameter: {
                                     name: "Contact Diameter",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["DAC", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1588,12 +1869,15 @@ export const tree = {
                                 enabled: {
                                     name: "Enabled",
                                     type: "Checkbox",
+                                    identity: [null, null],
                                     disabled: false,
                                     default: false
                                 },
                                 depth: {
                                     name: "Depth",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["BZ", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 5
@@ -1601,6 +1885,8 @@ export const tree = {
                                 tiltFromHorizontal: {
                                     name: "Tilt from Horizontal",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["ET", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1615,12 +1901,15 @@ export const tree = {
                                 enabled: {
                                     name: "Enabled",
                                     type: "Checkbox",
+                                    identity: [null, null],
                                     disabled: false,
                                     default: false
                                 },
                                 rmsHeight: {
                                     name: "RMS Height",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["EPSI", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1628,6 +1917,8 @@ export const tree = {
                                 corrLength: {
                                     name: "Corr. Length",
                                     type: "Number",
+                                    divisor: 1,
+                                    identity: ["LZ", null],
                                     parametric: false,
                                     disabled: false,
                                     default: 0
@@ -1637,6 +1928,7 @@ export const tree = {
                         integration: {
                             name: "Integration",
                             type: "Dropdown",
+                            identity: ["UNDECLARED_20", null], // could be DEL
                             disabled: false,
                             default: 1,
                             values: [
@@ -1657,17 +1949,21 @@ export const tree = {
     }
 }
 
-export function ConstructDefaultTreeData(data, children) {
+export function constructDefaultTreeData(data, children) {
     for (const [key, value] of Object.entries(children)) {
         if (value.type == "Expandable") {
             data[key] = {}
-            ConstructDefaultTreeData(data[key], value.children)
+            constructDefaultTreeData(data[key], value.children)
         } else if (value.type == "Number") {
             if (value.parametric == true) {
                 data[key] = {
                     value: value.default,
                     end: value.default,
                     increment: 1
+                }
+            } else {
+                data[key] = {
+                    value: value.default
                 }
             }
         } else {
@@ -1678,4 +1974,79 @@ export function ConstructDefaultTreeData(data, children) {
     }
 
     return data
+}
+
+export function constructParametricData(data, misc) {
+    const ret = []
+    const restructured = {}
+    const combinations = [];
+
+    // Restructure the data for creating the parametric arrays
+    const recurse = async(t, d) => {
+        for (const [k, v] of Object.entries(t)) { 
+            if (v.type == "Expandable") { 
+                recurse(v.children, d[k])
+            } else if (v.type == "Number" && v.parametric) {
+                let identityType = v.identity[0]
+                let identityIdx = v.identity[1]
+                let range = []
+
+                for (let i = d[k].value; i < d[k].end + 1; i += d[k].increment) { 
+                    if (d[k].value == d[k].end) { 
+                        break 
+                    }
+
+                    if (identityIdx == null) {
+                        range.push(i / v.divisor) // add unit divisor in tree for eg CS and CP
+                    } else {
+                        let pair = [null, null]
+                        pair[identityIdx] = i / v.divisor
+                        range.push(pair)
+                    }
+
+                    if (range.length > 0) {
+                        restructured[identityType] = range
+                    }
+                }
+            }
+        }
+    }
+    recurse(tree.children, data)
+
+    // Recursively generate combinations
+    const generateCombinations = (obj, currentCombination, remainingKeys) => {
+        if (remainingKeys.length === 0) {
+            combinations.push(currentCombination);
+        } else {
+            const nextKey = remainingKeys[0];
+
+            for (const value of obj[nextKey]) {
+                const newCombination = { ...currentCombination, [nextKey]: value };
+                generateCombinations(obj, newCombination, remainingKeys.slice(1));
+            }
+        }
+    }
+    generateCombinations(restructured, {}, Object.keys(restructured));
+
+    // Generate a list of return values based on defaults using isoSaveData
+    for(let i = 0; i < combinations.length; i++) {
+        ret.push(constructIsoSaveData(data, misc))
+    }
+
+    // Finally replace the ret data with the combinations
+    for(let i = 0; i < ret.length; i++) { 
+        for (const [k, v] of Object.entries(combinations[i])) { 
+            if (typeof v == 'object') {
+                if (v[0] != null) {
+                    ret[i][k][0] = v[0]
+                } else if (v[1] != null) {
+                    ret[i][k][1] = v[1]
+                }
+            } else if (typeof v == 'number') {
+                ret[i][k] = v
+            }
+        }
+    }
+
+    return ret
 }

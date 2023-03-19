@@ -76,7 +76,7 @@
                 <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
                 <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
                 <input bind:value={data.end} type="number" class="pl-1 w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
-                <input bind:value={data.increment} type="number" class="pl-1 w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
+                <input bind:value={data.increment} type="number" class="pl-1 w-12 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
             </div>
         {:else if tree.type == "Number" && (tree.parametric == false || !parametricEnabled) }
             <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->

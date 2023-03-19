@@ -1,2 +1,2 @@
 # SimSUNDT 3
-SimSUNDT 3 is a re-development of legacy application simSUNDT 2, the app is supposed to provide users a user interface to prepare and navigate results produced by UTDefect, a separate application which is a non-destructive testing simulator.
+SimSUNDT 3 is a re-development of legacy application simSUNDT 2. The app is supposed to provide users a user interface to prepare data for simulation, and to navigate results produced by UTDefect -- a separate application which is a non-destructive testing simulator.

@@ -86,7 +86,16 @@
         font-size: 14px;
         color:#4d4d4d
     }
-    div::-webkit-scrollbar {
-        display: none;
+    ::-webkit-scrollbar {
+        width: 14px;
+        height: 14px;
+    }
+  ::-webkit-scrollbar-track {
+        background: rgb(168, 162, 158);
+        border-radius: 10px;
+    }
+  ::-webkit-scrollbar-thumb {
+        background: #4d4d4d;
+        border-radius: 10px;
     }
 </style>

@@ -6,7 +6,8 @@
     import Button from '../components/Button.svelte'
     import HorizontalProgressbarComponent from '../components/HorizontalProgressbar.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
-    import { tree } from '../lib/tree.js'
+    import { constructParametricData, tree } from '../lib/tree.js'
+    import { constructIsoSaveData } from "../lib/utDefSaverUtils";
 
     export let unsaved
     export let utDefRunner
@@ -38,32 +39,50 @@
         color: "#55b13c",
         icon: "play_arrow",
         action: async () => {
-            // Try to instantiate a new saver and run the runner
-            try {
-                const homeDir = await window.electronAPI.getHomeDir()
-                await window.electronAPI.rmDir(homeDir + "/Documents/simSUNDT/tmp")
-                await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/tmp")
+            // Clean up old runs
+            const homeDir = await window.electronAPI.getHomeDir()
+            await window.electronAPI.rmDir(homeDir + "/Documents/simSUNDT/tmp")
 
-                const saver = new UTDefectIsoSaver(projectHandler.currentProject.data.preprocessor.tree, 
+            // Prep default Isometric data in the saver
+            const saver = new UTDefectIsoSaver()
+            saver.data = constructIsoSaveData(projectHandler.currentProject.data.preprocessor.tree, 
+                        projectHandler.currentProject.data.preprocessor.misc)
+
+            if (parametricEnabled) {
+                // Save the base run (i.e. when all parameters are default)
+                await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/tmp_1")
+                await saver.Save(homeDir + "/Documents/simSUNDT/tmp_1/utdefdat")
+
+                let runs = constructParametricData(projectHandler.currentProject.data.preprocessor.tree, 
                     projectHandler.currentProject.data.preprocessor.misc)
-                const saved = await saver.Save()
 
-                if (!saved) {
-                    return
-                }
-
-                const run = await utDefRunner.Run(projectHandler.currentProject.data.preprocessor.misc.binaryPath)
-
-                if (!run) {
-                    return
-                }
+                console.log(runs)
                 
-                projectHandler.currentProject.data.postprocessor = await utDefResultParser.Extract(homeDir + "/Documents/simSUNDT/tmp")
-                unsaved = true
-            } catch (err) {
-                mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
-                mainLogContents = mainLogContents
-                return
+
+            } else {
+                try {
+                    // Make a single /tmp folder in the simSUNDT folder to store temp data as well as the binary file
+                    await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/tmp")
+
+                    const saved = await saver.Save(homeDir + "/Documents/simSUNDT/tmp/utdefdat")
+
+                    if (!saved) {
+                        return
+                    }
+
+                    const run = await utDefRunner.Run(projectHandler.currentProject.data.preprocessor.misc.binaryPath)
+
+                    if (!run) {
+                        return
+                    }
+                    
+                    projectHandler.currentProject.data.postprocessor = await utDefResultParser.Extract(homeDir + "/Documents/simSUNDT/tmp")
+                    unsaved = true
+                } catch (err) {
+                    mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
+                    mainLogContents = mainLogContents
+                    return
+                }
             }
         },
         disabled: false
@@ -198,7 +217,7 @@
             </div>
         </div>
     </div>
-    <div class="flex flex-row tree-view">
+    <div class="flex flex-col tree-view">
         <div class="flex flex-col shadow-lg rounded-lg px-2 mt-2 bg-stone-300 min-w-96 min-w-sm w-full sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg mb-4 opacity-90 hover:opacity-100" style="z-index: 4; position:relative; overflow: auto;">
             <div class="flex flex-row">
                 <div class="flex flex-col">
@@ -289,13 +308,14 @@
   }
   .tree-view
   {
-    max-height: calc(100vh - 158px);
+    max-height: calc(100vh - 178px);
   }
   .line-vert {
     border-left: 1px solid #7f7f7f;
   }
   ::-webkit-scrollbar {
     width: 14px;
+    height: 14px;
   }
   ::-webkit-scrollbar-track {
       background: rgb(168, 162, 158);

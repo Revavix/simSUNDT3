@@ -13,7 +13,7 @@ export interface IElectronAPI {
     mkdir: (path: string) => Promise<boolean>,
     openFolderModal: (defaultPath) => Promise<string>,
     openFileModal: (defaultPath, filters) => Promise<string>,
-    openSaveModal: (defaultPath, filters) => Promise<string>,
+    openSaveModal: (defaultPath, filters) => Promise<object>,
     utDefStart: (pathToBinaryFolder: string) => Promise<boolean>,
     utDefStartStd: (pathToBinary: string, inputPath: string) => Promise<boolean>,
     utDefGetProgressStd: () => Promise<object>,

@@ -63,7 +63,7 @@
         const fileToLoad = await window.electronAPI.openFileModal(projectHandler.projectHomeDir, [
             {
                 name: "Project",
-                extensions: [".ssproj"]
+                extensions: ["ssproj"]
             },
             { 
                 name: 'All Files', 
@@ -100,24 +100,22 @@
     async function requestSaveAsModal() {
         console.log(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name + ".ssproj")
 
-        const savePath = await window.electronAPI.openSaveModal(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name + ".ssproj", [
+        const saveResult = await window.electronAPI.openSaveModal(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name, [
             {
                 name: "Project",
-                extensions: [".ssproj"]
+                extensions: ["ssproj"]
             }
         ])
 
-        if (savePath == "") {
+        if (saveResult['fileName'] == null && saveResult['fullPath'] == null) {
             return
         }
 
         // Extract the name of the project
-        let fixedPath = savePath.replace("/\\/gm", "/")
-        let newName = fixedPath.substring(fixedPath.lastIndexOf("/") + 1, fixedPath.lastIndexOf("."))
-        projectHandler.currentProject.name = newName
+        projectHandler.currentProject.name = saveResult['fileName']
 
         // Save using the original path from electronAPI
-        projectHandler.currentProjectPath = savePath
+        projectHandler.currentProjectPath = saveResult['fullPath']
         const saved = await projectHandler.Save()
 
         if (saved.status == "OK") {

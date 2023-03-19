@@ -154,71 +154,83 @@ class GenericIpc {
             })
 
             if (canceled) {
-                return ""
+                return Promise.resolve({fileName: null, fullPath: null})
             } else {
-                return Promise.resolve(filePath)
+                return Promise.resolve({fileName: path.parse(filePath).name, fullPath: filePath})
             }
         })
     }
 }
 
-class UTDefectMultithreadedIpc {
+class UTDefectMultiprocessesIpc {
     // Thread status and related UTDef info for each thread
-    status = {
-        'PROCESS_1': {
-            process: null,
-            progress: 0,
-            maxProgress: 100
-        },
-        'PROCESS_2': {
-            process: null,
-            progress: 0,
-            maxProgress: 100
-        },
-        'PROCESS_3': {
-            process: null,
-            progress: 0,
-            maxProgress: 100
-        },
-        'PROCESS_4': {
-            process: null,
-            progress: 0,
-            maxProgress: 100
+    status = {}
+
+    constructor() {
+        // Initialize for up to 64 processes
+        for(let i = 0; i < 64; i++) {
+            this.status['PROCESS_' + i] = {
+                process: null,
+                exitCode: 0,
+                progress: 0,
+                maxProgress: 100
+            }
         }
     }
 
-    constructor() {
-
-    }
-
-    // Add a thread to status and start listening for progress
+    // Add a process to status and start listening for progress
     async start(ev, executablePath) {
-        let threadId = 'INVALID'
+        let processId = 'INVALID'
 
         Object.keys(this.status).forEach((key, index) => {
             if (this.status[key].process == null) {
-                threadId = key
+                processId = key
             }
         })
 
-        if (threadId != 'INVALID') {
-            this.status[threadId].process = spawn(executablePath, { cwd: path.parse(executablePath).dir })
+        if (processId != 'INVALID') {
+            this.status[processId].progress = 0
+            this.status[processId].maxProgress = 100
+            this.status[processId].process = spawn(executablePath, { cwd: path.parse(executablePath).dir })
+
+            const progressReadInterval = setInterval(() => this.updateProgress(processId, path.parse(executablePath).dir + "/utdefcontrol"), 200)
+
+            this.status[processId].process.on('close', code => {
+                this.status[processId].exitCode = code
+                clearInterval(progressReadInterval)
+                process.stdout.write("UTDef process closed\n")
+            })
         }
 
-        return threadId
+        return processId
     }
 
     // Stop the given thread running UTDef
-    async stop(ev, threadId) {
-        this.status[threadId].kill()
+    async stop(ev, processId) {
+        this.status[processId].kill()
     }
 
     // Get a status object of if the process is active and its current progress as per file readout
-    async get(ev, threadId) {
+    async get(ev, processId) {
         return {
-            active: this.status[threadId].process == null ? false : true,
-            progress: this.status[threadId].progress,
-            maxProgress: this.status[threadId].maxProgress
+            active: this.status[processId].process == null ? false : true,
+            progress: this.status[processId].progress,
+            maxProgress: this.status[processId].maxProgress
+        }
+    }
+
+    // For internal use
+    async updateProgress(processId, progressFilePath) {
+        const data = fs.readFileSync(progressFilePath,
+        {encoding: 'utf-8', flag: 'r'}).split("\n")
+        const line = data[data.length-2]
+
+        try {
+            let strData = (line.toString()).match(/[\d]+/g)
+            this.status[processId].progress = parseInt(strData[0])
+            this.status[processId].maxProgress = parseInt(strData[1])
+        } catch (err) {
+            
         }
     }
 }
