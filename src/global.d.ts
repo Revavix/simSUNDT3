@@ -1,6 +1,7 @@
 export interface IElectronAPI {
     getPlatform: () => Promise<string>,
     getDefaultBinaryPath: () => Promise<string>,
+    getPathBasename: (path) => Promise<string>,
     getHomeDir: () => Promise<string>,
     rmDir: (dirPath: string) => Promise<boolean>,
     readFile: (path: string) => Promise<string>,
@@ -14,6 +15,10 @@ export interface IElectronAPI {
     openFolderModal: (defaultPath) => Promise<string>,
     openFileModal: (defaultPath, filters) => Promise<string>,
     openSaveModal: (defaultPath, filters) => Promise<object>,
+    utDefMpInit: (numberOfProcesses: number) => Promise<void>,
+    utDefMpStart: (executablePath: string) => Promise<string>,
+    utDefMpStop: (processId: string) => Promise<void>,
+    utDefMpGetStatus: (processId: string) => Promise<object>,
     utDefStart: (pathToBinaryFolder: string) => Promise<boolean>,
     utDefStartStd: (pathToBinary: string, inputPath: string) => Promise<boolean>,
     utDefGetProgressStd: () => Promise<object>,

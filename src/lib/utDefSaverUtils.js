@@ -76,7 +76,7 @@ export function constructIsoSaveData(data, misc) {
     obj["DER"] = false
 
     // Misc data
-    obj["IA"] = misc.accuracy
+    obj["IA"] = Number.parseInt(misc.accuracy)
 
     return obj
 }

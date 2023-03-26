@@ -2,6 +2,15 @@ import { writable } from 'svelte/store'
 
 export const fileCache = writable([])
 
+export const utDefProgress = writable(0)
+
+export const utDefParametricProgress = writable([])
+
+export const utDefStatus = writable({
+    running: false,
+    message: null
+})
+
 export const densityAndSignalData = writable({
     data: [
         {x: 0, y: 0, z: 0, r: [{x: 0, y: 0}, {x: 1, y: 1}]}

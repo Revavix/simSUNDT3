@@ -21,6 +21,10 @@ class GenericIpc {
             }
         })
 
+        ipcMain.handle('get-basename', async(ev, p) => {
+            return Promise.resolve(path.basename(p, path.extname(p)))
+        })
+
         ipcMain.handle('os-get-home-dir', async () => {
             return os.homedir()
         })
@@ -164,41 +168,56 @@ class GenericIpc {
 
 class UTDefectMultiprocessesIpc {
     // Thread status and related UTDef info for each thread
+    stopSignal = false
+    maxProcesses = 4
     status = {}
 
     constructor() {
         // Initialize for up to 64 processes
-        for(let i = 0; i < 64; i++) {
+        this.init()
+
+        ipcMain.handle('utdef-mp-init', async (ev, num) => this.init(num))
+        ipcMain.handle('utdef-mp-start', async (ev, executablePath) => this.start(executablePath))
+        ipcMain.handle('utdef-mp-stop', async (ev, processId) => this.stop(processId))
+        ipcMain.handle('utdef-mp-get-status', async (ev, processId) => this.getStatus(processId))
+    }
+
+    async init(num) {
+        this.status = {}
+
+        for (let i = 0; i < num; i++) {
             this.status['PROCESS_' + i] = {
                 process: null,
-                exitCode: 0,
                 progress: 0,
-                maxProgress: 100
+                exitCode: 0
             }
         }
     }
 
+
     // Add a process to status and start listening for progress
-    async start(ev, executablePath) {
+    async start(executablePath) {
         let processId = 'INVALID'
 
-        Object.keys(this.status).forEach((key, index) => {
-            if (this.status[key].process == null) {
-                processId = key
+        for (const [k, v] of Object.entries(this.status)) {
+            if (this.status[k].process == null) {
+                processId = k
+                break
             }
-        })
+        }
 
         if (processId != 'INVALID') {
             this.status[processId].progress = 0
-            this.status[processId].maxProgress = 100
+            this.status[processId].exitCode = -1
             this.status[processId].process = spawn(executablePath, { cwd: path.parse(executablePath).dir })
 
             const progressReadInterval = setInterval(() => this.updateProgress(processId, path.parse(executablePath).dir + "/utdefcontrol"), 200)
 
             this.status[processId].process.on('close', code => {
+                this.status[processId].process = null
                 this.status[processId].exitCode = code
                 clearInterval(progressReadInterval)
-                process.stdout.write("UTDef process closed\n")
+                process.stdout.write("UTDef process closed with code " + code + " \n")
             })
         }
 
@@ -206,29 +225,34 @@ class UTDefectMultiprocessesIpc {
     }
 
     // Stop the given thread running UTDef
-    async stop(ev, processId) {
-        this.status[processId].kill()
+    async stop(processId) {
+        if (this.status[processId].process == null) {
+            return
+        }
+
+        this.status[processId].process.kill()
+        this.status[processId].process = null
+        this.status[processId].exitCode = 2
     }
 
     // Get a status object of if the process is active and its current progress as per file readout
-    async get(ev, processId) {
+    async getStatus(processId) {
         return {
             active: this.status[processId].process == null ? false : true,
-            progress: this.status[processId].progress,
-            maxProgress: this.status[processId].maxProgress
+            exitCode: this.status[processId].exitCode,
+            progress: this.status[processId].progress
         }
     }
 
     // For internal use
-    async updateProgress(processId, progressFilePath) {
+    async updateProgress(idx, progressFilePath) {
         const data = fs.readFileSync(progressFilePath,
         {encoding: 'utf-8', flag: 'r'}).split("\n")
         const line = data[data.length-2]
 
         try {
             let strData = (line.toString()).match(/[\d]+/g)
-            this.status[processId].progress = parseInt(strData[0])
-            this.status[processId].maxProgress = parseInt(strData[1])
+            this.status[idx].progress = parseInt(strData[0]) / parseInt(strData[1])
         } catch (err) {
             
         }
@@ -368,4 +392,5 @@ class WindowIpc {
 
 module.exports.GenericIpc = GenericIpc
 module.exports.UTDefectIpc = UTDefectIpc
+module.exports.UTDefectMultiprocessesIpc = UTDefectMultiprocessesIpc
 module.exports.WindowIpc = WindowIpc

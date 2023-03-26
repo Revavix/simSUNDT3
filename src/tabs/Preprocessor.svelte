@@ -8,9 +8,13 @@
     import OutputLogComponent from '../components/OutputLog.svelte'
     import { constructParametricData, tree } from '../lib/tree.js'
     import { constructIsoSaveData } from "../lib/utDefSaverUtils";
+    import { utDefProgress, utDefStatus } from "../lib/stores";
+    import { runParametric } from "../lib/preprocessorRunnerLogic";
+    import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
 
     export let unsaved
     export let utDefRunner
+    export let utDefParametricRunner
     export let projectHandler
     export let utDefResultParser
 
@@ -19,18 +23,19 @@
     let treeMinimized = false
     let showConfigureModal = false
     let utDefRunnerIsRunning = false
+    let progress = 0
 
-    utDefRunner.statusMessage.subscribe(value => {
-        if (value.hasOwnProperty("message") && value.hasOwnProperty("icon") && value.hasOwnProperty("color")) {
-            mainLogContents.push(value)
+    utDefStatus.subscribe(v => {
+        utDefRunnerIsRunning = v.running
 
-            // Force update variable to trigger svelte reactivity...
+        if (v.message != null) {
+            mainLogContents.push(v.message)
             mainLogContents = mainLogContents
         }
     })
 
-    utDefRunner.running.subscribe(value => {
-        utDefRunnerIsRunning = value
+    utDefProgress.subscribe(v => {
+        progress = v
     })
 
     // Simulate section buttons
@@ -41,30 +46,35 @@
         action: async () => {
             // Clean up old runs
             const homeDir = await window.electronAPI.getHomeDir()
-            await window.electronAPI.rmDir(homeDir + "/Documents/simSUNDT/tmp")
+            await window.electronAPI.rmDir(homeDir + "/Documents/simSUNDT/Simulations")
+            await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/Simulations")
 
             // Prep default Isometric data in the saver
             const saver = new UTDefectIsoSaver()
             saver.data = constructIsoSaveData(projectHandler.currentProject.data.preprocessor.tree, 
                         projectHandler.currentProject.data.preprocessor.misc)
 
+            // Prep binary info
+            const srcBinary = projectHandler.currentProject.data.preprocessor.misc.binaryPath
+            const execName = await window.electronAPI.getPathBasename(srcBinary) + 
+                             await window.electronAPI.extname(srcBinary)
+
             if (parametricEnabled) {
-                // Save the base run (i.e. when all parameters are default)
-                await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/tmp_1")
-                await saver.Save(homeDir + "/Documents/simSUNDT/tmp_1/utdefdat")
-
-                let runs = constructParametricData(projectHandler.currentProject.data.preprocessor.tree, 
-                    projectHandler.currentProject.data.preprocessor.misc)
-
-                console.log(runs)
-                
-
+                runParametric(homeDir, 
+                    srcBinary, 
+                    execName, 
+                    {
+                        tree: projectHandler.currentProject.data.preprocessor.tree,
+                        misc: projectHandler.currentProject.data.preprocessor.misc
+                    },
+                    utDefParametricRunner
+                )
             } else {
                 try {
                     // Make a single /tmp folder in the simSUNDT folder to store temp data as well as the binary file
-                    await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/tmp")
+                    await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/Simulations/NP")
 
-                    const saved = await saver.Save(homeDir + "/Documents/simSUNDT/tmp/utdefdat")
+                    const saved = await saver.Save(homeDir + "/Documents/simSUNDT/Simulations/NP/utdefdat")
 
                     if (!saved) {
                         return
@@ -76,7 +86,8 @@
                         return
                     }
                     
-                    projectHandler.currentProject.data.postprocessor = await utDefResultParser.Extract(homeDir + "/Documents/simSUNDT/tmp")
+                    // Change this to [{run: 'Main', date: 'nn-nn-nn nn:nn:nn', data: }]
+                    projectHandler.currentProject.data.postprocessor = await utDefResultParser.Extract(homeDir + "/Documents/simSUNDT/Simulations/NP")
                     unsaved = true
                 } catch (err) {
                     mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
@@ -133,18 +144,6 @@
         action:  () => {showConfigureModal = false},
         disabled: false
     }
-
-    // Progress Bar vars and store subscribes
-    let progress: number = 0
-    let maxProgress: number = 100
-
-    utDefRunner.runProgress.subscribe(value => {
-        progress = value
-    })
-
-    utDefRunner.maxRunProgress.subscribe(value => {
-        maxProgress = value
-    })
 
     // Get default path (OS dependant) to UTDefect
     let defaultPath: string
@@ -238,11 +237,18 @@
             {/if}
         </div>
     </div>
-    <!--<div class="absolute-bottom-above pb-4 px-6 w-6/12 opacity-90 hover:opacity-100">
-        <OutputLogComponent bind:contents={mainLogContents}/>
-        <div class="py-1"/>
-        <HorizontalProgressbarComponent bind:progress={progress} bind:maxValue={maxProgress}/>
-    </div>-->
+    <div class="absolute-bottom-above pb-4 px-4 w-full opacity-90 hover:opacity-100">
+        <!--<OutputLogComponent bind:contents={mainLogContents}/>-->
+        <!--<HorizontalProgressbarComponent bind:progress={progress} maxValue={1}/>-->
+        <div class="flex flex-row w-full">
+            <div class="flex flex-col w-1/2 pr-2">
+                <OutputLogComponent bind:contents={mainLogContents}/>
+            </div>
+            <div class="flex flex-col w-1/2 pl-2">
+                <ParametricProgressOverview/>
+            </div>
+        </div>
+    </div>
 
     {#if showConfigureModal}
     <div class="absolute-bg bg-stone-600 opacity-75"/>
@@ -308,7 +314,7 @@
   }
   .tree-view
   {
-    max-height: calc(100vh - 178px);
+    max-height: calc(100vh - 340px);
   }
   .line-vert {
     border-left: 1px solid #7f7f7f;

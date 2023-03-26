@@ -38,7 +38,7 @@ export class ProjectHandler {
                 preprocessor: {
                     tree: constructDefaultTreeData({}, tree.children),
                     misc: {
-                        accuracy: 3,
+                        accuracy: "3",
                         binaryPath: "",
                         cloudEndpoint: ""
                     }

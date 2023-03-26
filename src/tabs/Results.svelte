@@ -41,7 +41,12 @@
 
 <div id="postprocessor-tab">
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 99; position: relative">
-        <div class="flex flex-col w-24 pt-1 -space-y-1">
+        <div class="flex flex-col w-40 pt-1 -space-y-1">
+            <div class="flex flex-row w-full items-center">
+                <select class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                    <option>NP - 2023-03-21 09:22</option>
+                </select>
+            </div>
             <div class="flex flex-row w-full items-center">
                 <div class="flex flex-col mx-1" style="font-size:10px; color:#4d4d4d;">
                     <input id="default-checkbox" type="checkbox" bind:checked={interpolationOn} class="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" on:change={changeInterpolation}>
@@ -61,7 +66,7 @@
                     Best
                 </div>
             </div>
-            <div class="flex flex-row w-full justify-center mt-auto pt-7">
+            <div class="flex flex-row w-full justify-center mt-auto pt-3">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
                 Data
                 </div>

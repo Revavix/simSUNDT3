@@ -55,7 +55,7 @@
     </div>
     {#if minimized == false}
     <!--<div class="bg-gradient-to-r from-yellow-600 ... h-0.5"></div>-->
-    <div class="max-h-32 border border-stone-400 rounded-md m-2 h-32 min-h-full" style="padding-left: 0px; overflow: auto">
+    <div class="max-h-32 border border-stone-400 rounded-md m-2 h-32" style="padding-left: 0px; overflow: auto">
         {#each contents as item}
             <div class="flex">
                 <div class="flex flex-col item-icon" style="color:{item['color']}">
