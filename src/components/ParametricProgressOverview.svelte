@@ -1,5 +1,5 @@
 <script>
-    import { utDefParametricProgress } from '../lib/stores';
+    import { utDefProgress } from '../lib/stores';
 
     let minimized
 
@@ -26,7 +26,7 @@
         }
     ]
 
-    utDefParametricProgress.subscribe(v => {
+    utDefProgress.subscribe(v => {
         runs = v
     })
 
@@ -41,13 +41,13 @@
 */
 </script>
 
-<div class="flex flex-col bg-stone-300 class:h-40={minimized === true} rounded-lg shadow-lg" style="z-index: 4;">
+<div class="flex flex-col bg-stone-300 h-60 class:h-40={minimized === true} rounded-lg shadow-lg" style="z-index: 4;">
     <div class="flex px-2 pt-1" style="color:#4d4d4d">
         <div class="flex flex-col">
             Progress (Parametric)
         </div>
     </div>
-    <div class="grid grid-cols-4 max-h-32 rounded-md m-2 h-36" style="padding-left: 0px; overflow: auto"> 
+    <div class="grid grid-cols-4 max-h-48 rounded-md m-2 h-48" style="padding-left: 0px; overflow: auto"> 
         {#each runs as r, i}
         <div class="flex flex-col items-center">
             <div class="flex flex-row" style="font-size:12px; color:#4d4d4d;"> 

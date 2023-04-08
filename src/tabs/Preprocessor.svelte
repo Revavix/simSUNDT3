@@ -9,12 +9,13 @@
     import { constructParametricData, tree } from '../lib/tree.js'
     import { constructIsoSaveData } from "../lib/utDefSaverUtils";
     import { utDefProgress, utDefStatus } from "../lib/stores";
-    import { runParametric } from "../lib/preprocessorRunnerLogic";
+    import { runNonParametric, runParametric } from "../lib/preprocessorRunnerLogic";
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
+    import ParametricSettings from "../components/ParametricSettings.svelte";
+    import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
 
     export let unsaved
     export let utDefRunner
-    export let utDefParametricRunner
     export let projectHandler
     export let utDefResultParser
 
@@ -22,8 +23,9 @@
     let parametricEnabled = false
     let treeMinimized = false
     let showConfigureModal = false
+    let showParametricSettingsModal = false
     let utDefRunnerIsRunning = false
-    let progress = 0
+    let namingSchemeGroup = 1
 
     utDefStatus.subscribe(v => {
         utDefRunnerIsRunning = v.running
@@ -34,10 +36,6 @@
         }
     })
 
-    utDefProgress.subscribe(v => {
-        progress = v
-    })
-
     // Simulate section buttons
     let runButton = {
         label: "Run",
@@ -46,7 +44,6 @@
         action: async () => {
             // Clean up old runs
             const homeDir = await window.electronAPI.getHomeDir()
-            await window.electronAPI.rmDir(homeDir + "/Documents/simSUNDT/Simulations")
             await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/Simulations")
 
             // Prep default Isometric data in the saver
@@ -60,40 +57,82 @@
                              await window.electronAPI.extname(srcBinary)
 
             if (parametricEnabled) {
-                runParametric(homeDir, 
+                let parametricRunResult = runParametric(homeDir, 
                     srcBinary, 
                     execName, 
                     {
                         tree: projectHandler.currentProject.data.preprocessor.tree,
                         misc: projectHandler.currentProject.data.preprocessor.misc
                     },
-                    utDefParametricRunner
-                )
-            } else {
-                try {
-                    // Make a single /tmp folder in the simSUNDT folder to store temp data as well as the binary file
-                    await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/Simulations/NP")
-
-                    const saved = await saver.Save(homeDir + "/Documents/simSUNDT/Simulations/NP/utdefdat")
-
-                    if (!saved) {
-                        return
+                    utDefRunner
+                ).then(v => {
+                    let groupedResult = {
+                        date: v.date,
+                        time: v.time,
+                        runs: [],
+                        parametric: true
                     }
 
-                    const run = await utDefRunner.Run(projectHandler.currentProject.data.preprocessor.misc.binaryPath)
+                    v.runs.forEach(element => {
+                        groupedResult.runs.push({
+                            a: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder + "/utIndefa-A.dat",
+                            c: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder + "/utIndefa-C.dat",
+                            meta: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder + "/utIndefa.txt"
+                        })
+                    });
 
-                    if (!run) {
-                        return
-                    }
+                    projectHandler.currentProject.data.postprocessor.push(groupedResult)
                     
-                    // Change this to [{run: 'Main', date: 'nn-nn-nn nn:nn:nn', data: }]
-                    projectHandler.currentProject.data.postprocessor = await utDefResultParser.Extract(homeDir + "/Documents/simSUNDT/Simulations/NP")
-                    unsaved = true
-                } catch (err) {
-                    mainLogContents.push({icon: "warning", message: "Saver failed, verify that a valid project file has been loaded, or create a new project to resolve the issue", color: "#4d4d4d"})
-                    mainLogContents = mainLogContents
-                    return
-                }
+                    console.log(projectHandler.currentProject.data.postprocessor)
+                }).catch(v => {
+                    utDefStatus.set({
+                        running: false,
+                        message: {
+                            icon: "info", 
+                            message: v, 
+                            color: "#4d4d4d"
+                        }
+                    })
+                })
+            } else {
+                runNonParametric(homeDir,
+                    srcBinary,
+                    execName,
+                    {
+                        tree: projectHandler.currentProject.data.preprocessor.tree,
+                        misc: projectHandler.currentProject.data.preprocessor.misc
+                    },
+                    utDefRunner
+                ).then(v => {
+                    let groupedResult = {
+                        date: v.date,
+                        time: v.time,
+                        result: {
+                            a: homeDir + "/Documents/simSUNDT/Simulations/" + v.result.folder + "/utIndefa-A.dat",
+                            c: homeDir + "/Documents/simSUNDT/Simulations/" + v.result.folder + "/utIndefa-C.dat",
+                            meta: homeDir + "/Documents/simSUNDT/Simulations/" + v.result.folder + "/utIndefa.txt"
+                        },
+                        parametric: false
+                    }
+
+                    console.log(groupedResult)
+
+                    projectHandler.currentProject.data.postprocessor.push(groupedResult)
+                }).catch(v => {
+                    utDefStatus.set({
+                        running: false,
+                        message: {
+                            icon: "info", 
+                            message: v, 
+                            color: "#4d4d4d"
+                        }
+                    })
+
+                    utDefProgress.set([{
+                        progress: 0,
+                        finished: false
+                    }])
+                })
             }
         },
         disabled: false
@@ -115,6 +154,16 @@
         icon: "settings",
         action: async () => {
             showConfigureModal == false ? showConfigureModal = true : showConfigureModal = false
+        },
+        disabled: false
+    }
+
+    let parametricSettingsButton = {
+        label: "Settings",
+        color: "#807a7a",
+        icon: "tune",
+        action: async () => {
+            showParametricSettingsModal = true
         },
         disabled: false
     }
@@ -205,22 +254,28 @@
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
         <div class="flex flex-col w-20 pt-1 -space-y-1">
-            <div class="flex flex-row mb-auto items-center">
-                <input bind:checked={parametricEnabled} type="checkbox" class="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                <div class="px-2" style="font-size:12px; color:#4d4d4d;">Enabled</div>
+            <div class="flex flex-col mb-auto">
+                <div class="flex flex-row items-center">
+                    <input bind:checked={parametricEnabled} type="checkbox" class="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <div class="px-2" style="font-size:12px; color:#4d4d4d;">Enabled</div>
+                </div>
+                <div class="flex flex-row">
+                    <Button data={parametricSettingsButton}/>
+                </div>
             </div>
-            <div class="flex flex-row w-full justify-center mt-auto pt-2">
+            <div class="flex flex-row w-full justify-center mt-auto">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
                 Parametric
                 </div>
             </div>
         </div>
+        <div class="flex flex-col line-vert my-2 mx-2"/>
     </div>
     <div class="flex flex-col tree-view">
         <div class="flex flex-col shadow-lg rounded-lg px-2 mt-2 bg-stone-300 min-w-96 min-w-sm w-full sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg mb-4 opacity-90 hover:opacity-100" style="z-index: 4; position:relative; overflow: auto;">
             <div class="flex flex-row">
                 <div class="flex flex-col">
-                    <p class="pt-1" style="color:#4d4d4d">Parameterisation</p>
+                    <p class="pt-1" style="color:#4d4d4d">Parameterisation {parametricEnabled == true ? "(Parametric)" : "(Non-parametric)"}</p>
                 </div>
                 <div class="flex flex-col ml-auto">
                     {#if treeMinimized}
@@ -238,14 +293,16 @@
         </div>
     </div>
     <div class="absolute-bottom-above pb-4 px-4 w-full opacity-90 hover:opacity-100">
-        <!--<OutputLogComponent bind:contents={mainLogContents}/>-->
-        <!--<HorizontalProgressbarComponent bind:progress={progress} maxValue={1}/>-->
-        <div class="flex flex-row w-full">
-            <div class="flex flex-col w-1/2 pr-2">
+        <div class="flex flex-row w-full items-end">
+            <div class="flex flex-col w-1/2 pr-1">
                 <OutputLogComponent bind:contents={mainLogContents}/>
             </div>
-            <div class="flex flex-col w-1/2 pl-2">
+            <div class="flex flex-col w-1/2 pl-1">
+                {#if parametricEnabled}
                 <ParametricProgressOverview/>
+                {:else}
+                <NonParametricProgressOverview/>
+                {/if}
             </div>
         </div>
     </div>
@@ -256,29 +313,50 @@
         <div class="relative w-full h-full md:h-auto">
             <div class="relative rounded-lg shadow bg-stone-200">
                 <div class="flex items-start justify-between p-3 rounded-t">
-                    <h3 class="text-md font-semibold text-gray-600">
-                        Configuration
-                    </h3>
+                    <div class="flex flex-col items-start">
+                        <h3 class="flex flex-row text-md font-semibold text-gray-600">
+                            Configuration
+                        </h3>
+                        <h1 class="flex flex-row text-xs text-gray-600">
+                            Simulation options
+                        </h1>
+                    </div>
                     <div class="bg-transparent rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
                         <Button data={closeConfigureModalButton}/>
                     </div>
                 </div>
-                <div class="p-3 space-y-2">
+                <div class="px-3 mt-2 space-y-2">
                     <div>
                         <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Binary path</label>
                         <input bind:value={projectHandler.currentProject.data.preprocessor.misc.binaryPath} type="text" id="runner_path" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Eg: {defaultPath}" required on:change={() => unsaved = true}/>
                     </div>
                 </div>
-                <div class="p-3 space-y-2">
-                    <div>
-                        <label for="cloud_endpoint" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Cloud Endpoint</label>
-                        <input disabled type="text" id="cloud_endpoint" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Not implemented" required>
+                <div class="px-3 py-2 space-y-2">
+                    <div class="flex flex-col">
+                        <div class="flex flex-col">
+                            <div class="flex flex-row mb-1 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Run naming scheme</div>
+                            <div class="flex flex-col w-full" id="naming_scheme_group">
+                                <div class="flex flex-row w-full items-center">
+                                    <input id="algo_naming" type="radio" bind:group={namingSchemeGroup} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={1}>
+                                    <label for="algo_naming" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Algorithmic naming</label>
+                                </div>
+                                <div class="flex flex-row w-full items-center">
+                                    <input id="custom_naming" type="radio" bind:group={namingSchemeGroup} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={2}>
+                                    <label for="custom_naming" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Specified naming</label>
+                                </div>
+                                <div class="flex flex-row w-full items-center mt-1">
+                                    <input disabled={namingSchemeGroup == 2 ? false : true} type="text" id="custom_run_name_textbox" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="My_Custom_Run" required>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     {/if}
+
+    <ParametricSettings bind:isModalOpen={showParametricSettingsModal} bind:numProcesses={projectHandler.currentProject.data.preprocessor.misc.parametric.numProcesses}/>
 </div>
 
 <style>
@@ -314,7 +392,7 @@
   }
   .tree-view
   {
-    max-height: calc(100vh - 340px);
+    max-height: calc(100vh - 410px);
   }
   .line-vert {
     border-left: 1px solid #7f7f7f;

@@ -215,7 +215,7 @@ class UTDefectMultiprocessesIpc {
 
             this.status[processId].process.on('close', code => {
                 this.status[processId].process = null
-                this.status[processId].exitCode = code
+                this.status[processId].exitCode = code == null ? this.status[processId].exitCode : code
                 clearInterval(progressReadInterval)
                 process.stdout.write("UTDef process closed with code " + code + " \n")
             })

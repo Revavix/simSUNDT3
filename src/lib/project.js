@@ -9,11 +9,13 @@ export class ProjectHandler {
         data: {
             preprocessor: {
                 tree: {},
-                misc: {}
+                misc: {
+                    parametric: {}
+                }
             },
-            postprocessor: {
-
-            }
+            postprocessor: [
+                
+            ]
         }
     }
     currentProjectPath = undefined
@@ -40,10 +42,13 @@ export class ProjectHandler {
                     misc: {
                         accuracy: "3",
                         binaryPath: "",
-                        cloudEndpoint: ""
+                        cloudEndpoint: "",
+                        parametric: {
+                            numProcesses: 4
+                        }
                     }
                 },
-                postprocessor: {}
+                postprocessor: []
             }
         }
         this.currentProjectPath = undefined

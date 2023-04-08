@@ -1,90 +1,144 @@
-import { writable } from 'svelte/store';
-import { utDefProgress, utDefStatus } from './stores';
-import { getExecName } from './utDefRunnerUtils';
 
-export class UTDefectRunner {
-    /*runProgress = writable(0)
-    maxRunProgress = writable(100)
-    statusMessage = writable({icon: "info", message: "Runner initialized", color: "#4d4d4d"})
-    running = writable(false)*/
+import { utDefProgress } from './stores';
+import { getExecName, sendStatusInfoMessage, sendStatusWarningMessage } from './utDefRunnerUtils';
 
-    constructor() {
-        
+async function updateFinishConditionForAllRuns(runs) {
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].processId != null && runs[i].processId != 'INVALID' && runs[i].finished == false) {
+            let status = await window.electronAPI.utDefMpGetStatus(runs[i].processId)
+            
+            if (status['exitCode'] == 0) {
+                runs[i].finished = true
+            } else if (status['exitCode'] == 2) {
+                runs[i].finished = true
+            } else if (status['exitCode'] != -1) {
+                runs[i].finished = true
+            }
+
+            runs[i].exitReason = status['exitCode']
+        }
+    }
+}
+
+async function updateProgressForAllRuns(runs) {
+    let parametricProgress = []
+
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].processId != null && runs[i].processId != 'INVALID' && runs[i].finished == false) {
+            let status = await window.electronAPI.utDefMpGetStatus(runs[i].processId)
+            runs[i].progress = status['progress']
+        }
+
+        parametricProgress.push({
+            progress: runs[i].finished == true ? 1 : runs[i].progress,
+            finished: runs[i].finished
+        })
     }
 
-    async Run(sourceBinaryPath) {
+    utDefProgress.set(parametricProgress)
+}
+
+function getNumberOfActiveRuns(runs) {
+    let num = 0
+
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].processId != null && runs[i].finished == false) {
+            num++
+        }
+    }
+
+    return num
+}
+
+function getFirstInactiveIndex(runs) {
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].processId == null && runs[i].finished == false) {
+            return i
+        }
+    }
+
+    return -1
+}
+
+function areAllRunsFinishedOrAborted(runs) {
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].finished == false) {
+            return false
+        }
+    }
+
+    return true
+}
+
+export class UTDefectRunner {
+    abort = false
+    runs = null
+    maxProcesses = 4
+    retries = 5
+
+    constructor(maxProcesses) {
+        this.runs = []
+        this.maxProcesses = maxProcesses
+    }
+
+    async Run() {
+        if (this.runs.length == 0) {
+            return Promise.reject("No run data is set in the this.runs variable")
+        }
+
+        this.abort = false
+
+        const finishedRuns = []
         const platform = await window.electronAPI.getPlatform()
         const homeDir = await window.electronAPI.getHomeDir()
-        const pathToBinaryFolder = homeDir + "/Documents/simSUNDT/tmp"
         const execName = getExecName(platform)
 
-        utDefStatus.set({
-            running: false,
-            message: {icon: "info", message: "Attempting to start non-parametric simulation", color: "#4d4d4d"}
-        })
+        sendStatusInfoMessage(true, "Attempting to start simulation, the runner will execute " + this.runs.length +
+        " total simulation(s).")
 
-        const copied = await window.electronAPI.copyFile(sourceBinaryPath, pathToBinaryFolder + "/" + execName)
+        // Update the max parallel processes for the IPC
+        await window.electronAPI.utDefMpInit(this.maxProcesses)
 
-        if (!copied) {
-            utDefStatus.set({
-                running: false,
-                message: {
-                    icon: "warning", 
-                    message: "Simulation canceled, something went wrong while copying binary file to" + pathToBinaryFolder + ", please try again", 
-                    color: "#ef4444"
-                }
-            })
-            return
-        }
+        while(!areAllRunsFinishedOrAborted(this.runs)) {
+            // Check if we can start a run
+            let idx = getFirstInactiveIndex(this.runs)
 
-        if (!await window.electronAPI.utDefStart(pathToBinaryFolder)) {
-            utDefStatus.set({
-                running: false,
-                message: {
-                    icon: "warning", 
-                    message: "Simulation canceled, invalid operating system, runner can not run", 
-                    color: "#ef4444"
-                }
-            })
-            return
-        }
-
-        utDefStatus.set({
-            running: true,
-            message: {
-                icon: "info",
-                message: "Non-parametric simulation started, waiting for " + execName + " to finish",
-                color: "#4d4d4d"
+            if (idx != -1 && getNumberOfActiveRuns(this.runs) < this.maxProcesses) {
+                let process = await window.electronAPI.utDefMpStart(homeDir + "/Documents/simSUNDT/Simulations/" + this.runs[idx].folder + "/" + execName)
+                this.runs[idx].processId = process == 'INVALID' ? null : process
             }
-        })
 
-        // Sleep to await child process startup
-        await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, 200));
 
-        while(await window.electronAPI.utDefAlive())
-        {
-            await new Promise(r => setTimeout(r, 50));
-
-            let progressObj = await window.electronAPI.utDefGetProgressStd()
-
-            utDefProgress.set(progressObj['p'] / progressObj['mp'])
+            updateProgressForAllRuns(this.runs)
+            updateFinishConditionForAllRuns(this.runs)
         }
 
+        this.runs.forEach(element => {
+            finishedRuns.push({
+                folder: element.folder,
+                exitReason: element.exitReason
+            })
+        });
 
-        utDefStatus.set({
-            running: false,
-            message: {
-                icon: "info",
-                message: "Simulation concluded, see the 'Results' tab to view simulation results",
-                color: "#4d4d4d"
-            }
-        })
-        utDefProgress.set(0)
+        this.runs = []
 
-        return Promise.resolve(true)
+        return Promise.resolve(finishedRuns)
     }
 
     async Stop() {
-        window.electronAPI.utDefTerminate()
+        for(let i = 0; i < this.runs.length; i++) {
+            if (this.runs[i].processId != null) {
+                await window.electronAPI.utDefMpStop(this.runs[i].processId)
+            }
+
+            this.runs[i].finished = true
+            this.runs[i].exitReason = 2
+        }
     }
 }

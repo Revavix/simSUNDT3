@@ -37,7 +37,7 @@
     }
 </script>
 
-<div class="flex flex-col bg-stone-300 class:h-40={minimized === true} rounded-lg shadow-lg" style="z-index: 4;">
+<div class="flex flex-col bg-stone-300 rounded-lg shadow-lg" style="z-index: 4;">
     <div class="flex px-2 pt-1" style="color:#4d4d4d">
         <div class="flex flex-col">
             Output ({contents.length})
@@ -55,19 +55,17 @@
     </div>
     {#if minimized == false}
     <!--<div class="bg-gradient-to-r from-yellow-600 ... h-0.5"></div>-->
-    <div class="max-h-32 border border-stone-400 rounded-md m-2 h-32" style="padding-left: 0px; overflow: auto">
+    <div class="max-h-48 border border-stone-400 rounded-md m-2 h-48" style="padding-left: 0px; overflow: auto">
         {#each contents as item}
-            <div class="flex">
-                <div class="flex flex-col item-icon" style="color:{item['color']}">
+            <div class="inline-block px-1">
+                <div class="inline item-icon align-middle " style="color:{item['color']}">
                     {item['icon']}
                 </div>
-                <div class="flex flex-row item-text pl-1 ">
-                    <div class="flex flex-col font-bold whitespace-nowrap">
-                        [{new Date().toLocaleString()}]:
-                    </div>
-                    <div class="flex flex-col item-text pl-2">
-                        {item['message']}
-                    </div>
+                <div class="inline item-text pl-1 font-bold whitespace-nowrap">
+                    [{new Date().toLocaleString()}]:
+                </div>
+                <div class="inline item-text">
+                    {item['message']}
                 </div>
             </div>
         {/each}

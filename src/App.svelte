@@ -1,6 +1,5 @@
 <script lang="ts">
     import { ProjectHandler } from "./lib/project"
-    import { UTDefectRunner } from './lib/utDefRunner';
     import { UTDefResultParser } from "./lib/utDefResultParser";
     import { slide } from "svelte/transition";
     import File from './tabs/File.svelte'
@@ -11,7 +10,7 @@
     import Viewport from './components/Viewport.svelte'
     import Button from "./components/Button.svelte"
     import Alert from "./components/Alert.svelte";
-    import { UTDefectParametricRunner } from "./lib/utDefParametricRunner";
+    import { UTDefectRunner } from "./lib/utDefRunner";
     
     let tabs = ["File", "Preprocessor", "Results", "Help"]
     let activeTab = "File"
@@ -19,8 +18,7 @@
     let activeAlerts = []
 
     let projectHandler = new ProjectHandler()
-    let utDefRunner = new UTDefectRunner()
-    let utDefParametricRunner = new UTDefectParametricRunner(4)
+    let utDefRunner = new UTDefectRunner(4)
     let utDefResultParser = new UTDefResultParser()
 
     let platform = 'darwin'
@@ -150,7 +148,7 @@
     {#if activeTab == "File"}
         <File bind:projectHandler={projectHandler} bind:currentTab={activeTab} bind:unsaved={unsaved} bind:activeAlerts={activeAlerts}/>
     {:else if activeTab == "Preprocessor"}
-        <Preprocessor bind:projectHandler={projectHandler} bind:utDefRunner={utDefRunner} bind:utDefParametricRunner={utDefParametricRunner} bind:utDefResultParser={utDefResultParser} bind:unsaved={unsaved}/>
+        <Preprocessor bind:projectHandler={projectHandler} bind:utDefRunner={utDefRunner} bind:utDefResultParser={utDefResultParser} bind:unsaved={unsaved}/>
     {:else if activeTab == "Results"}
         <Results bind:projectHandler={projectHandler} bind:utDefResultParser={utDefResultParser}/>
     {:else if activeTab == "Help"}

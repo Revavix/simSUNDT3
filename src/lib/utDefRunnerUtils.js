@@ -1,4 +1,4 @@
-import { utDefProgress, utDefStatus } from "./stores"
+import { utDefStatus } from "./stores"
 
 export function getExecName(platform) {
     if (platform == 'darwin' || platform == 'linux') {
@@ -28,10 +28,6 @@ export function sendStatusWarningMessage(running, msg) {
             color: "#ef4444"
         }
     })
-}
-
-export function sendProgressUpdate(num) {
-    utDefProgress.set(num)
 }
 
 export function calculateProgressFromActives(activeRuns, totalRunCount) {

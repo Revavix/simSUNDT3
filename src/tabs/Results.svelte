@@ -40,12 +40,30 @@
 </script>
 
 <div id="postprocessor-tab">
-    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 99; position: relative">
+    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-28" style="z-index: 99; position: relative">
         <div class="flex flex-col w-40 pt-1 -space-y-1">
             <div class="flex flex-row w-full items-center">
-                <select class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
-                    <option>NP - 2023-03-21 09:22</option>
-                </select>
+                <div class="flex flex-col w-full">
+                    <select class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                        {#each projectHandler.currentProject.data.postprocessor as data, i}
+                            {#if data.parametric}
+                            <option value="{i}">Parametric</option>
+                            {/if}
+                        {/each}
+                    </select>
+                </div>
+            </div>
+            <div class="flex flex-row w-full items-center">
+                <div class="flex flex-col w-8/12">
+                    <select class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                        <option>2023-03-21</option>
+                    </select>
+                </div>
+                <div class="flex flex-col w-4/12">
+                    <select class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                        <option>09:22</option>
+                    </select>
+                </div>
             </div>
             <div class="flex flex-row w-full items-center">
                 <div class="flex flex-col mx-1" style="font-size:10px; color:#4d4d4d;">
@@ -55,7 +73,7 @@
                     Interpolate
                 </div>
             </div>
-            <div class="flex flex-row w-full items-center">
+            <div class="flex flex-row w-full items-center mb-auto">
                 <div class="flex flex-col w-1/12 ml-1 mr-4" style="font-size:10px; color:#4d4d4d;">
                     Fast
                 </div>
@@ -66,7 +84,7 @@
                     Best
                 </div>
             </div>
-            <div class="flex flex-row w-full justify-center mt-auto pt-3">
+            <div class="flex flex-row w-full justify-center pt-2">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
                 Data
                 </div>
