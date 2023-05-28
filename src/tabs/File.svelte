@@ -143,6 +143,10 @@
     })
 </script>
 
+<div class="file absolute left-0 right-0 top-0 bottom-0"/>
+<div class="absolute left-0 bottom-0 m-2" style="width: 111px; height: 57px">
+    <div class="logo-1 h-full w-full"/>
+</div>
 <div>
     <!-- Main content -->
     <div class="flex flex-col w-full h-full mt-24 items-center">
@@ -222,6 +226,20 @@
 </div>
 
 <style>
+    .logo-1 {
+        background-image: url("../assets/university_west_logo_small.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: -1;
+    }
+    .file {
+        background-image: url("../assets/bg_lab_probe_1.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: -2;
+    }
     .icon-simsundt-file {
         font-family:'Material Icons'; 
         font-size:48px; 

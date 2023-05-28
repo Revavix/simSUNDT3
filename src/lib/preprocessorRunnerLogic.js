@@ -1,7 +1,5 @@
-import { utDefStatus } from "./stores"
 import { constructParametricData } from "./tree"
 import { UTDefectIsoSaver } from "./utDefIsoSaver"
-import { sendStatusInfoMessage, sendStatusWarningMessage } from "./utDefRunnerUtils"
 import { constructIsoSaveData } from "./utDefSaverUtils"
 
 async function cleanResultFolder(path, executableName) {
@@ -14,12 +12,12 @@ async function cleanResultFolder(path, executableName) {
     return Promise.resolve()
 }
 
-export async function runParametric(homeDirectory, sourceBinary, executableName, data, runner) {
+export async function runParametric(name, homeDirectory, sourceBinary, executableName, data, runner) {
     const saver = new UTDefectIsoSaver()
     const runs = constructParametricData(data.tree, data.misc)
 
     for(let i = 0; i < runs.length; i++) {
-        let m = "Parametric_Run_" + Date.now().toString()  + "_" + (i + 1) // Date.now().toString()  + "_" +
+        let m = name + "/" + (i + 1) // Date.now().toString()  + "_" +
         saver.data = runs[i]
 
         // Create a new folder for each combination produced by constructParametricData
@@ -89,22 +87,19 @@ export async function runParametric(homeDirectory, sourceBinary, executableName,
             return Promise.reject("The parametric runner was cancelled by user")
         }
 
-        sendStatusInfoMessage(false, "The parametric runner has exited successfully")
-
         return Promise.resolve(returnStructure)
     } catch (err) {
-        sendStatusWarningMessage(false, "The parametric runner closed unexpectedly with the reason: " + err)
         await runner.Stop()
 
-        return Promise.reject()
+        return Promise.reject("The parametric runner closed with error " + err)
     }
 
 }
 
-export async function runNonParametric(homeDirectory, sourceBinary, executableName, data, runner) {
+export async function runNonParametric(name, homeDirectory, sourceBinary, executableName, data, runner) {
     const unixTs = Date.now()
     const saver = new UTDefectIsoSaver()
-    const folder = "Non_Parametric_Run_" + unixTs.toString()
+    const folder = name + "/0"
 
     await window.electronAPI.mkdir(homeDirectory + "/Documents/simSUNDT/Simulations/" + folder)
 

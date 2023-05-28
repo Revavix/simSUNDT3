@@ -13,6 +13,7 @@
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
+    import { sendStatusInfoMessage, sendStatusWarningMessage } from "../lib/utDefRunnerUtils"
 
     export let unsaved
     export let utDefRunner
@@ -25,7 +26,8 @@
     let showConfigureModal = false
     let showParametricSettingsModal = false
     let utDefRunnerIsRunning = false
-    let namingSchemeGroup = 1
+    let namingSchemeMethod = 1
+    let namingSchemeName = ""
 
     utDefStatus.subscribe(v => {
         utDefRunnerIsRunning = v.running
@@ -56,8 +58,13 @@
             const execName = await window.electronAPI.getPathBasename(srcBinary) + 
                              await window.electronAPI.extname(srcBinary)
 
+            // Run name
+            const name = namingSchemeMethod == 1 ? crypto.randomUUID() : namingSchemeName
+
             if (parametricEnabled) {
-                let parametricRunResult = runParametric(homeDir, 
+                let parametricRunResult = runParametric(
+                    name,
+                    homeDir, 
                     srcBinary, 
                     execName, 
                     {
@@ -67,6 +74,7 @@
                     utDefRunner
                 ).then(v => {
                     let groupedResult = {
+                        name: name,
                         date: v.date,
                         time: v.time,
                         runs: [],
@@ -75,27 +83,20 @@
 
                     v.runs.forEach(element => {
                         groupedResult.runs.push({
-                            a: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder + "/utIndefa-A.dat",
-                            c: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder + "/utIndefa-C.dat",
-                            meta: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder + "/utIndefa.txt"
+                            path: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder
                         })
                     });
 
                     projectHandler.currentProject.data.postprocessor.push(groupedResult)
                     
-                    console.log(projectHandler.currentProject.data.postprocessor)
+                    sendStatusInfoMessage(false, "Runner completed successfully.")
                 }).catch(v => {
-                    utDefStatus.set({
-                        running: false,
-                        message: {
-                            icon: "info", 
-                            message: v, 
-                            color: "#4d4d4d"
-                        }
-                    })
+                    sendStatusWarningMessage(false, v)
                 })
             } else {
-                runNonParametric(homeDir,
+                runNonParametric(
+                    name,
+                    homeDir,
                     srcBinary,
                     execName,
                     {
@@ -105,28 +106,20 @@
                     utDefRunner
                 ).then(v => {
                     let groupedResult = {
+                        name: name,
                         date: v.date,
                         time: v.time,
-                        result: {
-                            a: homeDir + "/Documents/simSUNDT/Simulations/" + v.result.folder + "/utIndefa-A.dat",
-                            c: homeDir + "/Documents/simSUNDT/Simulations/" + v.result.folder + "/utIndefa-C.dat",
-                            meta: homeDir + "/Documents/simSUNDT/Simulations/" + v.result.folder + "/utIndefa.txt"
-                        },
+                        runs: [{
+                            path: homeDir + "/Documents/simSUNDT/Simulations/" + v.result,
+                        }],
                         parametric: false
                     }
 
-                    console.log(groupedResult)
-
                     projectHandler.currentProject.data.postprocessor.push(groupedResult)
+
+                    sendStatusInfoMessage(false, "Runner completed successfully.")
                 }).catch(v => {
-                    utDefStatus.set({
-                        running: false,
-                        message: {
-                            icon: "info", 
-                            message: v, 
-                            color: "#4d4d4d"
-                        }
-                    })
+                    sendStatusWarningMessage(false, v)
 
                     utDefProgress.set([{
                         progress: 0,
@@ -337,15 +330,15 @@
                             <div class="flex flex-row mb-1 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Run naming scheme</div>
                             <div class="flex flex-col w-full" id="naming_scheme_group">
                                 <div class="flex flex-row w-full items-center">
-                                    <input id="algo_naming" type="radio" bind:group={namingSchemeGroup} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={1}>
+                                    <input id="algo_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={1}>
                                     <label for="algo_naming" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Algorithmic naming</label>
                                 </div>
                                 <div class="flex flex-row w-full items-center">
-                                    <input id="custom_naming" type="radio" bind:group={namingSchemeGroup} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={2}>
+                                    <input id="custom_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={2}>
                                     <label for="custom_naming" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Specified naming</label>
                                 </div>
                                 <div class="flex flex-row w-full items-center mt-1">
-                                    <input disabled={namingSchemeGroup == 2 ? false : true} type="text" id="custom_run_name_textbox" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="My_Custom_Run" required>
+                                    <input bind:value={namingSchemeName} disabled={namingSchemeMethod == 2 ? false : true} type="text" id="custom_run_name_textbox" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="My_Custom_Run" required>
                                 </div>
                             </div>
                         </div>
