@@ -1,4 +1,4 @@
-import { tree, ConstructDefaultTreeData } from "./tree";
+import { tree, constructDefaultTreeData } from "./tree";
 import { writeCache } from "./utils";
 
 export class ProjectHandler {
@@ -9,11 +9,13 @@ export class ProjectHandler {
         data: {
             preprocessor: {
                 tree: {},
-                misc: {}
+                misc: {
+                    parametric: {}
+                }
             },
-            postprocessor: {
-
-            }
+            postprocessor: [
+                
+            ]
         }
     }
     currentProjectPath = undefined
@@ -36,14 +38,17 @@ export class ProjectHandler {
             lastSaved: date.toLocaleDateString() + " " + date.toLocaleTimeString(),
             data: {
                 preprocessor: {
-                    tree: ConstructDefaultTreeData({}, tree.children),
+                    tree: constructDefaultTreeData({}, tree.children),
                     misc: {
-                        accuracy: 3,
+                        accuracy: "3",
                         binaryPath: "",
-                        cloudEndpoint: ""
+                        cloudEndpoint: "",
+                        parametric: {
+                            numProcesses: 4
+                        }
                     }
                 },
-                postprocessor: {}
+                postprocessor: []
             }
         }
         this.currentProjectPath = undefined

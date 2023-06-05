@@ -63,7 +63,7 @@
         const fileToLoad = await window.electronAPI.openFileModal(projectHandler.projectHomeDir, [
             {
                 name: "Project",
-                extensions: [".ssproj"]
+                extensions: ["ssproj"]
             },
             { 
                 name: 'All Files', 
@@ -100,24 +100,22 @@
     async function requestSaveAsModal() {
         console.log(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name + ".ssproj")
 
-        const savePath = await window.electronAPI.openSaveModal(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name + ".ssproj", [
+        const saveResult = await window.electronAPI.openSaveModal(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name, [
             {
                 name: "Project",
-                extensions: [".ssproj"]
+                extensions: ["ssproj"]
             }
         ])
 
-        if (savePath == "") {
+        if (saveResult['fileName'] == null && saveResult['fullPath'] == null) {
             return
         }
 
         // Extract the name of the project
-        let fixedPath = savePath.replace("/\\/gm", "/")
-        let newName = fixedPath.substring(fixedPath.lastIndexOf("/") + 1, fixedPath.lastIndexOf("."))
-        projectHandler.currentProject.name = newName
+        projectHandler.currentProject.name = saveResult['fileName']
 
         // Save using the original path from electronAPI
-        projectHandler.currentProjectPath = savePath
+        projectHandler.currentProjectPath = saveResult['fullPath']
         const saved = await projectHandler.Save()
 
         if (saved.status == "OK") {
@@ -145,6 +143,10 @@
     })
 </script>
 
+<div class="file absolute left-0 right-0 top-0 bottom-0"/>
+<div class="absolute left-0 bottom-0 m-2" style="width: 111px; height: 57px">
+    <div class="logo-1 h-full w-full"/>
+</div>
 <div>
     <!-- Main content -->
     <div class="flex flex-col w-full h-full mt-24 items-center">
@@ -224,6 +226,20 @@
 </div>
 
 <style>
+    .logo-1 {
+        background-image: url("../assets/university_west_logo_small.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: -1;
+    }
+    .file {
+        background-image: url("../assets/bg_lab_probe_1.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: -2;
+    }
     .icon-simsundt-file {
         font-family:'Material Icons'; 
         font-size:48px; 

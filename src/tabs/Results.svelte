@@ -12,20 +12,13 @@
 
     let interpolationOn = false
     let interpolationLevel = 1
-    let status = "Loading"
+    let status = "Invalid"
     let rectification
+    let selectedTest = 0
+    let selectedTestSubIndex = 0
 
     onMount(() => {
-        utDefResultParser.Parse(projectHandler.currentProject.data.postprocessor).then(v => {
-
-            if (Object.keys(v).length != 0) {
-                densityAndSignalData.set(v)
-                status = "Ok"
-            } else {
-                densityAndSignalData.update(n => n)
-                status = "Invalid"
-            }
-        })
+        updateGraphsWithSelected()
     })
 
     function changeInterpolation() {
@@ -37,11 +30,52 @@
             interpolationMode.set([false])
         }
     }
+
+    async function updateGraphsWithSelected() {
+        if (projectHandler.currentProject.data.postprocessor.length == 0) {
+            return
+        }
+
+        status = "Loading"
+
+        const folder = projectHandler.currentProject.data.postprocessor[selectedTest].runs[selectedTestSubIndex].path
+        const extractedData = await utDefResultParser.Extract(folder)
+
+        console.log(folder)
+
+        utDefResultParser.Parse(extractedData).then(v => {
+            if (Object.keys(v).length != 0) {
+                densityAndSignalData.set(v)
+                status = "Ok"
+            } else {
+                densityAndSignalData.update(n => n)
+                status = "Invalid"
+            }
+        })
+    }
 </script>
 
 <div id="postprocessor-tab">
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 99; position: relative">
-        <div class="flex flex-col w-24 pt-1 -space-y-1">
+        <div class="flex flex-col w-40 pt-1 -space-y-1">
+            <div class="flex flex-row w-full items-center">
+                <div class="flex flex-col w-full">
+                    <select bind:value={selectedTest} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                        {#each projectHandler.currentProject.data.postprocessor as data, i}
+                            <option value="{i}">{data.name} ({data.date} - {data.time})</option>
+                        {/each}
+                    </select>
+                </div>
+                <div class="flex flex-col w-4/12">
+                    <select bind:value={selectedTestSubIndex} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                        {#if projectHandler.currentProject.data.postprocessor.length > 0}
+                            {#each projectHandler.currentProject.data.postprocessor[selectedTest].runs as data, i}
+                                <option value="{i}">{i}</option>
+                            {/each}
+                        {/if}
+                    </select>
+                </div>
+            </div>
             <div class="flex flex-row w-full items-center">
                 <div class="flex flex-col mx-1" style="font-size:10px; color:#4d4d4d;">
                     <input id="default-checkbox" type="checkbox" bind:checked={interpolationOn} class="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" on:change={changeInterpolation}>
@@ -54,15 +88,15 @@
                 <div class="flex flex-col w-1/12 ml-1 mr-4" style="font-size:10px; color:#4d4d4d;">
                     Fast
                 </div>
-                <div class="flex flex-col w-10/12">
+                <div class="flex flex-col w-10/12 pb-auto">
                     <input name="interpSlider" type="range" bind:value={interpolationLevel} min="1" max="2" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" on:change={changeInterpolation}>
                 </div>
                 <div class="flex flex-col w-1/12 mx-1" style="font-size:10px; color:#4d4d4d;">
                     Best
                 </div>
             </div>
-            <div class="flex flex-row w-full justify-center mt-auto pt-7">
-                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+            <div class="flex flex-row w-full justify-center h-full">
+                <div class="flex flex-row select-none mt-auto" style="font-size:10px; color:#4d4d4d;">
                 Data
                 </div>
             </div>

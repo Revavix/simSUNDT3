@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
     getPlatform: () => ipcRenderer.invoke('get-platform'),
     getDefaultBinaryPath: () => ipcRenderer.invoke('get-default-binary-path'),
+    getPathBasename: (path) => ipcRenderer.invoke('get-basename', path),
     getHomeDir: () => ipcRenderer.invoke('os-get-home-dir'),
     rmDir: (dirPath) => ipcRenderer.invoke('rmdir', dirPath),
     readFile: (path) => ipcRenderer.invoke('read-file', path),
@@ -16,6 +17,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openFolderModal: (defaultPath) => ipcRenderer.invoke('open-folder-modal', defaultPath),
     openFileModal: (defaultPath, filters) => ipcRenderer.invoke('open-file-modal', defaultPath, filters),
     openSaveModal: (defaultPath, filters) => ipcRenderer.invoke('open-save-modal', defaultPath, filters),
+    utDefMpInit: (numberOfProcesses) => ipcRenderer.invoke('utdef-mp-init', numberOfProcesses),
+    utDefMpStart: (executablePath) => ipcRenderer.invoke('utdef-mp-start', executablePath),
+    utDefMpStop: (processId) => ipcRenderer.invoke('utdef-mp-stop', processId),
+    utDefMpGetStatus: (processId) => ipcRenderer.invoke('utdef-mp-get-status', processId),
     utDefStart: (pathToBinaryFolder) => ipcRenderer.invoke('utdef-start', pathToBinaryFolder),
     utDefStartStd: (pathToBinary, inputPath) => ipcRenderer.invoke('utdef-start-std', pathToBinary, inputPath),
     utDefGetProgressStd: () => ipcRenderer.invoke('utdef-get-prog-std'),

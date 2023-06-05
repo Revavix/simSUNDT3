@@ -21,6 +21,10 @@ class GenericIpc {
             }
         })
 
+        ipcMain.handle('get-basename', async(ev, p) => {
+            return Promise.resolve(path.basename(p, path.extname(p)))
+        })
+
         ipcMain.handle('os-get-home-dir', async () => {
             return os.homedir()
         })
@@ -154,11 +158,104 @@ class GenericIpc {
             })
 
             if (canceled) {
-                return ""
+                return Promise.resolve({fileName: null, fullPath: null})
             } else {
-                return Promise.resolve(filePath)
+                return Promise.resolve({fileName: path.parse(filePath).name, fullPath: filePath})
             }
         })
+    }
+}
+
+class UTDefectMultiprocessesIpc {
+    // Thread status and related UTDef info for each thread
+    stopSignal = false
+    maxProcesses = 4
+    status = {}
+
+    constructor() {
+        // Initialize for up to 64 processes
+        this.init()
+
+        ipcMain.handle('utdef-mp-init', async (ev, num) => this.init(num))
+        ipcMain.handle('utdef-mp-start', async (ev, executablePath) => this.start(executablePath))
+        ipcMain.handle('utdef-mp-stop', async (ev, processId) => this.stop(processId))
+        ipcMain.handle('utdef-mp-get-status', async (ev, processId) => this.getStatus(processId))
+    }
+
+    async init(num) {
+        this.status = {}
+
+        for (let i = 0; i < num; i++) {
+            this.status['PROCESS_' + i] = {
+                process: null,
+                progress: 0,
+                exitCode: 0
+            }
+        }
+    }
+
+
+    // Add a process to status and start listening for progress
+    async start(executablePath) {
+        let processId = 'INVALID'
+
+        for (const [k, v] of Object.entries(this.status)) {
+            if (this.status[k].process == null) {
+                processId = k
+                break
+            }
+        }
+
+        if (processId != 'INVALID') {
+            this.status[processId].progress = 0
+            this.status[processId].exitCode = -1
+            this.status[processId].process = spawn(executablePath, { cwd: path.parse(executablePath).dir })
+
+            const progressReadInterval = setInterval(() => this.updateProgress(processId, path.parse(executablePath).dir + "/utdefcontrol"), 200)
+
+            this.status[processId].process.on('close', code => {
+                this.status[processId].process = null
+                this.status[processId].exitCode = code == null ? this.status[processId].exitCode : code
+                clearInterval(progressReadInterval)
+                process.stdout.write("UTDef process closed with code " + code + " \n")
+            })
+        }
+
+        return processId
+    }
+
+    // Stop the given thread running UTDef
+    async stop(processId) {
+        if (this.status[processId].process == null) {
+            return
+        }
+
+        this.status[processId].process.kill()
+        this.status[processId].process = null
+        this.status[processId].exitCode = 2
+    }
+
+    // Get a status object of if the process is active and its current progress as per file readout
+    async getStatus(processId) {
+        return {
+            active: this.status[processId].process == null ? false : true,
+            exitCode: this.status[processId].exitCode,
+            progress: this.status[processId].progress
+        }
+    }
+
+    // For internal use
+    async updateProgress(idx, progressFilePath) {
+        const data = fs.readFileSync(progressFilePath,
+        {encoding: 'utf-8', flag: 'r'}).split("\n")
+        const line = data[data.length-2]
+
+        try {
+            let strData = (line.toString()).match(/[\d]+/g)
+            this.status[idx].progress = parseInt(strData[0]) / parseInt(strData[1])
+        } catch (err) {
+            
+        }
     }
 }
 
@@ -167,6 +264,13 @@ class UTDefectIpc {
     currentProgress = 0
     maxProgress = 0
     active = false
+
+    // [{
+    //     process: null
+    //     progress: 0
+    //     maxProgress: 100
+    //     
+    // }]
 
     constructor() {
         ipcMain.handle('utdef-start-std', async(event, pathToBinary, inputPath) => {
@@ -288,4 +392,5 @@ class WindowIpc {
 
 module.exports.GenericIpc = GenericIpc
 module.exports.UTDefectIpc = UTDefectIpc
+module.exports.UTDefectMultiprocessesIpc = UTDefectMultiprocessesIpc
 module.exports.WindowIpc = WindowIpc

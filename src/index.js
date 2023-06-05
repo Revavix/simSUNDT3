@@ -5,7 +5,7 @@ const os = require('os')
 const fs = require('fs')
 const fsPromises = require('fs/promises')
 const { spawn } = require('child_process')
-const { GenericIpc, UTDefectIpc, WindowIpc } = require('./ipc')
+const { GenericIpc, UTDefectIpc, UTDefectMultiprocessesIpc, WindowIpc } = require('./ipc')
 
 function updateProjectCache(project, path) {
   let data = {}
@@ -29,6 +29,7 @@ function updateProjectCache(project, path) {
 function createWindowAndIPC () {
     const genericIpc = new GenericIpc()
     const utdefIpc = new UTDefectIpc()
+    const utdefMpIpc = new UTDefectMultiprocessesIpc()
     const windowIpc = new WindowIpc()
 
     const menu = Menu.buildFromTemplate([])

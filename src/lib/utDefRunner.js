@@ -1,74 +1,144 @@
-import { writable } from 'svelte/store';
 
-export class UTDefectRunner {
-    runProgress = writable(0)
-    maxRunProgress = writable(100)
-    statusMessage = writable({icon: "info", message: "Runner initialized", color: "#4d4d4d"})
-    running = writable(false)
+import { utDefProgress } from './stores';
+import { getExecName, sendStatusInfoMessage, sendStatusWarningMessage } from './utDefRunnerUtils';
 
-    constructor() {
+async function updateFinishConditionForAllRuns(runs) {
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].processId != null && runs[i].processId != 'INVALID' && runs[i].finished == false) {
+            let status = await window.electronAPI.utDefMpGetStatus(runs[i].processId)
+            
+            if (status['exitCode'] == 0) {
+                runs[i].finished = true
+            } else if (status['exitCode'] == 2) {
+                runs[i].finished = true
+            } else if (status['exitCode'] != -1) {
+                runs[i].finished = true
+            }
 
+            runs[i].exitReason = status['exitCode']
+        }
+    }
+}
+
+async function updateProgressForAllRuns(runs) {
+    let parametricProgress = []
+
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].processId != null && runs[i].processId != 'INVALID' && runs[i].finished == false) {
+            let status = await window.electronAPI.utDefMpGetStatus(runs[i].processId)
+            runs[i].progress = status['progress']
+        }
+
+        parametricProgress.push({
+            progress: runs[i].finished == true ? 1 : runs[i].progress,
+            finished: runs[i].finished
+        })
     }
 
-    async Run(sourceBinaryPath) {
+    utDefProgress.set(parametricProgress)
+}
+
+function getNumberOfActiveRuns(runs) {
+    let num = 0
+
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].processId != null && runs[i].finished == false) {
+            num++
+        }
+    }
+
+    return num
+}
+
+function getFirstInactiveIndex(runs) {
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].processId == null && runs[i].finished == false) {
+            return i
+        }
+    }
+
+    return -1
+}
+
+function areAllRunsFinishedOrAborted(runs) {
+    for(let i = 0; i < runs.length; i++)
+    {
+        if (runs[i].finished == false) {
+            return false
+        }
+    }
+
+    return true
+}
+
+export class UTDefectRunner {
+    abort = false
+    runs = null
+    maxProcesses = 4
+    retries = 5
+
+    constructor(maxProcesses) {
+        this.runs = []
+        this.maxProcesses = maxProcesses
+    }
+
+    async Run() {
+        if (this.runs.length == 0) {
+            return Promise.reject("No run data is set in the this.runs variable")
+        }
+
+        this.abort = false
+
+        const finishedRuns = []
         const platform = await window.electronAPI.getPlatform()
         const homeDir = await window.electronAPI.getHomeDir()
-        const pathToBinaryFolder = homeDir + "/Documents/simSUNDT/tmp"
-        let execName = ""
+        const execName = getExecName(platform)
 
-        if (platform == 'darwin' || platform == 'linux') {
-            execName = "UTDef6"
-        } else if (platform == 'win32') {
-            execName = "UTDef6.exe"
+        sendStatusInfoMessage(true, "Attempting to start simulation, the runner will execute " + this.runs.length +
+        " total simulation(s).")
+
+        // Update the max parallel processes for the IPC
+        await window.electronAPI.utDefMpInit(this.maxProcesses)
+
+        while(!areAllRunsFinishedOrAborted(this.runs)) {
+            // Check if we can start a run
+            let idx = getFirstInactiveIndex(this.runs)
+
+            if (idx != -1 && getNumberOfActiveRuns(this.runs) < this.maxProcesses) {
+                let process = await window.electronAPI.utDefMpStart(homeDir + "/Documents/simSUNDT/Simulations/" + this.runs[idx].folder + "/" + execName)
+                this.runs[idx].processId = process == 'INVALID' ? null : process
+            }
+
+            await new Promise(r => setTimeout(r, 200));
+
+            updateProgressForAllRuns(this.runs)
+            updateFinishConditionForAllRuns(this.runs)
         }
 
-        this.statusMessage.set({icon: "info", message: "Starting simulation...", color: "#4d4d4d"})
-
-        const copied = await window.electronAPI.copyFile(sourceBinaryPath, pathToBinaryFolder + "/" + execName)
-
-        if (!copied) {
-            this.statusMessage.set({
-                icon: "warning", 
-                message: "Simulation canceled, something went wrong in simulation preparation, please try again.", 
-                color: "#ef4444"
+        this.runs.forEach(element => {
+            finishedRuns.push({
+                folder: element.folder,
+                exitReason: element.exitReason
             })
-            return
-        }
+        });
 
-        if (!await window.electronAPI.utDefStart(pathToBinaryFolder)) {
-            this.statusMessage.set({
-                icon: "warning", 
-                message: "Simulation canceled, invalid operating system, runner can not run.", 
-                color: "#ef4444"
-            })
-            return
-        }
+        this.runs = []
 
-        this.running.set(true)
-
-        // Sleep to await child process startup
-        await new Promise(r => setTimeout(r, 500));
-
-        while(await window.electronAPI.utDefAlive())
-        {
-            await new Promise(r => setTimeout(r, 50));
-
-            let progressObj = await window.electronAPI.utDefGetProgressStd()
-
-            this.maxRunProgress.set(progressObj['mp'])
-            this.runProgress.set(progressObj['p'])
-            this.running.set(await window.electronAPI.utDefAlive())
-        }
-
-        this.statusMessage.set({icon: "info", message: "Simulation concluded, see the 'Results' tab to view simulation results", color: "#4d4d4d"})
-        this.running.set(false)
-        this.maxRunProgress.set(100)
-        this.runProgress.set(0)
-
-        return Promise.resolve(true)
+        return Promise.resolve(finishedRuns)
     }
 
     async Stop() {
-        window.electronAPI.utDefTerminate()
+        for(let i = 0; i < this.runs.length; i++) {
+            if (this.runs[i].processId != null) {
+                await window.electronAPI.utDefMpStop(this.runs[i].processId)
+            }
+
+            this.runs[i].finished = true
+            this.runs[i].exitReason = 2
+        }
     }
 }

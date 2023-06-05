@@ -1,6 +1,5 @@
 <script lang="ts">
     import { ProjectHandler } from "./lib/project"
-    import { UTDefectRunner } from './lib/utDefRunner';
     import { UTDefResultParser } from "./lib/utDefResultParser";
     import { slide } from "svelte/transition";
     import File from './tabs/File.svelte'
@@ -11,6 +10,7 @@
     import Viewport from './components/Viewport.svelte'
     import Button from "./components/Button.svelte"
     import Alert from "./components/Alert.svelte";
+    import { UTDefectRunner } from "./lib/utDefRunner";
     
     let tabs = ["File", "Preprocessor", "Results", "Help"]
     let activeTab = "File"
@@ -18,7 +18,7 @@
     let activeAlerts = []
 
     let projectHandler = new ProjectHandler()
-    let utDefRunner = new UTDefectRunner()
+    let utDefRunner = new UTDefectRunner(4)
     let utDefResultParser = new UTDefResultParser()
 
     let platform = 'darwin'
