@@ -12,10 +12,14 @@
 
     let interpolationOn = false
     let interpolationLevel = 1
-    let status = "Loading"
+    let status = "Invalid"
     let rectification
     let selectedTest = 0
     let selectedTestSubIndex = 0
+
+    onMount(() => {
+        updateGraphsWithSelected()
+    })
 
     function changeInterpolation() {
         if (interpolationLevel == 1 && interpolationOn) {
@@ -28,6 +32,10 @@
     }
 
     async function updateGraphsWithSelected() {
+        if (projectHandler.currentProject.data.postprocessor.length == 0) {
+            return
+        }
+
         status = "Loading"
 
         const folder = projectHandler.currentProject.data.postprocessor[selectedTest].runs[selectedTestSubIndex].path
@@ -60,9 +68,11 @@
                 </div>
                 <div class="flex flex-col w-4/12">
                     <select bind:value={selectedTestSubIndex} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
-                        {#each projectHandler.currentProject.data.postprocessor[selectedTest].runs as data, i}
-                            <option value="{i}">{i}</option>
-                        {/each}
+                        {#if projectHandler.currentProject.data.postprocessor.length > 0}
+                            {#each projectHandler.currentProject.data.postprocessor[selectedTest].runs as data, i}
+                                <option value="{i}">{i}</option>
+                            {/each}
+                        {/if}
                     </select>
                 </div>
             </div>
