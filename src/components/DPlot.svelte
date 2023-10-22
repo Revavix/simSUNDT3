@@ -3,6 +3,7 @@
     import PlotModebar from "./PlotModebar.svelte";
     import { selectedEndData } from "../lib/stores";
     import { rectifyXYZ } from '../lib/utils';
+    import { ultravision } from '../lib/colorscales';
 
     export let rectification
 
@@ -41,7 +42,8 @@
                 y: v.data.map(d => d.y),
                 z: rectifiedData.map(d => d.z),
                 zsmooth: smoothing,
-                type: 'heatmap'
+                type: 'heatmap',
+                colorscale: ultravision
             }
         ]
 

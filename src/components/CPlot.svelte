@@ -3,6 +3,7 @@
     import PlotModebar from "./PlotModebar.svelte";
     import { densityAndSignalData, selectedSignalData, selectedSideData, selectedEndData, interpolationMode } from '../lib/stores'
     import { constructDotAnnotation, constructHorizontalLineAnnotation, constructVerticalLineAnnotation } from '../lib/annotations'
+    import { ultravision } from '../lib/colorscales';
 
     export let rectification
 
@@ -92,7 +93,8 @@
                 y: v.data.map(x => x.y),
                 z: v.data.map(x => x.z),
                 zsmooth: smoothing,
-                type: 'heatmap'
+                type: 'heatmap',
+                colorscale: ultravision
             }
         ]
 

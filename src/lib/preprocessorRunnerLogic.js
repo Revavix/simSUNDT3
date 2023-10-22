@@ -16,6 +16,12 @@ export async function runParametric(name, homeDirectory, sourceBinary, executabl
     const saver = new UTDefectIsoSaver()
     const runs = constructParametricData(data.tree, data.misc)
 
+    if (runs.length > 500) {
+        return Promise.reject("The total number of runs (" + runs.length + ") exceeds \
+        the maximum permissible amount of concurrent runs of 500, please reduce the \
+        number of runs by changing the simulation setup.")
+    }
+
     for(let i = 0; i < runs.length; i++) {
         let m = name + "/" + (i + 1) // Date.now().toString()  + "_" +
         saver.data = runs[i]
