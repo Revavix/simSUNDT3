@@ -116,6 +116,7 @@
                     }
 
                     projectHandler.currentProject.data.postprocessor.push(groupedResult)
+                    projectHandler.Save()
 
                     sendStatusInfoMessage(false, "Runner completed successfully.")
                 }).catch(v => {

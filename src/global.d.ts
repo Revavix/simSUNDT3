@@ -15,6 +15,7 @@ export interface IElectronAPI {
     openFolderModal: (defaultPath) => Promise<string>,
     openFileModal: (defaultPath, filters) => Promise<string>,
     openSaveModal: (defaultPath, filters) => Promise<object>,
+    inspect: (filePath) => Promise<void>,
     utDefMpInit: (numberOfProcesses: number) => Promise<void>,
     utDefMpStart: (executablePath: string) => Promise<string>,
     utDefMpStop: (processId: string) => Promise<void>,

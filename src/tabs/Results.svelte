@@ -53,27 +53,35 @@
             }
         })
     }
+
+    const handleInspect = () => {
+        const folder = projectHandler.currentProject.data.postprocessor[selectedTest].runs[selectedTestSubIndex].path
+        window.electronAPI.inspect(folder + "/utIndefa")
+    }
 </script>
 
 <div id="postprocessor-tab">
-    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 99; position: relative">
-        <div class="flex flex-col w-40 pt-1 -space-y-1">
+    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-26" style="z-index: 99; position: relative">
+        <div class="flex flex-col w-60 pt-2">
             <div class="flex flex-row w-full items-center">
                 <div class="flex flex-col w-full">
-                    <select bind:value={selectedTest} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                    <select bind:value={selectedTest} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
                         {#each projectHandler.currentProject.data.postprocessor as data, i}
                             <option value="{i}">{data.name} ({data.date} - {data.time})</option>
                         {/each}
                     </select>
                 </div>
                 <div class="flex flex-col w-4/12">
-                    <select bind:value={selectedTestSubIndex} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                    <select bind:value={selectedTestSubIndex} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
                         {#if projectHandler.currentProject.data.postprocessor.length > 0}
                             {#each projectHandler.currentProject.data.postprocessor[selectedTest].runs as data, i}
                                 <option value="{i}">{i}</option>
                             {/each}
                         {/if}
                     </select>
+                </div>
+                <div class="flex flex-col pl-1">
+                    <button type="button" class="text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-full text-sm px-2" style="font-size:10px" on:click={handleInspect}>Inspect</button>
                 </div>
             </div>
             <div class="flex flex-row w-full items-center">
@@ -102,8 +110,8 @@
             </div>
         </div>
         <div class="flex flex-col line-vert my-2 mx-4"/>
-        <div class="flex flex-col w-24 pt-1 -space-y-1">
-            <select bind:value={rectification} class="flex flex-row mb-auto mt-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md">
+        <div class="flex flex-col w-24 pt-2 -space-y-1">
+            <select bind:value={rectification} class="flex flex-row mb-auto py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md">
                 <option value=1>Unrectified</option>
                 <option value=2>Fullwave</option>
                 <option value=3>Halfwave+</option>

@@ -163,6 +163,10 @@ class GenericIpc {
                 return Promise.resolve({fileName: path.parse(filePath).name, fullPath: filePath})
             }
         })
+
+        ipcMain.handle('inspect', async(ev, filePath) => {
+            spawn("notepad", [filePath])
+        })
     }
 }
 
