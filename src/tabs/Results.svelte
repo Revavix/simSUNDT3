@@ -41,8 +41,6 @@
         const folder = projectHandler.currentProject.data.postprocessor[selectedTest].runs[selectedTestSubIndex].path
         const extractedData = await utDefResultParser.Extract(folder)
 
-        console.log(folder)
-
         utDefResultParser.Parse(extractedData).then(v => {
             if (Object.keys(v).length != 0) {
                 densityAndSignalData.set(v)
@@ -97,7 +95,7 @@
                     Fast
                 </div>
                 <div class="flex flex-col w-10/12 pb-auto">
-                    <input name="interpSlider" type="range" bind:value={interpolationLevel} min="1" max="2" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" on:change={changeInterpolation}>
+                    <input name="interpSlider" type="range" bind:value={interpolationLevel} min="1" max="2" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-amber-500" on:change={changeInterpolation}>
                 </div>
                 <div class="flex flex-col w-1/12 mx-1" style="font-size:10px; color:#4d4d4d;">
                     Best

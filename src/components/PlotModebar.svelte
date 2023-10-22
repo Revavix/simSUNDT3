@@ -3,6 +3,7 @@
     import Button from '../components/Button.svelte'
 
     // Expects a Plotly.js plot
+    export let mode: string | undefined
     export let plot: Promise<object>
 
     let plotDiv
@@ -131,6 +132,19 @@
 </script>
 
 <div class="flex flex-row w-full">
+    {#if mode === "mm"}
+    <div class="flex flex-col w-full mx-0.5">
+        <button style="color:#4d4d4d; font-size: 12px" on:click={() => { mode = 'μs'}}>
+            μs
+        </button>
+    </div>
+    {:else if mode === "μs"}
+    <div class="flex flex-col w-full mx-0.5">
+        <button style="color:#4d4d4d; font-size: 12px" on:click={() => { mode = 'mm'}}>
+            mm
+        </button>
+    </div>
+    {/if}
     {#if plotDiv != undefined}
         {#if plotDiv._fullLayout.dragmode == "zoom"}
         <div class="flex flex-col w-full mx-0.5">

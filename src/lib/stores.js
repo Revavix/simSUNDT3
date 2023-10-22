@@ -20,7 +20,9 @@ export const densityAndSignalData = writable({
     xi: 1,
     yi: 0.5,
     numberOfSignalPoints: 2,
-    amplitudeMax: 5
+    amplitudeMax: 5,
+    timeGateStart: 0,
+    timeGateEnd: 0
 })
 
 export const selectedSignalData = writable({

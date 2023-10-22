@@ -7,6 +7,7 @@
 
     export let rectification
 
+    let unitMode = "μs"
     let smoothing = false
     let plot
     let div
@@ -58,7 +59,7 @@
         <p class="pt-1 px-2" style="color:#4d4d4d">Top View (D)</p>
     </div>
     <div class="flex flex-col ml-auto mr-2">
-        <PlotModebar bind:plot={plot}/>
+        <PlotModebar bind:plot={plot} bind:mode={unitMode}/>
     </div>
 </div>
 <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">

@@ -29,13 +29,14 @@
         dragmode: 'pan'
     }
 
-    function constructSideData(data, yp, points) {
+    function constructSideData(data, yp, points, timeGateStart, timeGateEnd) {
         let ret = []
+        const increment = ((timeGateEnd - timeGateStart) / points)
 
         data.forEach(element => {
             if (element.y == yp) {
                 for(let i = 0; i < points; i++) {
-                    ret.push({x: element.x, y: i, z: element.r[i].y})
+                    ret.push({x: element.x, y: increment* i, z: element.r[i].y})
                 }
             }
         });
@@ -43,16 +44,27 @@
         return ret
     }
 
-    function constructEndData(data, xp, points) {
-        let ret = []
+    function constructEndData(data, xp, points, timeGateStart, timeGateEnd) {
+        const ret = []
+        const increment = ((timeGateEnd - timeGateStart) / points)
 
         data.forEach(element => {
             if (element.x == xp) {
                 for(let i = 0; i < points; i++) {
-                    ret.push({x: element.y, y: i, z: element.r[i].y})
+                    ret.push({x: element.y, y: increment* i, z: element.r[i].y})
                 }
             }
         });
+
+        return ret
+    }
+
+    function constructSignalData(data) {
+        const ret = []
+
+        for(let i = 0; i < data.length; i++) {
+            ret.push({x: data[i].x * Math.pow(10, -6), y: data[i].y})
+        }
 
         return ret
     }
@@ -75,13 +87,16 @@
 
         v.data.find((coordData) => {
             if (coordData.x == midPointX && coordData.y == midPointY) {
-                selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
+                selectedSignalData.set({
+                    data: constructSignalData(coordData.r), 
+                    amplitude: v.amplitudeMax
+                })
                 selectedEndData.set({
-                    data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints),
+                    data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints, v.timeGateStart, v.timeGateEnd),
                     amplitude: v.amplitudeMax
                 })
                 selectedSideData.set({
-                    data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints),
+                    data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints, v.timeGateStart, v.timeGateEnd),
                     amplitude: v.amplitudeMax
                 })
             }
@@ -115,19 +130,19 @@
                             )
                             
                             // Set A-scan
-                            selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
+                            selectedSignalData.set({data: constructSignalData(coordData.r), amplitude: v.amplitudeMax})
                         } else if (mode == "D") {
                             layout.annotations[1] = constructVerticalLineAnnotation(coordData.x, 'D')
 
                             selectedEndData.set({
-                                data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints),
+                                data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints, v.timeGateStart, v.timeGateEnd),
                                 amplitude: v.amplitudeMax
                             })
                         } else if (mode == "B") {
                             layout.annotations[2] = constructHorizontalLineAnnotation(coordData.y, 'B')
 
                             selectedSideData.set({
-                                data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints),
+                                data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints, v.timeGateStart, v.timeGateEnd),
                                 amplitude: v.amplitudeMax
                             })
                         }
@@ -161,7 +176,7 @@
         </button>
     </div>
     <div class="flex flex-col ml-auto mr-2">
-        <PlotModebar bind:plot={plot}/>
+        <PlotModebar bind:plot={plot} mode={undefined}/>
     </div>
 </div>
 <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">
