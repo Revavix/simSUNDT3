@@ -84,8 +84,6 @@
             return
         }
 
-        console.log("Test")
-
         constructSideData(pos)
         updatePlot()
 
