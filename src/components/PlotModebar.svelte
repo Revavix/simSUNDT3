@@ -1,9 +1,13 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
     import Button from '../components/Button.svelte'
-
-    // Expects a Plotly.js plot
-    export let mode: string | undefined
+    import { CalculationMode, DistanceMode } from '../lib/models/SoundYAxisMode'
+    import CompressionalWave from './icons/CompressionalWave.svelte';
+    import ShearWave from './icons/ShearWave.svelte';
+    import Tooltip from './Tooltip.svelte';
+    
+    export let calculationMode: CalculationMode = undefined
+    export let distanceMode: DistanceMode = undefined
     export let plot: Promise<object>
 
     let plotDiv
@@ -55,7 +59,7 @@
         action:  () => {
             zoom(2)
         },
-        disabled: false
+        disabled: true
     }
 
     let zoomInButton = {
@@ -65,7 +69,7 @@
         action:  () => {
             zoom(0.5)
         },
-        disabled: false
+        disabled: true
     }
 
     let zoomResetButton = {
@@ -132,18 +136,37 @@
 </script>
 
 <div class="flex flex-row w-full">
-    {#if mode === "mm"}
-    <div class="flex flex-col w-full mx-0.5">
-        <button style="color:#4d4d4d; font-size: 12px" on:click={() => { mode = 'μs'}}>
-            μs
-        </button>
-    </div>
-    {:else if mode === "μs"}
-    <div class="flex flex-col w-full mx-0.5">
-        <button style="color:#4d4d4d; font-size: 12px" on:click={() => { mode = 'mm'}}>
-            mm
-        </button>
-    </div>
+    {#if calculationMode !== undefined && distanceMode !== undefined}
+        {#if distanceMode === DistanceMode.Shear}
+        <div class="flex flex-col w-full mx-0.5">
+            <button style="color:#4d4d4d; font-size: 12px" on:click={() => { distanceMode = DistanceMode.Compressional}} disabled={calculationMode === CalculationMode.Time}>
+                <Tooltip label="Swap to Shear Wave distance mode" disabled={calculationMode === CalculationMode.Time}>
+                    <ShearWave opacity={calculationMode === CalculationMode.Time ? 0.5 : 1.0}/>
+                </Tooltip>
+            </button>
+        </div>
+        {:else if distanceMode === DistanceMode.Compressional}
+        <div class="flex flex-col w-full mx-0.5">
+            <button style="color:#4d4d4d; font-size: 12px" on:click={() => { distanceMode = DistanceMode.Shear}} disabled={calculationMode === CalculationMode.Time}>
+                <Tooltip label="Swap to Compressional Wave distance mode" disabled={calculationMode === CalculationMode.Time}>
+                    <CompressionalWave opacity={calculationMode === CalculationMode.Time ? 0.5 : 1.0}/>
+                </Tooltip>
+            </button>
+        </div>
+        {/if}
+        {#if calculationMode === CalculationMode.Distance}
+        <div class="flex flex-col w-full mx-0.5">
+            <button style="color:#4d4d4d; font-size: 12px" on:click={() => { calculationMode = CalculationMode.Time}}>
+                μs
+            </button>
+        </div>
+        {:else if calculationMode === CalculationMode.Time}
+        <div class="flex flex-col w-full mx-0.5">
+            <button style="color:#4d4d4d; font-size: 12px" on:click={() => { calculationMode = CalculationMode.Distance}}>
+                mm
+            </button>
+        </div>
+        {/if}
     {/if}
     {#if plotDiv != undefined}
         {#if plotDiv._fullLayout.dragmode == "zoom"}

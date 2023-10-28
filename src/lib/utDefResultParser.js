@@ -28,6 +28,8 @@ export class UTDefResultParser
         let xIncrement = 0
         let yIncrement = 0
         let stepOfResponse = 0
+        let compressionalWaveSpeed = 0
+        let shearWaveSpeed = 0
 
         // Parse coordinate origins for C-scan coordinate construction
         try {
@@ -59,9 +61,18 @@ export class UTDefResultParser
                     stepOfResponse = parseFloat(numbers[2])
                     matches |= 1 << 3
                 }
+
+                if (utindefData[i].includes("The component's compressional and shear wavespeeds are:")) {
+                    numbers = utindefData[i].match(/(\+|\-)?\d+.\d+/gm)
+
+                    compressionalWaveSpeed = parseFloat(numbers[0])
+                    shearWaveSpeed = parseFloat(numbers[1])
+
+                    matches |= 1 << 4
+                }
             }
 
-            if (!(matches & (1 << 1) && matches & (1 << 2) && matches & (1 << 3))) {
+            if (!(matches & (1 << 1) && matches & (1 << 2) && matches & (1 << 3) && matches & (1 << 4))) {
                 return Promise.resolve({})
             }
         } catch (err) {
@@ -110,6 +121,8 @@ export class UTDefResultParser
             ys: yStart,
             xi: xIncrement,
             yi: yIncrement,
+            compressionalWaveSpeed: compressionalWaveSpeed,
+            shearWaveSpeed: shearWaveSpeed,
             columns: dataDensityParsed[0],
             rows: dataDensityParsed[1],
             numberOfSignalPoints: dataDensityParsed[2],

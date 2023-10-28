@@ -22,22 +22,13 @@ export const densityAndSignalData = writable({
     numberOfSignalPoints: 2,
     amplitudeMax: 5,
     timeGateStart: 0,
-    timeGateEnd: 0
+    timeGateEnd: 0,
+    compressionalWaveSpeed: 0,
+    shearWaveSpeed: 0
 })
 
-export const selectedSignalData = writable({
-    data: [{x: 0, y: 0}],
-    amplitude: 1
-})
-
-export const selectedSideData = writable({
-    data: [{x: 0, y: 0, z: 0}],
-    amplitude: 1
-})
-
-export const selectedEndData = writable({
-    data: [{x: 0, y: 0, z: 0}],
-    amplitude: 1
-})
+export const selectedPosSignal = writable({x: 0, y: 0})
+export const selectedPosSide = writable(0)
+export const selectedPosEnd = writable(0)
 
 export const interpolationMode = writable([])

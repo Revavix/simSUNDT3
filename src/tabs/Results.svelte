@@ -138,7 +138,7 @@
             <CPlot bind:rectification={rectification}/>
             {/if}
         </div>
-        <div class="rounded-md bg-stone-300" style="z-index: 99;">
+        <div class="rounded-md bg-stone-300 px-2" style="z-index: 99;">
             {#if status == "Loading"}
             <Spinner/>
             {:else if status == "Invalid"}
@@ -151,7 +151,7 @@
             <APlot bind:rectification={rectification}/>
             {/if}
         </div>
-        <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99; max-height: calc(50vh - 101px);">
+        <div class="rounded-md bg-stone-300 flex-col px-2" style="z-index: 99; max-height: calc(50vh - 101px);">
             {#if status == "Loading"}
             <Spinner/>
             {:else if status == "Invalid"}
@@ -164,7 +164,7 @@
             <BPlot bind:rectification={rectification}/>
             {/if}
         </div>
-        <div class="rounded-md bg-stone-300" style="z-index: 99;">
+        <div class="rounded-md bg-stone-300 px-2" style="z-index: 99;">
             {#if status == "Loading"}
             <Spinner/>
             {:else if status == "Invalid"}
