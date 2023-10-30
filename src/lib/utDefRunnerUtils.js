@@ -1,4 +1,4 @@
-import { utDefStatus } from "./stores"
+import { kernelStatus } from "./data/Stores"
 
 export function getExecName(platform) {
     if (platform == 'darwin' || platform == 'linux') {
@@ -9,7 +9,7 @@ export function getExecName(platform) {
 }
 
 export function sendStatusInfoMessage(running, msg) {
-    utDefStatus.set({
+    kernelStatus.set({
         running: running,
         message: {
             icon: "info", 
@@ -20,7 +20,7 @@ export function sendStatusInfoMessage(running, msg) {
 }
 
 export function sendStatusWarningMessage(running, msg) {
-    utDefStatus.set({
+    kernelStatus.set({
         running: running,
         message: {
             icon: "warning", 

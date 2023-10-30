@@ -1,8 +1,9 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
-    import { densityAndSignalData, selectedPosSignal } from '../lib/stores.js'
     import { rectifyXY } from '../lib/utils';
+    import { resultData, selectedPosSignal } from '../lib/data/Stores';
+    
 
     export let rectification
 
@@ -10,7 +11,7 @@
     let compressionalWaveSpeed: number = 0
     let shearWaveSpeed: number = 0
 
-    // Density and Signal data set from densityAndSignalData.subscribe
+    // Density and Signal data set from resultData
     let data: Array<any> = []
 
     // Signal data
@@ -64,17 +65,17 @@
         plot = Plotly.react(div, plotData, layout, cfg)
     }
 
-    densityAndSignalData.subscribe(v => {
+    resultData.subscribe(v => {
+        if (v === undefined) return
+
         data = v.data
-        amplitude = v.amplitudeMax
-        compressionalWaveSpeed = v.compressionalWaveSpeed
-        shearWaveSpeed = v.shearWaveSpeed
+        amplitude = v.amplitude
+        compressionalWaveSpeed = v.wavespeeds.compressional
+        shearWaveSpeed = v.wavespeeds.shear
     })
 
     selectedPosSignal.subscribe(v => {
-        if (div == undefined) {
-            return
-        }
+        if (div == undefined || v === undefined) return
 
         constructSignalData(v.x, v.y)
         updatePlot()

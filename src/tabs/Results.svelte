@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { densityAndSignalData, interpolationMode } from '../lib/stores'
     import APlot from '../components/APlot.svelte';
     import CPlot from '../components/CPlot.svelte';
     import BPlot from '../components/BPlot.svelte';
     import DPlot from '../components/DPlot.svelte';
     import { onMount } from 'svelte';
     import Spinner from '../components/Spinner.svelte';
+    import { interpolationMode, resultData } from '../lib/data/Stores';
     
     export let projectHandler
-    export let utDefResultParser
+    export let kernelResultParser
 
     let interpolationOn = false
     let interpolationLevel = 1
@@ -39,14 +39,14 @@
         status = "Loading"
 
         const folder = projectHandler.currentProject.data.postprocessor[selectedTest].runs[selectedTestSubIndex].path
-        const extractedData = await utDefResultParser.Extract(folder)
+        const extractedData = await kernelResultParser.Extract(folder)
 
-        utDefResultParser.Parse(extractedData).then(v => {
+        kernelResultParser.Parse(extractedData).then(v => {
             if (Object.keys(v).length != 0) {
-                densityAndSignalData.set(v)
+                resultData.set(v)
                 status = "Ok"
             } else {
-                densityAndSignalData.update(n => n)
+                resultData.update(n => n)
                 status = "Invalid"
             }
         })

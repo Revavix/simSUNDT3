@@ -1,12 +1,12 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
-    import { densityAndSignalData, selectedPosEnd } from "../lib/stores";
     import { rectifyXYZ } from '../lib/utils';
-    import { ultravision } from '../lib/colorscales';
+    import { UltraVision } from '../lib/plotting/Colorscales';
     import { CalculationMode, DistanceMode } from '../lib/models/SoundYAxisMode';
     import { onMount } from 'svelte';
-    import { DLayout } from '../lib/plotting/Layouts';
+    import { dLayout } from '../lib/plotting/Layouts';
+    import { resultData, selectedPosEnd } from '../lib/data/Stores';
 
     export let rectification
 
@@ -25,7 +25,7 @@
     // C scan selection
     let endData: Array<any> = []
 
-    // Density and Signal data set from densityAndSignalData.subscribe
+    // Density and Signal data set from resultData
     let data: Array<any> = []
 
     // Bound variables
@@ -71,12 +71,12 @@
                 z: rectifiedData.map(d => d.z),
                 zsmooth: smoothing,
                 type: 'heatmap',
-                colorscale: ultravision
+                colorscale: UltraVision
             }
         ]
-        DLayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'm'
+        dLayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'm'
 
-        plot = Plotly.react(div, data, DLayout, cfg)
+        plot = Plotly.react(div, data, dLayout, cfg)
     }
 
     function refreshData(pos) {
@@ -94,17 +94,20 @@
         refreshData(lastPos)
     })
 
-    densityAndSignalData.subscribe(v => {
+    resultData.subscribe(v => {
+        if (v === undefined) return
+
         data = v.data
-        amplitude = v.amplitudeMax
-        compressionalWaveSpeed = v.compressionalWaveSpeed
-        shearWaveSpeed = v.shearWaveSpeed
-        samples = v.numberOfSignalPoints
-        ts = v.timeGateStart
-        te = v.timeGateEnd
+        amplitude = v.amplitude
+        compressionalWaveSpeed = v.wavespeeds.compressional
+        shearWaveSpeed = v.wavespeeds.shear
+        samples = v.samples
+        ts = v.timegate.start
+        te = v.timegate.end
     })
     
     selectedPosEnd.subscribe(v => {
+        if (v === undefined) return
         lastPos = v
     })
 

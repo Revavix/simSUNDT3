@@ -1,7 +1,7 @@
 <script lang="ts">
     import { slide } from 'svelte/transition';
     import { onMount } from "svelte";;
-    import { fileCache } from '../lib/stores';
+    import { cache } from '../lib/data/Stores';
     import { fetchCache } from '../lib/utils';
 
     export let projectHandler
@@ -9,14 +9,14 @@
     export let unsaved
     export let activeAlerts
 
-    let cache = []
-
     onMount(async () => {
         // Get project list from cache
         await new Promise(r => setTimeout(r, 200));
 
         await fetchCache()
     })
+
+    let projects = []
 
     async function addNewAlert(text, color, icon, timeout) {
         activeAlerts.push({t: text, c: color, i: icon})
@@ -138,8 +138,9 @@
         }
     }
 
-    fileCache.subscribe(v => {
-        cache = v
+    cache.subscribe(v => {
+        if (v === undefined) return
+        projects = v
     })
 </script>
 
@@ -207,14 +208,14 @@
                 </div>
                 <div class="flex flex-row border-2 rounded-lg w-full"/>
                 <div class="flex flex-col w-full latest-projects pr-1 mt-1"  style="overflow: auto">
-                    {#each cache as p}
+                    {#each projects as project}
                     <div class="flex flex-row rounded-md shadow-md w-full bg-stone-300 py-2 my-1 hover:bg-gray-100" transition:slide|local> 
-                        <a href="#" class="flex flex-row w-full" on:click={(e) => requestLoadByName(p)}>
+                        <a href="#" class="flex flex-row w-full" on:click={(e) => requestLoadByName(project)}>
                             <div class="flex flex-col ml-2">
-                                <p class="font-lg text-simsundt-gray">{p.name}</p>
+                                <p class="font-lg text-simsundt-gray">{project.name}</p>
                             </div>
                             <div class="flex flex-col ml-auto mr-2">
-                                <p class="font-lg text-simsundt-gray">{p.lastSaved}</p>
+                                <p class="font-lg text-simsundt-gray">{project.lastSaved}</p>
                             </div>
                         </a>
                     </div>

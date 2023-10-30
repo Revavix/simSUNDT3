@@ -1,4 +1,4 @@
-export const BLayout = {
+export const bLayout = {
     paper_bgcolor: 'rgba(0, 0, 0, 0)',
     plot_bgcolor: 'rgba(0, 0, 0, 0)',
     margin: {
@@ -15,7 +15,7 @@ export const BLayout = {
     }
 }
 
-export const DLayout = {
+export const dLayout = {
     paper_bgcolor: 'rgba(0, 0, 0, 0)',
     plot_bgcolor: 'rgba(0, 0, 0, 0)',
     margin: {

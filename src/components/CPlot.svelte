@@ -1,9 +1,9 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
-    import { densityAndSignalData, interpolationMode, selectedPosEnd, selectedPosSide, selectedPosSignal } from '../lib/stores'
-    import { constructDotAnnotation, constructHorizontalLineAnnotation, constructVerticalLineAnnotation } from '../lib/annotations'
-    import { ultravision } from '../lib/colorscales';
+    import { dot, horizontalLine, verticalLine } from '../lib/plotting/Annotations'
+    import { UltraVision } from '../lib/plotting/Colorscales';
+    import { interpolationMode, resultData, selectedPosEnd, selectedPosSide, selectedPosSignal } from '../lib/data/Stores';
 
     export let rectification
 
@@ -29,20 +29,22 @@
         dragmode: 'pan'
     }
 
-    densityAndSignalData.subscribe(async (v) => {
+    resultData.subscribe(async (v) => {
         await setTimeout(() => {}, 100)
+
+        if (v === undefined) return
 
         if (div == undefined) {
             return
         }
 
-        let midPointX = Math.floor(((v.columns-1) * v.xi) / 2) + v.xs
-        let midPointY = Math.floor(((v.rows-1) * v.yi) / 2) + v.ys
+        let midPointX = Math.floor(((v.columns-1) * v.increment.x) / 2) + v.start.x
+        let midPointY = Math.floor(((v.rows-1) * v.increment.y) / 2) + v.start.y
 
         layout.annotations = [
-            constructDotAnnotation(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', -v.yi * 10),
-            constructVerticalLineAnnotation(midPointX, 'D'),
-            constructHorizontalLineAnnotation(midPointY, 'B')
+            dot(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', -v.increment.y * 10),
+            verticalLine(midPointX, 'D'),
+            horizontalLine(midPointY, 'B')
         ]
 
         v.data.find((cd) => {
@@ -60,7 +62,7 @@
                 z: v.data.map(x => x.z),
                 zsmooth: smoothing,
                 type: 'heatmap',
-                colorscale: ultravision
+                colorscale: UltraVision
             }
         ]
 
@@ -73,18 +75,18 @@
                     if (cd.x === d.points[i].x && cd.y === d.points[i].y) {
                         // Update annotations according to chosen mode
                         if (mode == "A") {
-                            layout.annotations[0] = constructDotAnnotation(
+                            layout.annotations[0] = dot(
                                 cd.x, 
                                 cd.y, 
                                 'A [' + cd.x + ', ' + cd.y + ']',
-                                -v.yi * 10
+                                -v.increment.y * 10
                             )
                             selectedPosSignal.set({x: cd.x, y: cd.y})
                         } else if (mode == "D") {
-                            layout.annotations[1] = constructVerticalLineAnnotation(cd.x, 'D')
+                            layout.annotations[1] = verticalLine(cd.x, 'D')
                             selectedPosEnd.set(cd.x)
                         } else if (mode == "B") {
-                            layout.annotations[2] = constructHorizontalLineAnnotation(cd.y, 'B')
+                            layout.annotations[2] = horizontalLine(cd.y, 'B')
                             selectedPosSide.set(cd.y)
                         }
 
@@ -96,8 +98,9 @@
     })
 
     interpolationMode.subscribe(v => {
+        if (v === undefined) return
         smoothing = v[0]
-        densityAndSignalData.update(n => n)
+        resultData.update(n => n)
     })
 </script>
 

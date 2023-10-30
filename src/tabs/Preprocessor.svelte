@@ -1,36 +1,38 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { onMount } from 'svelte';
     import { UTDefectIsoSaver } from "../lib/utDefIsoSaver";
     import TreeComponent from '../components/Tree.svelte'
     import Button from '../components/Button.svelte'
-    import HorizontalProgressbarComponent from '../components/HorizontalProgressbar.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
-    import { constructParametricData, tree } from '../lib/tree.js'
+    import { tree } from '../lib/tree.js'
     import { constructIsoSaveData } from "../lib/utDefSaverUtils";
-    import { utDefProgress, utDefStatus } from "../lib/stores";
-    import { runNonParametric, runParametric } from "../lib/preprocessorRunnerLogic";
+    import { KernelInitializer } from "../lib/kernel/utdefect/v6/KernelInitializer"
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
     import { sendStatusInfoMessage, sendStatusWarningMessage } from "../lib/utDefRunnerUtils"
+    import { kernelProgress, kernelStatus } from "../lib/data/Stores";
+    import { KernelInitializerMode } from "../lib/models/Kernel";
+
 
     export let unsaved
-    export let utDefRunner
+    export let kernelRunner
     export let projectHandler
-    export let utDefResultParser
+
+    let utDefectV6Initializer: KernelInitializer = new KernelInitializer()
 
     let mainLogContents = []
     let parametricEnabled = false
     let treeMinimized = false
     let showConfigureModal = false
     let showParametricSettingsModal = false
-    let utDefRunnerIsRunning = false
+    let kernelRunnerIsRunning = false
     let namingSchemeMethod = 1
     let namingSchemeName = ""
 
-    utDefStatus.subscribe(v => {
-        utDefRunnerIsRunning = v.running
+    kernelStatus.subscribe(v => {
+        if (v === undefined) return
+
+        kernelRunnerIsRunning = v.running
 
         if (v.message != null) {
             mainLogContents.push(v.message)
@@ -60,74 +62,40 @@
 
             // Run name
             const name = namingSchemeMethod == 1 ? crypto.randomUUID() : namingSchemeName
-
-            if (parametricEnabled) {
-                let parametricRunResult = runParametric(
-                    name,
-                    homeDir, 
-                    srcBinary, 
-                    execName, 
-                    {
-                        tree: projectHandler.currentProject.data.preprocessor.tree,
-                        misc: projectHandler.currentProject.data.preprocessor.misc
-                    },
-                    utDefRunner
-                ).then(v => {
-                    let groupedResult = {
-                        name: name,
-                        date: v.date,
-                        time: v.time,
-                        runs: [],
-                        parametric: true
-                    }
-
-                    v.runs.forEach(element => {
-                        groupedResult.runs.push({
-                            path: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder
-                        })
-                    });
-
-                    projectHandler.currentProject.data.postprocessor.push(groupedResult)
-                    
-                    sendStatusInfoMessage(false, "Runner completed successfully.")
-                }).catch(v => {
-                    sendStatusWarningMessage(false, v)
-                })
-            } else {
-                runNonParametric(
-                    name,
-                    homeDir,
-                    srcBinary,
-                    execName,
-                    {
-                        tree: projectHandler.currentProject.data.preprocessor.tree,
-                        misc: projectHandler.currentProject.data.preprocessor.misc
-                    },
-                    utDefRunner
-                ).then(v => {
-                    let groupedResult = {
-                        name: name,
-                        date: v.date,
-                        time: v.time,
-                        runs: [{
-                            path: homeDir + "/Documents/simSUNDT/Simulations/" + v.result,
-                        }],
-                        parametric: false
-                    }
-
-                    projectHandler.currentProject.data.postprocessor.push(groupedResult)
-                    projectHandler.Save()
-
-                    sendStatusInfoMessage(false, "Runner completed successfully.")
-                }).catch(v => {
-                    sendStatusWarningMessage(false, v)
-
-                    utDefProgress.set([{
-                        progress: 0,
-                        finished: false
-                    }])
-                })
+            
+            const data = {
+                tree: projectHandler.currentProject.data.preprocessor.tree,
+                misc: projectHandler.currentProject.data.preprocessor.misc
             }
+
+            utDefectV6Initializer.binary = srcBinary,
+            utDefectV6Initializer.executable = execName
+            utDefectV6Initializer.mode = parametricEnabled ? KernelInitializerMode.PARAMETRIC : KernelInitializerMode.NON_PARAMETRIC
+            utDefectV6Initializer.runner = kernelRunner
+            utDefectV6Initializer.runner.processes = projectHandler.currentProject.data.preprocessor.misc.parametric.numProcesses
+            utDefectV6Initializer.saver = saver
+            utDefectV6Initializer.Execute(name, data).then(v => {
+                let groupedResult = {
+                    name: name,
+                    date: v.date,
+                    time: v.time,
+                    runs: [],
+                    parametric: true
+                }
+
+                v.runs.forEach(element => {
+                    groupedResult.runs.push({
+                        path: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder
+                    })
+                });
+
+                projectHandler.currentProject.data.postprocessor.push(groupedResult)
+                
+                sendStatusInfoMessage(false, "Runner completed successfully.")
+            }).catch(v => {
+                sendStatusWarningMessage(false, v)
+            })
+            
         },
         disabled: false
     }
@@ -137,7 +105,7 @@
         color: "#ba3822",
         icon: "stop",
         action: async () => {
-            utDefRunner.Stop()
+            kernelRunner.Stop()
         },
         disabled: false
     }
@@ -201,13 +169,6 @@
         }
     }
 
-    onMount(async () => {
-        const homeDir = await window.electronAPI.getHomeDir()
-
-        //let test = new UTDefResultParser()
-        //test.Parse(homeDir + "/Documents/simSUNDT/tmp")
-    })
-
     UpdateDefaultBinaryPath()
 
     // Variable watchers
@@ -218,7 +179,7 @@
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 4; overflow-x: auto; overflow-y: hidden;">
         <div class="flex flex-col w-20 pt-1 -space-y-1">
             <div class="flex flex-col mb-auto">
-                {#if !utDefRunnerIsRunning}
+                {#if kernelRunnerIsRunning === false}
                 <Button data={runButton}></Button>
                 {:else}
                 <Button data={stopButton}></Button>

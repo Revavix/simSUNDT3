@@ -1,4 +1,4 @@
-import { fileCache } from "./stores"
+import { cache } from "./data/Stores"
 
 export function byteArrayToStr(arr) {
     let str = ""
@@ -66,7 +66,7 @@ export async function fetchCache() {
         }
     }
 
-    fileCache.set(data)
+    cache.set(data)
 }
 
 export function clamp(num, min, max) {
