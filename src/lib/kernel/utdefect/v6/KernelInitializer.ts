@@ -1,18 +1,13 @@
-import { KernelInitializerMode, type KernelInitializerExecutionResult, type KernelInitializerValidationResult } from "../../../models/Kernel"
+import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer } from "../../../models/Kernel"
 import { constructParametricData } from "../../../tree"
 import { UTDefectIsoSaver } from "../../../utDefIsoSaver"
 import { constructIsoSaveData } from "../../../utDefSaverUtils"
-import type { KernelRunner } from "./KernelRunner"
 
-export class KernelInitializer {
-    saver: UTDefectIsoSaver
-    runner: KernelRunner
-    executable: string
-    binary: string
-    home: string
-    mode: KernelInitializerMode
+export class KernelInitializer extends Initializer {
+
 
     constructor() {
+        super()
         this.saver = new UTDefectIsoSaver()
         this.executable = "UTDef6.exe"
         this.binary = ""
@@ -22,9 +17,9 @@ export class KernelInitializer {
         })
     }
 
-    public async Execute(name: string, data: any): Promise<KernelInitializerExecutionResult> {
-        let runs = this.mode === KernelInitializerMode.PARAMETRIC ? constructParametricData(data.tree, data.misc) : [constructIsoSaveData(data.tree, data.misc)]
-        let validation: KernelInitializerValidationResult = this.Validate(runs.length)
+    public async Execute(name: string, data: any): Promise<InitializerExecutionResult> {
+        let runs = this.mode === InitializerMode.PARAMETRIC ? constructParametricData(data.tree, data.misc) : [constructIsoSaveData(data.tree, data.misc)]
+        let validation: InitializerValidationResult = this.Validate(runs.length)
 
         if (validation.pass === false) return Promise.reject(validation.message)
 
@@ -52,7 +47,7 @@ export class KernelInitializer {
 
         try {
             let date = new Date()
-            let runResult = await this.runner.Execute()
+            let runResult = await this.runner.Execute(this.executable)
             let retval = {
                 date: date.toLocaleDateString("en-US"), 
                 time: date.toLocaleTimeString("en-US"),
@@ -95,7 +90,7 @@ export class KernelInitializer {
         }
     }
 
-    private Validate(runs: number): KernelInitializerValidationResult {
+    private Validate(runs: number): InitializerValidationResult {
         if (runs > 500) {
             return {
                 pass: false,

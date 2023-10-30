@@ -1,8 +1,11 @@
 <script lang="ts">
+    import { LoggingSingleton } from '../lib/data/LoggingSingleton';
+    import type { LoggingEntry } from '../lib/models/Logging';
     import Button from './Button.svelte';
 
-    export let contents: Array<object>
+    let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
     let minimized: boolean = false
+    let logs: Array<LoggingEntry> = []
 
     function updateMinState() {
         if (minimized == true) {
@@ -35,12 +38,16 @@
         action: updateMinState,
         disabled: false
     }
+
+    loggingSingleton.Subscribe((v: Array<LoggingEntry>) => {
+        logs = v
+    })
 </script>
 
 <div class="flex flex-col bg-stone-300 rounded-lg shadow-lg" style="z-index: 4;">
     <div class="flex px-2 pt-1" style="color:#4d4d4d">
         <div class="flex flex-col">
-            Output ({contents.length})
+            Output ({logs.length})
         </div>
         <div class="flex flex-col ml-auto">
             <Button data={copyButton}/>
@@ -56,7 +63,7 @@
     {#if minimized == false}
     <!--<div class="bg-gradient-to-r from-yellow-600 ... h-0.5"></div>-->
     <div class="max-h-48 border border-stone-400 rounded-md m-2 h-48" style="padding-left: 0px; overflow: auto">
-        {#each contents as item}
+        {#each logs as item}
             <div class="inline-block px-1">
                 <div class="inline item-icon align-middle " style="color:{item['color']}">
                     {item['icon']}

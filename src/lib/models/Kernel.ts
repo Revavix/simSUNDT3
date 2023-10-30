@@ -1,3 +1,4 @@
+import type { UTDefectIsoSaver } from "../utDefIsoSaver"
 
 interface StatusMessage {
     icon: string, 
@@ -31,24 +32,35 @@ export abstract class Runner {
     processes: number
     retries: number
 
-    abstract Execute(executable: string): Promise<Array<Run> | string>
+    abstract Execute(executable: string): Promise<Array<Run>>
 
     abstract Stop(): Promise<void>
 }
 
 // KernelInitializer interfaces / enums / abstract classes
-export interface KernelInitializerValidationResult {
+export abstract class Initializer {
+    saver: UTDefectIsoSaver
+    runner: Runner
+    executable: string
+    binary: string
+    home: string
+    mode: InitializerMode
+
+    abstract Execute(name: string, data: any): Promise<InitializerExecutionResult>
+}
+
+export interface InitializerValidationResult {
     pass: boolean,
     message: string
 }
 
-export interface KernelInitializerExecutionResult {
+export interface InitializerExecutionResult {
     date: string,
     time: string,
     runs: Array<Run>
 }
 
-export enum KernelInitializerMode {
+export enum InitializerMode {
     PARAMETRIC,
     NON_PARAMETRIC
 }

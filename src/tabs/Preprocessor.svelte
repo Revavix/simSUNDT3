@@ -5,20 +5,22 @@
     import OutputLogComponent from '../components/OutputLog.svelte'
     import { tree } from '../lib/tree.js'
     import { constructIsoSaveData } from "../lib/utDefSaverUtils";
-    import { KernelInitializer } from "../lib/kernel/utdefect/v6/KernelInitializer"
+    import { KernelInitializer as KernelInitializerV6 } from "../lib/kernel/utdefect/v6/KernelInitializer"
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
-    import { sendStatusInfoMessage, sendStatusWarningMessage } from "../lib/utDefRunnerUtils"
-    import { kernelProgress, kernelStatus } from "../lib/data/Stores";
-    import { KernelInitializerMode } from "../lib/models/Kernel";
+    import { kernelStatus } from "../lib/data/Stores";
+    import { Initializer, InitializerMode } from "../lib/models/Kernel";
+    import { LoggingSingleton } from "../lib/data/LoggingSingleton";
+    import { LoggingLevel } from "../lib/models/Logging";
 
 
     export let unsaved
     export let kernelRunner
     export let projectHandler
 
-    let utDefectV6Initializer: KernelInitializer = new KernelInitializer()
+    let kernelInitializer: Initializer = new KernelInitializerV6()
+    let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
 
     let mainLogContents = []
     let parametricEnabled = false
@@ -68,13 +70,14 @@
                 misc: projectHandler.currentProject.data.preprocessor.misc
             }
 
-            utDefectV6Initializer.binary = srcBinary,
-            utDefectV6Initializer.executable = execName
-            utDefectV6Initializer.mode = parametricEnabled ? KernelInitializerMode.PARAMETRIC : KernelInitializerMode.NON_PARAMETRIC
-            utDefectV6Initializer.runner = kernelRunner
-            utDefectV6Initializer.runner.processes = projectHandler.currentProject.data.preprocessor.misc.parametric.numProcesses
-            utDefectV6Initializer.saver = saver
-            utDefectV6Initializer.Execute(name, data).then(v => {
+            // Configure the initializer
+            kernelInitializer.binary = srcBinary,
+            kernelInitializer.executable = execName
+            kernelInitializer.mode = parametricEnabled ? InitializerMode.PARAMETRIC : InitializerMode.NON_PARAMETRIC
+            kernelInitializer.runner = kernelRunner
+            kernelInitializer.runner.processes = projectHandler.currentProject.data.preprocessor.misc.parametric.numProcesses
+            kernelInitializer.saver = saver
+            kernelInitializer.Execute(name, data).then(v => {
                 let groupedResult = {
                     name: name,
                     date: v.date,
@@ -90,10 +93,19 @@
                 });
 
                 projectHandler.currentProject.data.postprocessor.push(groupedResult)
-                
-                sendStatusInfoMessage(false, "Runner completed successfully.")
+
+                projectHandler.Save().then((v) => {
+                    if (v.status === "OK")  {
+                        loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully & project auto-saved\
+                        post run completion.")
+                    } else {
+                        loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully but failed to auto-\
+                        save, please save manually to ensure results are not lost.")
+                    }
+                })
             }).catch(v => {
-                sendStatusWarningMessage(false, v)
+                loggingSingleton.Log(LoggingLevel.WARNING, v)
+
             })
             
         },
@@ -250,7 +262,7 @@
     <div class="absolute-bottom-above pb-4 px-4 w-full opacity-90 hover:opacity-100">
         <div class="flex flex-row w-full items-end">
             <div class="flex flex-col w-1/2 pr-1">
-                <OutputLogComponent bind:contents={mainLogContents}/>
+                <OutputLogComponent/>
             </div>
             <div class="flex flex-col w-1/2 pl-1">
                 {#if parametricEnabled}

@@ -1,7 +1,8 @@
+import { LoggingSingleton } from "../../../data/LoggingSingleton";
 import { kernelProgress } from "../../../data/Stores";
 import { Runner } from "../../../models/Kernel";
 import type { Run } from "../../../models/Kernel";
-import { sendStatusInfoMessage } from "../../../utDefRunnerUtils";
+import { LoggingLevel } from "../../../models/Logging";
 
 async function updateFinishConditionForAllRuns(runs) {
     for(let i = 0; i < runs.length; i++)
@@ -42,6 +43,7 @@ async function updateProgressForAllRuns(runs) {
 }
 
 export class KernelRunner extends Runner {
+    loggingSingleton: LoggingSingleton
     
     constructor(processes: number) {
         super()
@@ -49,6 +51,7 @@ export class KernelRunner extends Runner {
         this.runs = []
         this.processes = processes
         this.retries = 5
+        this.loggingSingleton = LoggingSingleton.GetInstance()
         
         window.electronAPI.getHomeDir().then((v) => {
             this.home = v
@@ -62,7 +65,7 @@ export class KernelRunner extends Runner {
 
         this.aborted = false
 
-        sendStatusInfoMessage(true, "Attempting to start simulation, the runner will execute " + this.runs.length +
+        this.loggingSingleton.Log(LoggingLevel.INFO, "Attempting to start simulation, the runner will execute " + this.runs.length +
         " total simulation(s).")
 
         // Update the max parallel processes for the IPC
