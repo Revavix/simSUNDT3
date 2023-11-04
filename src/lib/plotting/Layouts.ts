@@ -11,7 +11,8 @@ export const bLayout = {
     annotations: [],
     yaxis: {
         showticksuffix: 'all',
-        ticksuffix: 's'
+        ticksuffix: 's',
+        autorange: 'reversed'
     }
 }
 
@@ -28,6 +29,7 @@ export const dLayout = {
     annotations: [],
     yaxis: {
         showticksuffix: 'all',
-        ticksuffix: 's'
+        ticksuffix: 's',
+        autorange: 'reversed'
     }
 }
