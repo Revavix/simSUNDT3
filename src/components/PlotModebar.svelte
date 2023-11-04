@@ -5,10 +5,12 @@
     import CompressionalWave from './icons/CompressionalWave.svelte';
     import ShearWave from './icons/ShearWave.svelte';
     import Tooltip from './Tooltip.svelte';
+    import type { ResultInfo } from '../lib/models/Result';
     
     export let calculationMode: CalculationMode = undefined
     export let distanceMode: DistanceMode = undefined
     export let plot: Promise<object>
+    export let info: ResultInfo | null = null
 
     let plotDiv
     let originalXRange = [0, 0]
@@ -136,6 +138,15 @@
 </script>
 
 <div class="flex flex-row w-full">
+    {#if info !== null}
+    <div class="flex flex-col px-0.5 items-center" style="color:#4d4d4d; font-size: 12px; cursor: pointer">
+        <Tooltip label={"Calibration level: " + info.calibration}>
+            <div class="flex flex-col" style="font-family:'Material Icons'; font-size:12px; color:#4d4d4d">
+                info
+            </div>
+        </Tooltip>
+    </div>
+    {/if}
     {#if calculationMode !== undefined && distanceMode !== undefined}
         {#if distanceMode === DistanceMode.Shear}
         <div class="flex flex-col w-full mx-0.5">

@@ -27,3 +27,7 @@ export interface Result {
     amplitude: number,
     data: Array<Signal>
 }
+
+export interface ResultInfo {
+    calibration: number
+}
