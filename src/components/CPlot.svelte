@@ -9,6 +9,7 @@
 
     let mode = "A"
     let smoothing = false
+    let calibration: number = 0
     let plot
     let div
     let layout = {
@@ -37,6 +38,8 @@
         if (div == undefined) {
             return
         }
+
+        calibration = v.calibration
 
         let midPointX = Math.floor(((v.columns-1) * v.increment.x) / 2) + v.start.x
         let midPointY = Math.floor(((v.rows-1) * v.increment.y) / 2) + v.start.y
@@ -120,7 +123,7 @@
         </button>
     </div>
     <div class="flex flex-col ml-auto mr-2">
-        <PlotModebar bind:plot={plot}/>
+        <PlotModebar bind:plot={plot} info={{calibration: parseFloat(calibration.toFixed(4))}}/>
     </div>
 </div>
 <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">

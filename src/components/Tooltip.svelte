@@ -6,7 +6,7 @@
     let width
 </script>
 
-<div on:pointerenter={() => visible = true} on:pointerleave={() => visible = false} bind:this={parent}>
+<div class="flex flex-col w-full items-center" on:pointerenter={() => visible = true} on:pointerleave={() => visible = false} bind:this={parent}>
     {#if visible && !disabled}
     <svg width="24" height="24" style="position: absolute;" viewBox="0 0 500 500" class="mt-3.5">
         <polygon points="250,60 100,400 400,400" fill="#ED9E14" />
