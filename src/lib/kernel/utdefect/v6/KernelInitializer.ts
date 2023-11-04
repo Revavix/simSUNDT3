@@ -1,6 +1,6 @@
 import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer } from "../../../models/Kernel"
 import { constructParametricData } from "../../../tree"
-import { UTDefectIsoSaver } from "../../../utDefIsoSaver"
+import { KernelSaver as KernelSaverUTDef6 } from "../../../kernel/utdefect/v6/KernelSaver"
 import { constructIsoSaveData } from "../../../utDefSaverUtils"
 
 export class KernelInitializer extends Initializer {
@@ -8,7 +8,7 @@ export class KernelInitializer extends Initializer {
 
     constructor() {
         super()
-        this.saver = new UTDefectIsoSaver()
+        this.saver = new KernelSaverUTDef6()
         this.executable = "UTDef6.exe"
         this.binary = ""
         
@@ -42,8 +42,6 @@ export class KernelInitializer extends Initializer {
 
             this.runner.runs.push({ folder: folder, progress: 0, processId: null, finished: false, exitReason: null})
         }
-
-        console.log(this.runner.runs)
 
         try {
             let date = new Date()

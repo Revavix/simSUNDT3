@@ -38,10 +38,10 @@
                     </div>
                     <div class="flex flex-row w-full" id="num_processes">
                         <div class="flex flex-col w-10">
-                            <input bind:value={numProcesses} type="text" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required disabled/>
+                            <input bind:value={numProcesses} type="text" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" required disabled/>
                         </div>
                         <div class="flex flex-col w-11/12 pl-2">
-                            <input bind:value={numProcesses} min=1 max=16 type="range" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required/>
+                            <input bind:value={numProcesses} min=1 max=16 type="range" class="bg-stone-300 text-sm rounded-lg block w-full p-2.5 accent-amber-500" required/>
                         </div>
                     </div>
                 </div>

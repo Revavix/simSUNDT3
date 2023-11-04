@@ -41,7 +41,7 @@ export class ProjectHandler {
                     tree: constructDefaultTreeData({}, tree.children),
                     misc: {
                         accuracy: "3",
-                        binaryPath: "",
+                        binaryPath: "bin/UTDef6.exe",
                         cloudEndpoint: "",
                         parametric: {
                             numProcesses: 4

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { UTDefectIsoSaver } from "../lib/utDefIsoSaver";
+    import { KernelSaver as KernelSaverUTDef6 } from "../lib/kernel/utdefect/v6/KernelSaver";
     import TreeComponent from '../components/Tree.svelte'
     import Button from '../components/Button.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
@@ -53,7 +53,7 @@
             await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/Simulations")
 
             // Prep default Isometric data in the saver
-            const saver = new UTDefectIsoSaver()
+            const saver = new KernelSaverUTDef6()
             saver.data = constructIsoSaveData(projectHandler.currentProject.data.preprocessor.tree, 
                         projectHandler.currentProject.data.preprocessor.misc)
 
@@ -105,7 +105,6 @@
                 })
             }).catch(v => {
                 loggingSingleton.Log(LoggingLevel.WARNING, v)
-
             })
             
         },
@@ -206,7 +205,7 @@
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
         <div class="flex flex-col w-20 pt-1 -space-y-1">
-            <select bind:value={projectHandler.currentProject.data.preprocessor.misc.accuracy} class="pl-1 mb-auto bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" required on:change={() => unsaved = true}> 
+            <select bind:value={projectHandler.currentProject.data.preprocessor.misc.accuracy} class="pl-1 mb-auto bg-gray-50 border-2 border-transparent text-gray-900 text-xs rounded-md focus:border-amber-500 focus:outline-none focus:ring-0 disabled:opacity-75" required on:change={() => unsaved = true}> 
                 <option value=5>Highest</option>
                 <option value=4>High</option>
                 <option value=3>Medium</option>
@@ -223,7 +222,7 @@
         <div class="flex flex-col w-20 pt-1 -space-y-1">
             <div class="flex flex-col mb-auto">
                 <div class="flex flex-row items-center">
-                    <input bind:checked={parametricEnabled} type="checkbox" class="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <input bind:checked={parametricEnabled} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0">
                     <div class="px-2" style="font-size:12px; color:#4d4d4d;">Enabled</div>
                 </div>
                 <div class="flex flex-row">
@@ -276,43 +275,46 @@
 
     {#if showConfigureModal}
     <div class="absolute-bg bg-stone-600 opacity-75"/>
-    <div class="absolute-above-center w-6/12 h-6/12">
-        <div class="relative w-full h-full md:h-auto">
-            <div class="relative rounded-lg shadow bg-stone-200">
-                <div class="flex items-start justify-between p-3 rounded-t">
-                    <div class="flex flex-col items-start">
-                        <h3 class="flex flex-row text-md font-semibold text-gray-600">
-                            Configuration
-                        </h3>
-                        <h1 class="flex flex-row text-xs text-gray-600">
-                            Simulation options
-                        </h1>
+        <div class="absolute-above-center w-6/12 h-6/12">
+            <div class="relative w-full h-full md:h-auto">
+                <div class="relative rounded-lg shadow bg-stone-200">
+                    <div class="flex items-start justify-between p-3 rounded-t">
+                        <div class="flex flex-col items-start">
+                            <h3 class="flex flex-row text-md font-semibold text-gray-600">
+                                Configuration
+                            </h3>
+                            <h1 class="flex flex-row text-xs text-gray-600">
+                                Simulation options
+                            </h1>
+                        </div>
+                        <div class="bg-transparent rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
+                            <Button data={closeConfigureModalButton}/>
+                        </div>
                     </div>
-                    <div class="bg-transparent rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
-                        <Button data={closeConfigureModalButton}/>
+                    <div class="px-3 mt-2 space-y-2">
+                        <div>
+                            <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Kernel version</label>
+                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectHandler.currentProject.data.preprocessor.misc.binaryPath} >
+                                <option value="bin/UTDef6.exe">UTDefect - Version 6</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="px-3 mt-2 space-y-2">
-                    <div>
-                        <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Binary path</label>
-                        <input bind:value={projectHandler.currentProject.data.preprocessor.misc.binaryPath} type="text" id="runner_path" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Eg: {defaultPath}" required on:change={() => unsaved = true}/>
-                    </div>
-                </div>
-                <div class="px-3 py-2 space-y-2">
-                    <div class="flex flex-col">
+                    <div class="px-3 py-2 space-y-2">
                         <div class="flex flex-col">
-                            <div class="flex flex-row mb-1 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Run naming scheme</div>
-                            <div class="flex flex-col w-full" id="naming_scheme_group">
-                                <div class="flex flex-row w-full items-center">
-                                    <input id="algo_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={1}>
-                                    <label for="algo_naming" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Algorithmic naming</label>
-                                </div>
-                                <div class="flex flex-row w-full items-center">
-                                    <input id="custom_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={2}>
-                                    <label for="custom_naming" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Specified naming</label>
-                                </div>
-                                <div class="flex flex-row w-full items-center mt-1">
-                                    <input bind:value={namingSchemeName} disabled={namingSchemeMethod == 2 ? false : true} type="text" id="custom_run_name_textbox" class="bg-stone-300 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="My_Custom_Run" required>
+                            <div class="flex flex-col">
+                                <div class="flex flex-row mb-1 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Run naming scheme</div>
+                                <div class="flex flex-col w-full" id="naming_scheme_group">
+                                    <div class="flex flex-row w-full items-center">
+                                        <input id="algo_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={1}>
+                                        <label for="algo_naming" class="ml-2 text-sm font-medium text-gray-900">Algorithmic naming</label>
+                                    </div>
+                                    <div class="flex flex-row w-full items-center">
+                                        <input id="custom_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={2}>
+                                        <label for="custom_naming" class="ml-2 text-sm font-medium text-gray-900">Specified naming</label>
+                                    </div>
+                                    <div class="flex flex-row w-full items-center mt-1">
+                                        <input bind:value={namingSchemeName} disabled={namingSchemeMethod == 2 ? false : true} type="text" id="custom_run_name_textbox" class="bg-stone-300 border-2 text-gray-900 text-sm rounded-lg 0 block w-full p-2.5 focus:border-amber-500 focus:outline-none focus:ring-0" placeholder="My_Custom_Run" required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -320,7 +322,6 @@
                 </div>
             </div>
         </div>
-    </div>
     {/if}
 
     <ParametricSettings bind:isModalOpen={showParametricSettingsModal} bind:numProcesses={projectHandler.currentProject.data.preprocessor.misc.parametric.numProcesses}/>

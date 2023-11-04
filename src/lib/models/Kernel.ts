@@ -1,4 +1,4 @@
-import type { UTDefectIsoSaver } from "../utDefIsoSaver"
+import type { KernelSaver as KernelSaverUTDef6 } from "../kernel/utdefect/v6/KernelSaver"
 
 interface StatusMessage {
     icon: string, 
@@ -39,7 +39,7 @@ export abstract class Runner {
 
 // KernelInitializer interfaces / enums / abstract classes
 export abstract class Initializer {
-    saver: UTDefectIsoSaver
+    saver: KernelSaverUTDef6
     runner: Runner
     executable: string
     binary: string
@@ -63,4 +63,9 @@ export interface InitializerExecutionResult {
 export enum InitializerMode {
     PARAMETRIC,
     NON_PARAMETRIC
+}
+
+// KernelSaver interfaces / enums / abstract classes
+export abstract class Saver {
+    abstract Save(destination: string): Promise<boolean>
 }
