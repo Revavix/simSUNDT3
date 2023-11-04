@@ -1,11 +1,11 @@
-import { convertNFRToLP, convertAutoElementsToISHA, convertFocusAndTechniqueToIMODE } from "./utDefUtils"
+import { Saver } from "../../../models/Kernel"
 
-export class UTDefectIsoSaver {
-    data = {}
+export class KernelSaver extends Saver {
+    data: any = {}
 
     constructor()
     {
-        
+        super()
     }
 
     async Save(dest) {

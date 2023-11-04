@@ -1,5 +1,5 @@
 <script>
-    import { utDefProgress } from '../lib/stores';
+    import { kernelProgress } from '../lib/data/Stores';
 
     let minimized
 
@@ -23,22 +23,26 @@
         {
             progress: 0,
             finished: false
+        },
+        {
+            progress: 0,
+            finished: false
+        },
+        {
+            progress: 0,
+            finished: false
+        },
+        {
+            progress: 0,
+            finished: false
         }
     ]
 
-    utDefProgress.subscribe(v => {
+    kernelProgress.subscribe(v => {
+        if (v === undefined) return
+        
         runs = v
     })
-
-    /*
-{
-    folder: m,
-    date: date.toLocaleDateString("en-US"),
-    time: date.toLocaleTimeString("en-US"),
-    processId: null,
-    finished: false
-}
-*/
 </script>
 
 <div class="flex flex-col bg-stone-300 h-60 class:h-40={minimized === true} rounded-lg shadow-lg" style="z-index: 4;">

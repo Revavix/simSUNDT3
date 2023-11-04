@@ -1,9 +1,9 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
-    import { densityAndSignalData, selectedSignalData, selectedSideData, selectedEndData, interpolationMode } from '../lib/stores'
-    import { constructDotAnnotation, constructHorizontalLineAnnotation, constructVerticalLineAnnotation } from '../lib/annotations'
-    import { ultravision } from '../lib/colorscales';
+    import { dot, horizontalLine, verticalLine } from '../lib/plotting/Annotations'
+    import { UltraVision } from '../lib/plotting/Colorscales';
+    import { interpolationMode, resultData, selectedPosEnd, selectedPosSide, selectedPosSignal } from '../lib/data/Stores';
 
     export let rectification
 
@@ -29,61 +29,29 @@
         dragmode: 'pan'
     }
 
-    function constructSideData(data, yp, points) {
-        let ret = []
-
-        data.forEach(element => {
-            if (element.y == yp) {
-                for(let i = 0; i < points; i++) {
-                    ret.push({x: element.x, y: i, z: element.r[i].y})
-                }
-            }
-        });
-
-        return ret
-    }
-
-    function constructEndData(data, xp, points) {
-        let ret = []
-
-        data.forEach(element => {
-            if (element.x == xp) {
-                for(let i = 0; i < points; i++) {
-                    ret.push({x: element.y, y: i, z: element.r[i].y})
-                }
-            }
-        });
-
-        return ret
-    }
-
-    densityAndSignalData.subscribe(async (v) => {
+    resultData.subscribe(async (v) => {
         await setTimeout(() => {}, 100)
+
+        if (v === undefined) return
 
         if (div == undefined) {
             return
         }
 
-        let midPointX = Math.floor(((v.columns-1) * v.xi) / 2) + v.xs
-        let midPointY = Math.floor(((v.rows-1) * v.yi) / 2) + v.ys
+        let midPointX = Math.floor(((v.columns-1) * v.increment.x) / 2) + v.start.x
+        let midPointY = Math.floor(((v.rows-1) * v.increment.y) / 2) + v.start.y
 
         layout.annotations = [
-            constructDotAnnotation(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', -v.yi * 10),
-            constructVerticalLineAnnotation(midPointX, 'D'),
-            constructHorizontalLineAnnotation(midPointY, 'B')
+            dot(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', -v.increment.y * 10),
+            verticalLine(midPointX, 'D'),
+            horizontalLine(midPointY, 'B')
         ]
 
-        v.data.find((coordData) => {
-            if (coordData.x == midPointX && coordData.y == midPointY) {
-                selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
-                selectedEndData.set({
-                    data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints),
-                    amplitude: v.amplitudeMax
-                })
-                selectedSideData.set({
-                    data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints),
-                    amplitude: v.amplitudeMax
-                })
+        v.data.find((cd) => {
+            if (cd.x == midPointX && cd.y == midPointY) {
+                selectedPosSignal.set({x: cd.x, y: cd.y})
+                selectedPosEnd.set(cd.x)
+                selectedPosSide.set(cd.y)
             }
         })
 
@@ -94,7 +62,7 @@
                 z: v.data.map(x => x.z),
                 zsmooth: smoothing,
                 type: 'heatmap',
-                colorscale: ultravision
+                colorscale: UltraVision
             }
         ]
 
@@ -102,34 +70,24 @@
 
         div.on('plotly_click', function(d) {
             for(var i=0; i < d.points.length; i++){
-                v.data.find((coordData) => {
+                v.data.find((cd) => {
                     // Only update if the coordinate has data in it
-                    if (coordData.x == d.points[i].x && coordData.y == d.points[i].y) {
+                    if (cd.x === d.points[i].x && cd.y === d.points[i].y) {
                         // Update annotations according to chosen mode
                         if (mode == "A") {
-                            layout.annotations[0] = constructDotAnnotation(
-                                coordData.x, 
-                                coordData.y, 
-                                'A [' + coordData.x + ', ' + coordData.y + ']',
-                                -v.yi * 10
+                            layout.annotations[0] = dot(
+                                cd.x, 
+                                cd.y, 
+                                'A [' + cd.x + ', ' + cd.y + ']',
+                                -v.increment.y * 10
                             )
-                            
-                            // Set A-scan
-                            selectedSignalData.set({data: coordData.r, amplitude: v.amplitudeMax})
+                            selectedPosSignal.set({x: cd.x, y: cd.y})
                         } else if (mode == "D") {
-                            layout.annotations[1] = constructVerticalLineAnnotation(coordData.x, 'D')
-
-                            selectedEndData.set({
-                                data: constructEndData(v.data, coordData.x, v.numberOfSignalPoints),
-                                amplitude: v.amplitudeMax
-                            })
+                            layout.annotations[1] = verticalLine(cd.x, 'D')
+                            selectedPosEnd.set(cd.x)
                         } else if (mode == "B") {
-                            layout.annotations[2] = constructHorizontalLineAnnotation(coordData.y, 'B')
-
-                            selectedSideData.set({
-                                data: constructSideData(v.data, coordData.y, v.numberOfSignalPoints),
-                                amplitude: v.amplitudeMax
-                            })
+                            layout.annotations[2] = horizontalLine(cd.y, 'B')
+                            selectedPosSide.set(cd.y)
                         }
 
                         Plotly.relayout(div, layout)
@@ -140,8 +98,9 @@
     })
 
     interpolationMode.subscribe(v => {
+        if (v === undefined) return
         smoothing = v[0]
-        densityAndSignalData.update(n => n)
+        resultData.update(n => n)
     })
 </script>
 

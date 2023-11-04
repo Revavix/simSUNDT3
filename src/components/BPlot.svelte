@@ -1,56 +1,118 @@
-<script>
+<script lang="ts">
     import Plotly from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
-    import { selectedSideData } from "../lib/stores";
     import { rectifyXYZ } from '../lib/utils';
-    import { ultravision } from '../lib/colorscales';
+    import { UltraVision } from '../lib/plotting/Colorscales';
+    import { CalculationMode, DistanceMode } from '../lib/models/SoundYAxisMode';
+    import { onMount } from 'svelte';
+    import { bLayout } from '../lib/plotting/Layouts';
+    import { resultData, selectedPosSide } from '../lib/data/Stores';
 
     export let rectification
+    
+    let calculationMode = CalculationMode.Time
+    let distanceMode = DistanceMode.Compressional
+    let smoothing: boolean = false
+    let amplitude: number = 0
+    let compressionalWaveSpeed: number = 0
+    let shearWaveSpeed: number = 0
+    let samples: number = 0
+    let ts: number = 0
+    let te: number = 10
+    let lastPos: number = undefined
 
-    let smoothing = false
+    // Side data, constructed from Density and Signal data and coordinates updated from
+    // C scan selection
+    let sideData: Array<any> = []
+
+    // Density and Signal data set from resultData
+    let data: Array<any> = []
+
+    // Bound variables
     let plot
     let div
-
-    let layout = {
-        paper_bgcolor: 'rgba(0, 0, 0, 0)',
-        plot_bgcolor: 'rgba(0, 0, 0, 0)',
-        margin: {
-            t: 20,
-            l: 40,
-            r: 20,
-            b: 40
-        },
-        shapes: [],
-        annotations: []
-    }
+    
     let cfg = {
         responsive: true,
         displayModeBar: false,
         dragmode: 'pan'
     }
 
-    selectedSideData.subscribe(v => {
+    function constructSideData(y) {
+        sideData = []
+
+        const increment = ((te - ts) / samples)
+        const multiplier = calculationMode === CalculationMode.Distance ? 
+            (distanceMode === DistanceMode.Compressional ? 
+            compressionalWaveSpeed * Math.pow(10, 3) : shearWaveSpeed * Math.pow(10, 3)) 
+            : 1.0
+
+        data.forEach(element => {
+            if (element.y == y) {
+                for(let i = 0; i < samples; i++) {
+                    sideData.push({x: element.x, y: increment * i * multiplier, z: element.r[i].y})
+                }
+            }
+        });
+    }
+
+    function updatePlot() {
+        if (sideData.length === 0) {
+            return
+        }
+
+        let rectifiedData = rectifyXYZ(sideData, amplitude, rectification)
+
+        let data = [
+            {
+                x: sideData.map(d => d.x),
+                y: sideData.map(d => d.y),
+                z: rectifiedData.map(d => d.z),
+                zsmooth: smoothing,
+                type: 'heatmap',
+                colorscale: UltraVision
+            }
+        ]
+
+        bLayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'm'
+
+        plot = Plotly.react(div, data, bLayout, cfg)
+    }
+
+    function refreshData(pos) {
         if (div == undefined) {
             return
         }
 
-        let rectifiedData = rectifyXYZ(v.data, v.amplitude, rectification)
+        constructSideData(pos)
+        updatePlot()
 
-        let data = [
-            {
-                x: rectifiedData.map(d => d.x),
-                y: rectifiedData.map(d => d.y),
-                z: rectifiedData.map(d => d.z),
-                zsmooth: smoothing,
-                type: 'heatmap',
-                colorscale: ultravision
-            }
-        ]
+        lastPos = pos
+    }
 
-        plot = Plotly.react(div, data, layout, cfg)
+    onMount(() => {
+        refreshData(lastPos)
     })
 
-    $: rectification, selectedSideData.update(n => n)
+    resultData.subscribe(v => {
+        if (v === undefined) return
+
+        data = v.data
+        amplitude = v.amplitude
+        compressionalWaveSpeed = v.wavespeeds.compressional
+        shearWaveSpeed = v.wavespeeds.shear
+        samples = v.samples
+        ts = v.timegate.start
+        te = v.timegate.end
+    })
+
+    selectedPosSide.subscribe(v => {
+        if (v === undefined) return
+        lastPos = v
+    })
+
+    $: rectification, updatePlot()
+    $: calculationMode || distanceMode, refreshData(lastPos)
 </script>
 
 <div class="flex flex-row">
@@ -58,7 +120,7 @@
         <p class="pt-1 px-2" style="color:#4d4d4d">Side View (B)</p>
     </div>
     <div class="flex flex-col ml-auto mr-2">
-        <PlotModebar bind:plot={plot}/>
+        <PlotModebar bind:plot={plot} bind:calculationMode={calculationMode} bind:distanceMode={distanceMode}/>
     </div>
 </div>
 <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">

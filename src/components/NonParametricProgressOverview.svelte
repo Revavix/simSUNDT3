@@ -1,11 +1,13 @@
 <script>
-    import { utDefProgress } from '../lib/stores';
+    import { kernelProgress } from '../lib/data/Stores';
     import Button from './Button.svelte';
 
     let progress = 0
     let minimized = false
 
-    utDefProgress.subscribe(v => {
+    kernelProgress.subscribe(v => {
+        if (v === undefined) return
+
         try {
             progress = v[0].progress;
         } catch (e) {

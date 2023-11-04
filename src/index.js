@@ -44,7 +44,8 @@ function createWindowAndIPC () {
             contextIsolation: true
         },
         titleBarStyle: 'hidden',
-        useContentSize: true
+        useContentSize: true,
+        icon: "src/assets/simsundt.png"
     })
 
     if (process.env.NODE_ENV !== 'development') {

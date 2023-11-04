@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { densityAndSignalData, interpolationMode } from '../lib/stores'
     import APlot from '../components/APlot.svelte';
     import CPlot from '../components/CPlot.svelte';
     import BPlot from '../components/BPlot.svelte';
     import DPlot from '../components/DPlot.svelte';
     import { onMount } from 'svelte';
     import Spinner from '../components/Spinner.svelte';
+    import { interpolationMode, resultData } from '../lib/data/Stores';
     
     export let projectHandler
-    export let utDefResultParser
+    export let kernelResultParser
 
     let interpolationOn = false
     let interpolationLevel = 1
@@ -39,16 +39,14 @@
         status = "Loading"
 
         const folder = projectHandler.currentProject.data.postprocessor[selectedTest].runs[selectedTestSubIndex].path
-        const extractedData = await utDefResultParser.Extract(folder)
+        const extractedData = await kernelResultParser.Extract(folder)
 
-        console.log(folder)
-
-        utDefResultParser.Parse(extractedData).then(v => {
+        kernelResultParser.Parse(extractedData).then(v => {
             if (Object.keys(v).length != 0) {
-                densityAndSignalData.set(v)
+                resultData.set(v)
                 status = "Ok"
             } else {
-                densityAndSignalData.update(n => n)
+                resultData.update(n => n)
                 status = "Invalid"
             }
         })
@@ -97,7 +95,7 @@
                     Fast
                 </div>
                 <div class="flex flex-col w-10/12 pb-auto">
-                    <input name="interpSlider" type="range" bind:value={interpolationLevel} min="1" max="2" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" on:change={changeInterpolation}>
+                    <input name="interpSlider" type="range" bind:value={interpolationLevel} min="1" max="2" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-amber-500" on:change={changeInterpolation}>
                 </div>
                 <div class="flex flex-col w-1/12 mx-1" style="font-size:10px; color:#4d4d4d;">
                     Best
@@ -140,7 +138,7 @@
             <CPlot bind:rectification={rectification}/>
             {/if}
         </div>
-        <div class="rounded-md bg-stone-300" style="z-index: 99;">
+        <div class="rounded-md bg-stone-300 px-2" style="z-index: 99;">
             {#if status == "Loading"}
             <Spinner/>
             {:else if status == "Invalid"}
@@ -153,7 +151,7 @@
             <APlot bind:rectification={rectification}/>
             {/if}
         </div>
-        <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99; max-height: calc(50vh - 101px);">
+        <div class="rounded-md bg-stone-300 flex-col px-2" style="z-index: 99; max-height: calc(50vh - 101px);">
             {#if status == "Loading"}
             <Spinner/>
             {:else if status == "Invalid"}
@@ -166,7 +164,7 @@
             <BPlot bind:rectification={rectification}/>
             {/if}
         </div>
-        <div class="rounded-md bg-stone-300" style="z-index: 99;">
+        <div class="rounded-md bg-stone-300 px-2" style="z-index: 99;">
             {#if status == "Loading"}
             <Spinner/>
             {:else if status == "Invalid"}
