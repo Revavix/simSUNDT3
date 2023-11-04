@@ -4,7 +4,6 @@
     import { dot, horizontalLine, verticalLine } from '../lib/plotting/Annotations'
     import { UltraVision } from '../lib/plotting/Colorscales';
     import { interpolationMode, resultData, selectedPosEnd, selectedPosSide, selectedPosSignal } from '../lib/data/Stores';
-    import Tooltip from './Tooltip.svelte';
 
     export let rectification
 
