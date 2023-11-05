@@ -41,10 +41,15 @@
       "publish": []
     },
     "win": {
+      "icon": "./src/assets/simsundt.ico",
       "publish": []
     },
     "files": [
       "src/**/*"
+    ],
+    "extraFiles": [
+      "bin/**",
+      "articles/**"
     ]
   },
   "dependencies": {
