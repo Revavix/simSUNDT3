@@ -5,7 +5,7 @@
   "description": "SimSUNDT3 is a ultrasonic defect detection simulation tool",
   "private": true,
   "version": "0.1.0",
-  "main": "index.cjs",
+  "main": "src/index.cjs",
   "scripts": {
     "dev": "concurrently 'npm run web:watch' 'sleep 1 && npm run electron:start'",
     "web:watch": "vite",
