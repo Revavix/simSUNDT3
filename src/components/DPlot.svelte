@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Plotly from 'plotly.js-dist-min'
+    import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
     import { rectifyXYZ } from '../lib/utils';
     import { UltraVision } from '../lib/plotting/Colorscales';
@@ -8,18 +8,17 @@
     import { dLayout } from '../lib/plotting/Layouts';
     import { resultData, selectedPosEnd } from '../lib/data/Stores';
 
-    export let rectification
+    export let rectification: any
 
     let calculationMode = CalculationMode.Time
     let distanceMode = DistanceMode.Compressional
-    let smoothing: boolean = false
     let amplitude: number = 0
     let compressionalWaveSpeed: number = 0
     let shearWaveSpeed: number = 0
     let samples: number = 0
     let ts: number = 0
     let te: number = 10
-    let lastPos: number = undefined
+    let lastPos: number | undefined = undefined
 
     // End data, constructed from Density and Signal data and coordinates updated from
     // C scan selection
@@ -29,8 +28,8 @@
     let data: Array<any> = []
 
     // Bound variables
-    let plot
-    let div
+    let plot: any
+    let div: any
 
     
     let cfg = {
@@ -39,7 +38,7 @@
         dragmode: 'pan'
     }
 
-    function constructEndData(x) {
+    function constructEndData(x: number) {
         endData = []
 
         const increment = ((te - ts) / samples)
@@ -64,12 +63,12 @@
 
         let rectifiedData = rectifyXYZ(endData, amplitude, rectification)
 
-        let data = [
+        let data: Data[] = [
             {
                 x: endData.map(d => d.x),
                 y: endData.map(d => d.y),
                 z: rectifiedData.map(d => d.z),
-                zsmooth: smoothing,
+                zsmooth: false,
                 type: 'heatmap',
                 colorscale: UltraVision
             }
@@ -79,7 +78,7 @@
         plot = Plotly.react(div, data, dLayout, cfg)
     }
 
-    function refreshData(pos) {
+    function refreshData(pos: any) {
         if (div == undefined) {
             return
         }

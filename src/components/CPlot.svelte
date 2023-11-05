@@ -1,18 +1,19 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
-    import PlotModebar from "./PlotModebar.svelte";
+    import type { Data, Layout } from "plotly.js-dist-min"
+    import PlotModebar from "./PlotModebar.svelte"
     import { dot, horizontalLine, verticalLine } from '../lib/plotting/Annotations'
     import { UltraVision } from '../lib/plotting/Colorscales';
     import { interpolationMode, resultData, selectedPosEnd, selectedPosSide, selectedPosSignal } from '../lib/data/Stores';
 
-    export let rectification
+    export let rectification: any
 
     let mode = "A"
-    let smoothing = false
+    let smoothing: false | "fast" | "best" | undefined = false
     let calibration: number = 0
-    let plot
-    let div
-    let layout = {
+    let plot: any
+    let div: any
+    let layout: any = {
         paper_bgcolor: 'rgba(0, 0, 0, 0)',
         plot_bgcolor: 'rgba(0, 0, 0, 0)',
         margin: {
@@ -58,7 +59,7 @@
             }
         })
 
-        let data = [
+        let data: Data[] = [
             {
                 x: v.data.map(x => x.x),
                 y: v.data.map(x => x.y),
@@ -71,7 +72,7 @@
 
         plot = Plotly.newPlot(div, data, layout, cfg)
 
-        div.on('plotly_click', function(d) {
+        div.on('plotly_click', function(d: any) {
             for(var i=0; i < d.points.length; i++){
                 v.data.find((cd) => {
                     // Only update if the coordinate has data in it

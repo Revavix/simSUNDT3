@@ -16,6 +16,7 @@ export interface IElectronAPI {
     openFileModal: (defaultPath, filters) => Promise<string>,
     openSaveModal: (defaultPath, filters) => Promise<object>,
     inspect: (filePath) => Promise<void>,
+    readdir: (path) => string[],
     utDefMpInit: (numberOfProcesses: number) => Promise<void>,
     utDefMpStart: (executablePath: string) => Promise<string>,
     utDefMpStop: (processId: string) => Promise<void>,
@@ -37,3 +38,5 @@ declare global {
         electronAPI: IElectronAPI
     }
 }
+
+export declare module 'plotly.js-dist'

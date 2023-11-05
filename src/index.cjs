@@ -5,7 +5,8 @@ const os = require('os')
 const fs = require('fs')
 const fsPromises = require('fs/promises')
 const { spawn } = require('child_process')
-const { GenericIpc, UTDefectIpc, UTDefectMultiprocessesIpc, WindowIpc } = require('./ipc')
+const shell = require('electron').shell;
+const { GenericIpc, UTDefectIpc, UTDefectMultiprocessesIpc, WindowIpc } = require('./ipc.cjs')
 
 function updateProjectCache(project, path) {
   let data = {}
@@ -40,13 +41,19 @@ function createWindowAndIPC () {
         height: 900,
         webPreferences: {
             nodeIntegration: false,
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join(__dirname, 'preload.cjs'),
             contextIsolation: true
         },
         titleBarStyle: 'hidden',
         useContentSize: true,
         icon: "src/assets/simsundt.png"
     })
+
+    win.webContents.setWindowOpenHandler(({ url }) => {
+      // open url in a browser and prevent default
+      shell.openExternal(url);
+      return { action: 'deny' };
+  });
 
     if (process.env.NODE_ENV !== 'development') {
             win.loadFile(path.join(__dirname, 'dist/index.html'))

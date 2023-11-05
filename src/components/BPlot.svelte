@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Plotly from 'plotly.js-dist-min'
+    import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
     import { rectifyXYZ } from '../lib/utils';
     import { UltraVision } from '../lib/plotting/Colorscales';
@@ -8,18 +8,17 @@
     import { bLayout } from '../lib/plotting/Layouts';
     import { resultData, selectedPosSide } from '../lib/data/Stores';
 
-    export let rectification
+    export let rectification: any
     
     let calculationMode = CalculationMode.Time
     let distanceMode = DistanceMode.Compressional
-    let smoothing: boolean = false
     let amplitude: number = 0
     let compressionalWaveSpeed: number = 0
     let shearWaveSpeed: number = 0
     let samples: number = 0
     let ts: number = 0
     let te: number = 10
-    let lastPos: number = undefined
+    let lastPos: number | undefined = undefined
 
     // Side data, constructed from Density and Signal data and coordinates updated from
     // C scan selection
@@ -29,8 +28,8 @@
     let data: Array<any> = []
 
     // Bound variables
-    let plot
-    let div
+    let plot: any
+    let div: any
     
     let cfg = {
         responsive: true,
@@ -38,7 +37,7 @@
         dragmode: 'pan'
     }
 
-    function constructSideData(y) {
+    function constructSideData(y: number) {
         sideData = []
 
         const increment = ((te - ts) / samples)
@@ -63,12 +62,12 @@
 
         let rectifiedData = rectifyXYZ(sideData, amplitude, rectification)
 
-        let data = [
+        let data: Data[] = [
             {
                 x: sideData.map(d => d.x),
                 y: sideData.map(d => d.y),
                 z: rectifiedData.map(d => d.z),
-                zsmooth: smoothing,
+                zsmooth: false,
                 type: 'heatmap',
                 colorscale: UltraVision
             }
@@ -79,7 +78,7 @@
         plot = Plotly.react(div, data, bLayout, cfg)
     }
 
-    function refreshData(pos) {
+    function refreshData(pos: any) {
         if (div == undefined) {
             return
         }

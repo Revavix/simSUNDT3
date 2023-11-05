@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Plotly from 'plotly.js-dist-min'
+    import Plotly, { type Datum } from 'plotly.js-dist-min'
     import Button from '../components/Button.svelte'
     import { CalculationMode, DistanceMode } from '../lib/models/SoundYAxisMode'
     import CompressionalWave from './icons/CompressionalWave.svelte';
@@ -7,14 +7,14 @@
     import Tooltip from './Tooltip.svelte';
     import type { ResultInfo } from '../lib/models/Result';
     
-    export let calculationMode: CalculationMode = undefined
-    export let distanceMode: DistanceMode = undefined
+    export let calculationMode: CalculationMode | undefined = undefined
+    export let distanceMode: DistanceMode | undefined = undefined
     export let plot: Promise<object>
     export let info: ResultInfo | null = null
 
-    let plotDiv
-    let originalXRange = [0, 0]
-    let originalYRange = [0, 0]
+    let plotDiv: any
+    let originalXRange: [Datum, Datum] = [0, 0]
+    let originalYRange: [Datum, Datum] = [0, 0]
     
     let panModeButton = {
         label: "",
@@ -93,17 +93,15 @@
 
     async function update() {
         if (plot != undefined) {
-            plot.then((v) => {
+            plot.then((v: any) => {
                 plotDiv = v
-                // @ts-ignore
                 originalXRange = v.layout.xaxis.range
-                // @ts-ignore
                 originalYRange = v.layout.yaxis.range
             })
         }
     }
 
-    function zoom(mag) {
+    function zoom(mag: number) {
         let r0 = (1 + mag) / 2;
         let r1 = (1 - mag) / 2;
 
@@ -120,12 +118,12 @@
             axy.r2l(plotDiv.layout.yaxis.range[1])
         ]
 
-        let xNew = [
+        let xNew: [Datum, Datum] = [
             axx.l2r(r0 * xRangeNow[0] + r1 * xRangeNow[1]),
             axx.l2r(r0 * xRangeNow[1] + r1 * xRangeNow[0]),
         ]
 
-        let yNew = [
+        let yNew: [Datum, Datum] = [
             axy.l2r(r0 * yRangeNow[0] + r1 * yRangeNow[1]),
             axy.l2r(r0 * yRangeNow[1] + r1 * yRangeNow[0]),
         ]

@@ -12,11 +12,12 @@
     import Alert from "./components/Alert.svelte";
     import { KernelRunner as UTDefectV3Runner } from "./lib/kernel/utdefect/v6/KernelRunner";
     import SimsundtIcon from "./components/icons/SimsundtIcon.svelte";
+    import { Canvas } from "@threlte/core";
     
     let tabs = ["File", "Preprocessor", "Results", "Help"]
     let activeTab = "File"
     let unsaved = true
-    let activeAlerts = []
+    let activeAlerts: any[] = []
 
     let projectHandler = new ProjectHandler()
     let kernelRunner = new UTDefectV3Runner(4)
@@ -42,7 +43,6 @@
     })
 
     const minimizeButton = {
-        label: "",
         color: "#d6d3d1",
         icon: "minimize",
         action: () => { window.electronAPI.minimize() },
@@ -50,7 +50,6 @@
     }
 
     const maximizeButton = {
-        label: "",
         color: "#d6d3d1",
         icon: "crop_square",
         action: async () => { 
@@ -61,7 +60,6 @@
     }
 
     const unmaximizeButton = {
-        label: "",
         color: "#d6d3d1",
         icon: "close_fullscreen",
         action: async () => { 
@@ -72,7 +70,6 @@
     }
 
     const closeButton = {
-        label: "",
         color: "#d6d3d1",
         icon: "close",
         action: () => { window.electronAPI.close() },
@@ -89,7 +86,7 @@
         <p>SimSUNDT [{version}] - {projectHandler.currentProject.name} {unsaved == false ? '' : '(Unsaved)'}</p>
     </div>
     {:else if platform == 'win32'}
-    <div class="flex flex-row">
+    <div class="flex flex-row" style="z-index: 99;">
         <div class="flex flex-row mr-auto mt-2 text-xs items-center">
             <!-- Image -->
             <div class="flex flex-col w-4 mr-1">
@@ -103,12 +100,12 @@
         <div class="flex flex-row mt-2 text-xs">{projectHandler.currentProject.name}</div>
         <div class="flex flex-row ml-auto -mr-3" style="z-index: 99">
             <!-- Minimize -->
-            <div class="flex flex-col px-1 rounded-b hover:bg-stone-400">
+            <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">
                 <Button data={minimizeButton}></Button>
             </div>
             <!-- Maximize -->
             {#if !maximized}
-            <div class="flex flex-col px-1 rounded-b hover:bg-stone-400">
+            <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">
                 <Button data={maximizeButton}></Button>
             </div>
             {:else}
@@ -146,7 +143,9 @@
         <Help/>
     {/if}
     <div class="absolute-under" class:visible={activeTab === "Preprocessor" || activeTab === "Results"} class:invisible={activeTab === "File" || activeTab === "Help"}>
-        <Viewport/>
+        <Canvas>
+            <Viewport/>
+        </Canvas>
     </div>
 
     <!-- Alert -->
@@ -180,6 +179,7 @@
         width: calc(100% - 32px);
         margin-right: 16px;
         margin-left: 16px;
+        height: 100%;
     }
     .draggable
     {

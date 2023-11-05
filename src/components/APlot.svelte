@@ -1,11 +1,11 @@
 <script lang="ts">
-    import Plotly from 'plotly.js-dist-min'
+    import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
     import { rectifyXY } from '../lib/utils';
     import { resultData, selectedPosSignal } from '../lib/data/Stores';
     
 
-    export let rectification
+    export let rectification: any
 
     let amplitude: number = 0
     let compressionalWaveSpeed: number = 0
@@ -17,8 +17,8 @@
     // Signal data
     let signalData: Array<any> = []
 
-    let plot
-    let div
+    let plot: any
+    let div: any
     let layout = {
         paper_bgcolor: 'rgba(0, 0, 0, 0)',
         plot_bgcolor: 'rgba(0, 0, 0, 0)',
@@ -35,7 +35,7 @@
         dragmode: 'pan'
     }
 
-    function constructSignalData(x, y) {
+    function constructSignalData(x: number, y: number) {
         signalData = []
         
         data.find((cd) => {
@@ -54,7 +54,7 @@
 
         let rd = rectifyXY(signalData, amplitude, rectification)
         
-        let plotData = [
+        let plotData: Data[] = [
             {
                 x: rd.map(x => x.x),
                 y: rd.map(x => x.y),

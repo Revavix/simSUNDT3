@@ -167,6 +167,10 @@ class GenericIpc {
         ipcMain.handle('inspect', async(ev, filePath) => {
             spawn("notepad", [filePath])
         })
+
+        ipcMain.handle('readdir', (ev, path) => {
+            return fs.readdirSync(path)
+        })
     }
 }
 

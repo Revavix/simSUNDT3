@@ -16,8 +16,9 @@
     "isolatedModules": true,
     "types":[
       "svelte"
-    ]
+    ],
+    "moduleResolution": "Bundler"
   },
-  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src/index.cjs", "src/ipc.cjs", "src/preload.cjs"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
