@@ -1,12 +1,12 @@
 <script lang="ts">
-    import Plotly from 'plotly.js-dist-min'
+    import Plotly, { type Data } from 'plotly.js-dist-min'
     import { onMount } from 'svelte';
 
     // Format [[x, y], [x, y]]
-    export let rawData = []
-    export let plot
+    export let rawData: Array<any> = []
+    export let plot: any
 
-    let plotDiv
+    let plotDiv: any
     let layout = {
         paper_bgcolor: 'rgba(0, 0, 0, 0)',
         plot_bgcolor: 'rgba(0, 0, 0, 0)',
@@ -24,7 +24,7 @@
     }
 
     onMount(() => {
-        let data = [
+        let data: Data[] = [
             {
                 x: rawData.map(x => x[0]),
                 y: rawData.map(x => x[1]),

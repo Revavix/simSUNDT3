@@ -1,7 +1,7 @@
-<script>
-    export let text
-    export let color
-    export let icon
+<script lang="ts">
+    export let text: string
+    export let color: string
+    export let icon: string
 </script>
 
 <div class="flex flex-col">

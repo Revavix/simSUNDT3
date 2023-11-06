@@ -7,13 +7,13 @@
     import Spinner from '../components/Spinner.svelte';
     import { interpolationMode, resultData } from '../lib/data/Stores';
     
-    export let projectHandler
-    export let kernelResultParser
+    export let projectHandler: any
+    export let kernelResultParser: any
 
     let interpolationOn = false
     let interpolationLevel = 1
     let status = "Invalid"
-    let rectification
+    let rectification: any
     let selectedTest = 0
     let selectedTestSubIndex = 0
 

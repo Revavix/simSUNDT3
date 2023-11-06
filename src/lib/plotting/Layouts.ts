@@ -1,4 +1,6 @@
-export const bLayout = {
+import type { Layout } from "plotly.js-dist-min"
+
+export const bLayout: any = {
     paper_bgcolor: 'rgba(0, 0, 0, 0)',
     plot_bgcolor: 'rgba(0, 0, 0, 0)',
     margin: {
@@ -16,7 +18,7 @@ export const bLayout = {
     }
 }
 
-export const dLayout = {
+export const dLayout: any = {
     paper_bgcolor: 'rgba(0, 0, 0, 0)',
     plot_bgcolor: 'rgba(0, 0, 0, 0)',
     margin: {

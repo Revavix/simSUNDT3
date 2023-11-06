@@ -16,13 +16,13 @@
 
 
     export let unsaved
-    export let kernelRunner
-    export let projectHandler
+    export let kernelRunner: any
+    export let projectHandler: any
 
     let kernelInitializer: Initializer = new KernelInitializerV6()
     let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
 
-    let mainLogContents = []
+    let mainLogContents: any[] = []
     let parametricEnabled = false
     let treeMinimized = false
     let showConfigureModal = false
@@ -78,7 +78,7 @@
             kernelInitializer.runner.processes = projectHandler.currentProject.data.preprocessor.misc.parametric.numProcesses
             kernelInitializer.saver = saver
             kernelInitializer.Execute(name, data).then(v => {
-                let groupedResult = {
+                let groupedResult: any = {
                     name: name,
                     date: v.date,
                     time: v.time,
@@ -94,7 +94,7 @@
 
                 projectHandler.currentProject.data.postprocessor.push(groupedResult)
 
-                projectHandler.Save().then((v) => {
+                projectHandler.Save().then((v: any) => {
                     if (v.status === "OK")  {
                         loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully & project auto-saved\
                         post run completion.")
@@ -174,7 +174,7 @@
         defaultPath = await window.electronAPI.getDefaultBinaryPath()
     }
 
-    function handleTreeMessage(ev) {
+    function handleTreeMessage(ev: any) {
         if (ev.detail.type == "Save") {
             unsaved = true
         }
@@ -296,6 +296,9 @@
                             <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Kernel version</label>
                             <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectHandler.currentProject.data.preprocessor.misc.binaryPath} >
                                 <option value="bin/UTDef6.exe">UTDefect - Version 6</option>
+                                <!-- To be added
+                                <option value="bin/UTDefectLightNoDLL.exe">UTDefect - Light</option>
+                                -->
                             </select>
                         </div>
                     </div>

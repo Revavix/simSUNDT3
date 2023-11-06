@@ -1,4 +1,4 @@
-export const UltraVision: Array<Array<string>> = [
+export const UltraVision: any = [
     ['0.0', 'rgb(141,12,29)'],
     ['0.166666666667', 'rgb(206,117,56)'],
     ['0.333333333333', 'rgb(250,238,24)'],

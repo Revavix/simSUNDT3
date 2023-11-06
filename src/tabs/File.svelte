@@ -4,10 +4,10 @@
     import { cache } from '../lib/data/Stores';
     import { fetchCache } from '../lib/utils';
 
-    export let projectHandler
+    export let projectHandler: any
     export let currentTab
     export let unsaved
-    export let activeAlerts
+    export let activeAlerts: any
 
     onMount(async () => {
         // Get project list from cache
@@ -16,9 +16,9 @@
         await fetchCache()
     })
 
-    let projects = []
+    let projects: any[] = []
 
-    async function addNewAlert(text, color, icon, timeout) {
+    async function addNewAlert(text: any, color: any, icon: any, timeout: any) {
         activeAlerts.push({t: text, c: color, i: icon})
 
         setTimeout(() => {
@@ -48,7 +48,7 @@
         alert("Not implemented yet")
     }
 
-    async function requestLoadByName(project) {
+    async function requestLoadByName(project: any) {
         const loaded = await projectHandler.Load(project.path)
 
         if (loaded.status == "OK") {
@@ -100,7 +100,7 @@
     async function requestSaveAsModal() {
         console.log(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name + ".ssproj")
 
-        const saveResult = await window.electronAPI.openSaveModal(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name, [
+        const saveResult: any = await window.electronAPI.openSaveModal(projectHandler.projectHomeDir + "/" + projectHandler.currentProject.name, [
             {
                 name: "Project",
                 extensions: ["ssproj"]

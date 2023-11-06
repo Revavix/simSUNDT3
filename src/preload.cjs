@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openFileModal: (defaultPath, filters) => ipcRenderer.invoke('open-file-modal', defaultPath, filters),
     openSaveModal: (defaultPath, filters) => ipcRenderer.invoke('open-save-modal', defaultPath, filters),
     inspect: (filePath) => ipcRenderer.invoke('inspect', filePath),
+    readdir: (path) => ipcRenderer.invoke('readdir', path),
     utDefMpInit: (numberOfProcesses) => ipcRenderer.invoke('utdef-mp-init', numberOfProcesses),
     utDefMpStart: (executablePath) => ipcRenderer.invoke('utdef-mp-start', executablePath),
     utDefMpStop: (processId) => ipcRenderer.invoke('utdef-mp-stop', processId),

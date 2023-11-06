@@ -1,9 +1,9 @@
 <script lang="ts">
     export let label: string = "This is a tooltip (use 'label' to replace this)"
     export let disabled: boolean = false
-    let visible
+    let visible: boolean
     let parent: HTMLDivElement
-    let width
+    let width: number
 </script>
 
 <div class="flex flex-col w-full items-center" on:pointerenter={() => visible = true} on:pointerleave={() => visible = false} bind:this={parent}>
