@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
     import Modal from '../components/Modal.svelte';
     import { ArticleType, type Article } from '../lib/models/Article';
+    import { BaseDirectory, readDir, readTextFile } from '@tauri-apps/api/fs';
 
     let selectedTab: number = 0
     let articles: Article[] = []
@@ -11,15 +12,17 @@
     let openArticleContent: string = ""
 
     onMount(async () => {
-        let guides = await window.electronAPI.readdir("./articles/guides")
-        let troubleshooting = await window.electronAPI.readdir("./articles/troubleshooting")
+        let guides = await readDir("resources/articles/guides", { dir: BaseDirectory.Resource })
+        let troubleshooting = await readDir("resources/articles/troubleshooting", { dir: BaseDirectory.Resource })
 
         guides.forEach(element => {
-            articles.push({name: element.split(".")[0], type: ArticleType.GUIDE})
+            let name = element.name !== undefined ? element.name : "Unknown"
+            articles.push({name: name.split(".")[0], type: ArticleType.GUIDE})
         });
 
         troubleshooting.forEach(element => {
-            articles.push({name: element.split(".")[0], type: ArticleType.TROUBLESHOOT})
+            let name = element.name !== undefined ? element.name : "Unknown"
+            articles.push({name: name.split(".")[0], type: ArticleType.TROUBLESHOOT})
         });
 
         articles = articles
@@ -29,7 +32,7 @@
         isArticleModalOpen = true
         openArticleName = article.name + " - " + article.type
         
-        window.electronAPI.readFile("./articles/guides/" + article.name + ".md").then((v) => {
+        readTextFile("resources/articles/guides/" + article.name + ".md", { dir: BaseDirectory.Resource }).then((v) => {
             openArticleContent = v
         })
     }

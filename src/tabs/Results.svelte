@@ -6,8 +6,10 @@
     import { onMount } from 'svelte';
     import Spinner from '../components/Spinner.svelte';
     import { interpolationMode, resultData } from '../lib/data/Stores';
+    import { ProjectSingleton } from '../lib/data/ProjectSingleton';
+    import { Command } from '@tauri-apps/api/shell'
     
-    export let projectHandler: any
+    export let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     export let kernelResultParser: any
 
     let interpolationOn = false
@@ -32,16 +34,17 @@
     }
 
     async function updateGraphsWithSelected() {
-        if (projectHandler.currentProject.data.postprocessor.length == 0) {
+        if (projectSingleton.Postprocessor.length == 0) {
             return
         }
 
         status = "Loading"
 
-        const folder = projectHandler.currentProject.data.postprocessor[selectedTest].runs[selectedTestSubIndex].path
+        const folder = projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path
         const extractedData = await kernelResultParser.Extract(folder)
 
-        kernelResultParser.Parse(extractedData).then(v => {
+        kernelResultParser.Parse(extractedData).then((v: any) => {
+            console.log(v)
             if (Object.keys(v).length != 0) {
                 resultData.set(v)
                 status = "Ok"
@@ -53,8 +56,8 @@
     }
 
     const handleInspect = () => {
-        const folder = projectHandler.currentProject.data.postprocessor[selectedTest].runs[selectedTestSubIndex].path
-        window.electronAPI.inspect(folder + "/utIndefa")
+        const folder = projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path
+        new Command("notepad", folder + "/utIndefa")
     }
 </script>
 
@@ -64,15 +67,15 @@
             <div class="flex flex-row w-full items-center">
                 <div class="flex flex-col w-full">
                     <select bind:value={selectedTest} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
-                        {#each projectHandler.currentProject.data.postprocessor as data, i}
-                            <option value="{i}">{data.name} ({data.date} - {data.time})</option>
+                        {#each projectSingleton.Postprocessor as data, i}
+                            <option value="{i}">{data.name} ({data.timestamp})</option>
                         {/each}
                     </select>
                 </div>
                 <div class="flex flex-col w-4/12">
                     <select bind:value={selectedTestSubIndex} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
-                        {#if projectHandler.currentProject.data.postprocessor.length > 0}
-                            {#each projectHandler.currentProject.data.postprocessor[selectedTest].runs as data, i}
+                        {#if projectSingleton.Postprocessor.length > 0}
+                            {#each projectSingleton.Postprocessor[selectedTest].runs as data, i}
                                 <option value="{i}">{i}</option>
                             {/each}
                         {/if}

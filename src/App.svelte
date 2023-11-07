@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { ProjectHandler } from "./lib/project"
+    // Svelte Imports
+    import { ProjectSingleton } from "./lib/data/ProjectSingleton";
     import { KernelResultParser as UTDefectV3ResultParser } from "./lib/kernel/utdefect/v6/KernelResultParser";
     import { slide } from "svelte/transition";
     import File from './tabs/File.svelte'
@@ -13,39 +14,42 @@
     import { KernelRunner as UTDefectV3Runner } from "./lib/kernel/utdefect/v6/KernelRunner";
     import SimsundtIcon from "./components/icons/SimsundtIcon.svelte";
     import { Canvas } from "@threlte/core";
+
+    // Tauri Interactions
+    import { platform } from '@tauri-apps/api/os';
+    import { appWindow } from "@tauri-apps/api/window"
+    import { exists, createDir, BaseDirectory } from '@tauri-apps/api/fs';
+    import type { Runner } from "./lib/models/Kernel";
+    import type { Project } from "./lib/models/Project";
     
     let tabs = ["File", "Preprocessor", "Results", "Help"]
     let activeTab = "File"
     let unsaved = true
     let activeAlerts: any[] = []
 
-    let projectHandler = new ProjectHandler()
-    let kernelRunner = new UTDefectV3Runner(4)
-    let kernelResultParser = new UTDefectV3ResultParser()
+    let loadedProjectName: string = ""
+    let kernelRunner: Runner = new UTDefectV3Runner(4)
+    let kernelResultParser: UTDefectV3ResultParser = new UTDefectV3ResultParser()
 
-    let platform = 'darwin'
     let version = '3'
 
     let maximized = false
 
     onMount(async () => {
-        platform = await window.electronAPI.getPlatform()
-        maximized = await window.electronAPI.isMaximized()
-
         // Ensure simSUNDT folder structure is present on App startup
-        const homeDir = await window.electronAPI.getHomeDir()
-        const simSundtFolderExists = await window.electronAPI.fileExists(homeDir + "/Documents/simSUNDT/")
+        const folderExists = await exists('simSUNDT', { dir: BaseDirectory.Document })
 
-        if (!simSundtFolderExists) {
-            await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/")
-            await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/Projects")
+        console.log(folderExists)
+
+        if (!folderExists) {
+            await createDir('Projects', { dir: BaseDirectory.Document, recursive: true})
         }
     })
 
     const minimizeButton = {
         color: "#d6d3d1",
         icon: "minimize",
-        action: () => { window.electronAPI.minimize() },
+        action: () => { appWindow.minimize() },
         disabled: false
     }
 
@@ -53,8 +57,8 @@
         color: "#d6d3d1",
         icon: "crop_square",
         action: async () => { 
-            window.electronAPI.maximize() 
-            maximized = await window.electronAPI.isMaximized()
+            appWindow.maximize() 
+            maximized = await appWindow.isMaximized()
         },
         disabled: false
     }
@@ -63,8 +67,8 @@
         color: "#d6d3d1",
         icon: "close_fullscreen",
         action: async () => { 
-            window.electronAPI.unmaximize()
-            maximized = await window.electronAPI.isMaximized()
+            appWindow.unmaximize()
+            maximized = await appWindow.isMaximized()
         },
         disabled: false
     }
@@ -72,54 +76,62 @@
     const closeButton = {
         color: "#d6d3d1",
         icon: "close",
-        action: () => { window.electronAPI.close() },
+        action: () => { appWindow.close() },
         disabled: false
     }
+
+    ProjectSingleton.GetInstance().Subscribe((v) => {
+        loadedProjectName = v.name
+    })
 </script>
 
-<main class="flex flex-col main-container">
+<main class="flex flex-col main-container rounded-xl ">
     <!-- Drag bar -->
     <div class="draggable"/>
     <!-- OS specific top bar -->
-    {#if platform === 'darwin'}
-    <div class="flex flex-row text-center justify-center mt-2 text-sm">
-        <p>SimSUNDT [{version}] - {projectHandler.currentProject.name} {unsaved == false ? '' : '(Unsaved)'}</p>
-    </div>
-    {:else if platform == 'win32'}
-    <div class="flex flex-row" style="z-index: 99;">
-        <div class="flex flex-row mr-auto mt-2 text-xs items-center">
-            <!-- Image -->
-            <div class="flex flex-col w-4 mr-1">
-                <SimsundtIcon/>
+    {#await platform()}
+        App is loading
+    {:then os}
+        {#if os === 'darwin'}
+        <div class="flex flex-row text-center justify-center mt-2 text-sm">
+            <p>SimSUNDT [{version}] - {loadedProjectName} {unsaved == false ? '' : '(Unsaved)'}</p>
+        </div>
+        {:else if os === 'win32'}
+        <div data-tauri-drag-region class="flex flex-row" style="z-index: 99;">
+            <div class="flex flex-row mr-auto mt-2 text-xs items-center">
+                <!-- Image -->
+                <div class="flex flex-col w-4 mr-1">
+                    <SimsundtIcon/>
+                </div>
+                <!-- App name -->
+                <div class="flex flex-col">
+                    <p>SimSUNDT {version}</p>
+                </div>
             </div>
-            <!-- App name -->
-            <div class="flex flex-col">
-                <p>SimSUNDT {version}</p>
+            <div class="flex flex-row mt-2 text-xs">{loadedProjectName}</div>
+            <div class="flex flex-row ml-auto -mr-3" style="z-index: 99">
+                <!-- Minimize -->
+                <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">
+                    <Button data={minimizeButton}></Button>
+                </div>
+                <!-- Maximize -->
+                {#if !maximized}
+                <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">
+                    <Button data={maximizeButton}></Button>
+                </div>
+                {:else}
+                <div class="flex flex-col px-1 rounded-b hover:bg-stone-400">
+                    <Button data={unmaximizeButton}></Button>
+                </div>
+                {/if}
+                <!-- Close -->
+                <div class="flex flex-col px-1 rounded-b hover:bg-stone-400">
+                    <Button data={closeButton}></Button>
+                </div>
             </div>
         </div>
-        <div class="flex flex-row mt-2 text-xs">{projectHandler.currentProject.name}</div>
-        <div class="flex flex-row ml-auto -mr-3" style="z-index: 99">
-            <!-- Minimize -->
-            <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">
-                <Button data={minimizeButton}></Button>
-            </div>
-            <!-- Maximize -->
-            {#if !maximized}
-            <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">
-                <Button data={maximizeButton}></Button>
-            </div>
-            {:else}
-            <div class="flex flex-col px-1 rounded-b hover:bg-stone-400">
-                <Button data={unmaximizeButton}></Button>
-            </div>
-            {/if}
-            <!-- Close -->
-            <div class="flex flex-col px-1 rounded-b hover:bg-stone-400">
-                <Button data={closeButton}></Button>
-            </div>
-        </div>
-    </div>
-    {/if}
+        {/if}
+    {/await}
     <div class="flex flex-row text-sm font-medium text-center text-gray-300 mt-1" style="z-index: 99;">
         <ul class="flex flex-row">
             {#each tabs as tab}
@@ -134,11 +146,11 @@
         </ul>
     </div>
     {#if activeTab == "File"}
-        <File bind:projectHandler={projectHandler} bind:currentTab={activeTab} bind:unsaved={unsaved} bind:activeAlerts={activeAlerts}/>
+        <File bind:currentTab={activeTab} bind:unsaved={unsaved} bind:activeAlerts={activeAlerts}/>
     {:else if activeTab == "Preprocessor"}
-        <Preprocessor bind:projectHandler={projectHandler} bind:kernelRunner={kernelRunner} bind:unsaved={unsaved}/>
+        <Preprocessor bind:kernelRunner={kernelRunner} bind:unsaved={unsaved}/>
     {:else if activeTab == "Results"}
-        <Results bind:projectHandler={projectHandler} bind:kernelResultParser={kernelResultParser}/>
+        <Results bind:kernelResultParser={kernelResultParser}/>
     {:else if activeTab == "Help"}
         <Help/>
     {/if}
@@ -156,7 +168,6 @@
         </div>
         {/each}
     </div>
-
 </main>
 
 <style>

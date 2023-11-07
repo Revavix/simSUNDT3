@@ -322,6 +322,11 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
+"@tauri-apps/api@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/api/-/api-1.5.1.tgz#9074476c4323f71351db624e9711c99277cdfb99"
+  integrity sha512-6unsZDOdlXTmauU3NhWhn+Cx0rODV+rvNvTdvolE5Kls5ybA6cqndQENDt1+FS0tF7ozCP66jwWoH6a5h90BrA==
+
 "@threlte/core@^6.1.0":
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/@threlte/core/-/core-6.1.0.tgz#caa5ee55697e867f86293cdabdc4728b640ca40e"

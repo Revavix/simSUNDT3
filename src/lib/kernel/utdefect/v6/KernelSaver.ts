@@ -1,3 +1,4 @@
+import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs"
 import { Saver } from "../../../models/Kernel"
 
 export class KernelSaver extends Saver {
@@ -8,7 +9,7 @@ export class KernelSaver extends Saver {
         super()
     }
 
-    async Save(dest) {
+    async Save(dest: string): Promise<void> {
         // Check if folder exists under saves
         let pharr = [0, 0]
 
@@ -336,9 +337,15 @@ export class KernelSaver extends Saver {
             }
         }
 
-        let writeSuccessful = await window.electronAPI.writeFileByLines(dest, writeArray)
+        let output: string = ""
+
+        writeArray.forEach((v) => {
+            output += v + "\n"
+        })
+
+        await writeTextFile(dest, output, { dir: BaseDirectory.Document })
         
-        return Promise.resolve(writeSuccessful)
+        return Promise.resolve()
     }
 
     

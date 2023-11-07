@@ -1,5 +1,8 @@
+import { BaseDirectory, exists, writeFile } from "@tauri-apps/api/fs";
 import { tree, constructDefaultTreeData } from "./tree";
 import { writeCache } from "./utils";
+import { extname, homeDir } from '@tauri-apps/api/path';
+import { readTextFile } from '@tauri-apps/api/fs'
 
 export class ProjectHandler {
     projectHomeDir = ""
@@ -21,7 +24,7 @@ export class ProjectHandler {
     currentProjectPath = undefined
 
     constructor() {
-        window.electronAPI.getHomeDir().then((v) => {
+        homeDir().then((v) => {
             this.projectHomeDir = v + "/Documents/simSUNDT/Projects"
         })
 
@@ -41,7 +44,7 @@ export class ProjectHandler {
                     tree: constructDefaultTreeData({}, tree.children),
                     misc: {
                         accuracy: "3",
-                        binaryPath: "bin/UTDef6.exe",
+                        binaryPath: "resources\\bin\\UTDef6.exe",
                         cloudEndpoint: "",
                         parametric: {
                             numProcesses: 4
@@ -67,7 +70,7 @@ export class ProjectHandler {
             this.currentProject["lastSaved"] = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
             // Save the project using new date data and currently stored data
-            await window.electronAPI.writeFile(this.currentProjectPath, JSON.stringify(this.currentProject))
+            await writeFile(this.currentProjectPath, JSON.stringify(this.currentProject))
 
             // Update cache
             await writeCache(this.currentProject, this.currentProjectPath)
@@ -79,14 +82,14 @@ export class ProjectHandler {
     }
 
     async Load(path) {
-        const exists = await window.electronAPI.fileExists(path)
-        const extname = await window.electronAPI.extname(path)
-
-        if (!exists || !(extname == '.ssproj')) {
+        const exist = await exists(path)
+        const extension = await extname(path)
+        
+        if (!exist || !(extension == '.ssproj')) {
             return Promise.resolve({status: "ERROR", msg: "The path provided does not contain a project, has an invalid extension, or format", data: null})
         }
 
-        let project = JSON.parse(await window.electronAPI.readFile(path))
+        let project = JSON.parse(await readTextFile(path))
         
         this.currentProject = project
         this.currentProjectPath = path

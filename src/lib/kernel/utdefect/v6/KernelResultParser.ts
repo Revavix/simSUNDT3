@@ -1,3 +1,4 @@
+import { readBinaryFile, readTextFile } from '@tauri-apps/api/fs'
 import type { Result } from '../../../models/Result.js'
 import { byteArrayToStr, strToByteArray } from '../../../utils.js'
 
@@ -7,11 +8,11 @@ export class KernelResultParser
         
     }
 
-    async Extract(simulationResultFolder) {
+    async Extract(simulationResultFolder: string) {
         try {
-            const utindefa = await window.electronAPI.readFile(simulationResultFolder + "/utIndefa.txt")
-            const dataDensityRaw = await window.electronAPI.readFileBytes(simulationResultFolder + "/utIndefa-C.dat")
-            const dataSignalRaw = await window.electronAPI.readFileBytes(simulationResultFolder + "/utIndefa-A.dat")
+            const utindefa = await readTextFile(simulationResultFolder + "/utIndefa.txt")
+            const dataDensityRaw = await readBinaryFile(simulationResultFolder + "/utIndefa-C.dat")
+            const dataSignalRaw = await readBinaryFile(simulationResultFolder + "/utIndefa-A.dat")
 
             return Promise.resolve({
                 parameters: utindefa,
@@ -23,7 +24,7 @@ export class KernelResultParser
         }
     }
 
-    async Parse(data): Promise<Result | null> {
+    async Parse(data: any): Promise<Result | null> {
         let xStart = 0
         let yStart = 0
         let xIncrement = 0

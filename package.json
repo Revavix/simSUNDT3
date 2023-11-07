@@ -53,6 +53,7 @@
     ]
   },
   "dependencies": {
+    "@tauri-apps/api": "^1.5.1",
     "@threlte/core": "^6.1.0",
     "@threlte/extras": "^7.5.0",
     "@types/plotly.js-dist-min": "^2.3.3",
