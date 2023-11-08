@@ -1,4 +1,8 @@
 <script lang="ts">
+    // Base font for project
+    import "@fontsource/inter";
+    import "@fontsource/inter/700.css"
+
     // Svelte Imports
     import { ProjectSingleton } from "./lib/data/ProjectSingleton";
     import { KernelResultParser as UTDefectV3ResultParser } from "./lib/kernel/utdefect/v6/KernelResultParser";
@@ -20,7 +24,6 @@
     import { appWindow } from "@tauri-apps/api/window"
     import { exists, createDir, BaseDirectory } from '@tauri-apps/api/fs';
     import type { Runner } from "./lib/models/Kernel";
-    import type { Project } from "./lib/models/Project";
     
     let tabs = ["File", "Preprocessor", "Results", "Help"]
     let activeTab = "File"
@@ -38,8 +41,6 @@
     onMount(async () => {
         // Ensure simSUNDT folder structure is present on App startup
         const folderExists = await exists('simSUNDT', { dir: BaseDirectory.Document })
-
-        console.log(folderExists)
 
         if (!folderExists) {
             await createDir('Projects', { dir: BaseDirectory.Document, recursive: true})
@@ -80,7 +81,7 @@
         disabled: false
     }
 
-    ProjectSingleton.GetInstance().Subscribe((v) => {
+    ProjectSingleton.GetInstance().SubscribeProjectUpdate((v) => {
         loadedProjectName = v.name
     })
 </script>
@@ -98,17 +99,17 @@
         </div>
         {:else if os === 'win32'}
         <div data-tauri-drag-region class="flex flex-row" style="z-index: 99;">
-            <div class="flex flex-row mr-auto mt-2 text-xs items-center">
+            <div data-tauri-drag-region class="flex flex-row mr-auto mt-2 text-xs items-center">
                 <!-- Image -->
-                <div class="flex flex-col w-4 mr-1">
+                <div data-tauri-drag-region class="flex flex-col w-4 mr-1">
                     <SimsundtIcon/>
                 </div>
                 <!-- App name -->
-                <div class="flex flex-col">
-                    <p>SimSUNDT {version}</p>
+                <div data-tauri-drag-region class="flex flex-col cursor-default select-none">
+                    SimSUNDT {version}
                 </div>
             </div>
-            <div class="flex flex-row mt-2 text-xs">{loadedProjectName}</div>
+            <div data-tauri-drag-region class="flex flex-row mt-2 text-xs cursor-default select-none">{loadedProjectName}</div>
             <div class="flex flex-row ml-auto -mr-3" style="z-index: 99">
                 <!-- Minimize -->
                 <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">

@@ -12,7 +12,13 @@ export class ProjectCacheSingleton {
         if (data === null)  {
             this.projects = new Array<ProjectCache>()
         } else {
-            this.projects = JSON.parse(data)
+            let parsedData: any = JSON.parse(data)
+
+            parsedData.forEach((element: any) => {
+                element.date = new Date(element.date)
+            });
+
+            this.projects = parsedData
         }
     }
 

@@ -2,16 +2,18 @@ import { homeDir } from "@tauri-apps/api/path";
 import { LoggingSingleton } from "../../../data/LoggingSingleton";
 import { kernelProgress } from "../../../data/Stores";
 import { Runner } from "../../../models/Kernel";
-import type { Run } from "../../../models/Kernel";
+import type { Progress, Run } from "../../../models/Kernel";
 import { LoggingLevel } from "../../../models/Logging";
 import { Child, Command } from "@tauri-apps/api/shell";
 import { readTextFile } from "@tauri-apps/api/fs";
 
 export class KernelRunner extends Runner {
+    progress: Array<Progress>
     loggingSingleton: LoggingSingleton
     
     constructor(processes: number) {
         super()
+        this.progress = []
         this.aborted = false
         this.runs = []
         this.processes = processes
@@ -35,15 +37,44 @@ export class KernelRunner extends Runner {
         return this.runs.filter((r) => r.closed.code === null && r.closed.signal === null).length !== 0
     }
 
-    private async StartProgressWatcher(run: Run): Promise<void> {
+    private async StartProgressWatcher(run: Run, index: number): Promise<void> {
         run.watcherId = setInterval(async () => {
-            let progressFileContents: string[] = (await readTextFile(run.path + "/utdefcontrol")).split("\n")
-            let lastLine: string = progressFileContents[progressFileContents.length-1]
+            let progressFileContents: string[] = (await readTextFile(run.path + "\\utdefcontrol")).split("\r\n")
+            let lastLine: string = progressFileContents[progressFileContents.length-2]
+
+            if (lastLine !== undefined) {
+                let parsedLine = lastLine.split(/\s+/g)
+                this.progress[index] = {
+                    raw: {
+                        freq: parseFloat(parsedLine[1]),
+                        target: parseFloat(parsedLine[2])
+                    },
+                    progress: parseFloat(parsedLine[1]) / parseFloat(parsedLine[2]), 
+                    finished: false 
+                }
+            } else {
+                this.progress[index] = {
+                    raw: {
+                        freq: 0,
+                        target: 0
+                    },
+                    progress: 0, 
+                    finished: false 
+                }
+            }
         }, 100)
     }
 
-    private async StopProgressWatcher(run: Run): Promise<void> {
+    private async StopProgressWatcher(run: Run, index: number): Promise<void> {
         clearInterval(run.watcherId)
+        this.progress[index] = {
+            raw: {
+                freq: this.progress[index].raw.freq,
+                target: this.progress[index].raw.target
+            },
+            progress: 1, 
+            finished: true 
+        } 
     }
     
     public async Execute(): Promise<void> {
@@ -53,6 +84,7 @@ export class KernelRunner extends Runner {
 
         let commands: Array<Command> = []
         this.aborted = false
+        this.progress = new Array<Progress>(this.runs.length)
 
         this.loggingSingleton.Log(LoggingLevel.INFO, "Attempting to start simulation, the runner will execute " + this.runs?.length +
         " total simulation(s).")
@@ -64,12 +96,13 @@ export class KernelRunner extends Runner {
             cmd.on('close', data => {
                 this.runs[i].closed.code = data.code
                 this.runs[i].closed.signal = data.signal
-                this.StopProgressWatcher(this.runs[i])
+                this.StopProgressWatcher(this.runs[i], i)
+                kernelProgress.set(this.progress)
             })
             cmd.on('error', err => {
                 this.runs[i].closed.code = -1
                 this.runs[i].closed.signal = -1
-                this.StopProgressWatcher(this.runs[i])
+                this.StopProgressWatcher(this.runs[i], i)
             })
 
             commands.push(cmd)
@@ -84,7 +117,7 @@ export class KernelRunner extends Runner {
                 this.runs[index].started = true
                 commands[index].spawn().then((child: Child) => {
                     this.runs[index].handle = child
-                    this.StartProgressWatcher(this.runs[index])
+                    this.StartProgressWatcher(this.runs[index], index)
                     index += 1
                 }).catch((e) => {
                     this.loggingSingleton.Log(LoggingLevel.WARNING, "Run " + index + " failed to start, canceling simulation(s)" + e)
@@ -92,7 +125,9 @@ export class KernelRunner extends Runner {
                 })
             }
 
-            await new Promise(r => setTimeout(r, 20));
+            kernelProgress.set(this.progress)
+
+            await new Promise(r => setTimeout(r, 100));
         }
 
         return Promise.resolve()

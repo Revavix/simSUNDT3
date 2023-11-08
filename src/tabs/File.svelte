@@ -5,6 +5,7 @@
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
     import { SIMSUNDT_PROJECT_FOLDER } from '../lib/models/PresetPaths';
     import { ProjectCacheSingleton } from '../lib/data/ProjectCacheSingleton';
+    import { exists } from '@tauri-apps/api/fs';
 
     export let currentTab
     export let unsaved
@@ -120,8 +121,12 @@
         })
     }
 
-    projectSingleton.Subscribe((v) => {
-        cacheSingleton.Write(v)
+    projectSingleton.SubscribeProjectUpdate((v) => {
+        exists(v.path).then(() => {
+            if (true) {
+                cacheSingleton.Write(v)
+            }
+        })
     })
 </script>
 

@@ -44,7 +44,7 @@
         const increment = ((te - ts) / samples)
         const multiplier = calculationMode === CalculationMode.Distance ? 
             (distanceMode === DistanceMode.Compressional ? 
-            compressionalWaveSpeed * Math.pow(10, 3) : shearWaveSpeed * Math.pow(10, 3)) 
+            compressionalWaveSpeed * Math.pow(10, 6) : shearWaveSpeed * Math.pow(10, 6)) 
             : 1.0
 
         data.forEach(element => {
@@ -73,7 +73,9 @@
                 colorscale: UltraVision
             }
         ]
-        dLayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'm'
+        
+        dLayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'mm'
+        dLayout.margin.l = calculationMode === CalculationMode.Time ? 40 : 60
 
         plot = Plotly.react(div, data, dLayout, cfg)
     }

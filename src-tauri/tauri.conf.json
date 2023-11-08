@@ -1,7 +1,7 @@
 {
   "build": {
     "beforeBuildCommand": "yarn build",
-    "beforeDevCommand": "yarn web:watch",
+    "beforeDevCommand": "yarn dev",
     "devPath": "http://localhost:5173",
     "distDir": "../src"
   },
@@ -29,6 +29,11 @@
           {
             "name": "binaries/v6/UTDef6",
             "sidecar": true
+          },
+          {
+            "name": "notepad",
+            "cmd": "notepad",
+            "args": [{"validator": "\\S+"}]
           }
         ]
       }
@@ -47,7 +52,6 @@
         "icons/32x32.png",
         "icons/128x128.png",
         "icons/128x128@2x.png",
-        "icons/icon.icns",
         "icons/icon.ico"
       ],
       "identifier": "com.tauri.dev",

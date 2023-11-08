@@ -12,7 +12,7 @@ export interface Run {
     path: string
     started: boolean,
     handle: Child | null,
-    watcherId: number
+    watcherId: number,
     closed: {
         code: number | null,
         signal: number | null
@@ -25,6 +25,10 @@ export interface Status {
 }
 
 export interface Progress {
+    raw: {
+        freq: number
+        target: number
+    }
     progress: number,
     finished: boolean
 }

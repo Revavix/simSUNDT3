@@ -7,10 +7,8 @@
   "version": "0.1.0",
   "main": "src/index.cjs",
   "scripts": {
-    "dev": "concurrently 'npm run web:watch' 'sleep 1 && npm run electron:start'",
-    "web:watch": "vite",
-    "electron:start": "NODE_ENV=development electron src/index.cjs",
-    "build": "vite build && electron-builder --publish never",
+    "dev": "vite",
+    "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
@@ -53,6 +51,8 @@
     ]
   },
   "dependencies": {
+    "@fontsource/fira-mono": "^5.0.8",
+    "@fontsource/inter": "^5.0.15",
     "@tauri-apps/api": "^1.5.1",
     "@threlte/core": "^6.1.0",
     "@threlte/extras": "^7.5.0",

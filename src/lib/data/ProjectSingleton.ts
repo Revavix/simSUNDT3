@@ -5,49 +5,14 @@ import { SIMSUNDT_PROJECT_FOLDER } from "../models/PresetPaths"
 import { constructDefaultTreeData, tree } from "../tree"
 
 export class ProjectSingleton {
-    private _callbacks: Array<(project: Project) => void>
+    private _projectUpdateSubscriberCallbacks: Array<(project: Project) => void>
+    private _treeSubscriberCallbacks: Array<(tree: any) => void>
     private _active: Project
     private static _instance: ProjectSingleton
 
     private constructor() {
-        this._callbacks = new Array()
-        this._active = {
-            name: "Untitled Project",
-            path: SIMSUNDT_PROJECT_FOLDER + "Untitled Project.ssproj",
-            data: {
-                preprocessor: {
-                    tree: {},
-                    misc: {
-                        accuracy: "3",
-                        binaryPath: "resources\\bin\\UTDef6.exe",
-                        cloudEndpoint: "",
-                        parametric: {
-                            numProcesses: 4
-                        }
-                    }
-                },
-                postprocessor: []
-            }
-        }
-    }
-
-    private TriggerSubscribers() {
-        this._callbacks.forEach((v) => {
-            v(this._active)
-        })
-    }
-
-    public static GetInstance(): ProjectSingleton {
-        if (!ProjectSingleton._instance) ProjectSingleton._instance = new ProjectSingleton()
-        return ProjectSingleton._instance
-    }
-
-    public Subscribe(fnc: (project: Project) => void) {
-        this._callbacks.push(fnc)
-        this.TriggerSubscribers()
-    }
-
-    public async New(): Promise<void> {
+        this._projectUpdateSubscriberCallbacks = new Array()
+        this._treeSubscriberCallbacks = new Array()
         this._active = {
             name: "Untitled Project",
             path: SIMSUNDT_PROJECT_FOLDER + "Untitled Project.ssproj",
@@ -66,8 +31,56 @@ export class ProjectSingleton {
                 postprocessor: []
             }
         }
+    }
 
-        this.TriggerSubscribers()
+    public static GetInstance(): ProjectSingleton {
+        if (!ProjectSingleton._instance) ProjectSingleton._instance = new ProjectSingleton()
+        return ProjectSingleton._instance
+    }
+
+    public TriggerProjectUpdateSubscribers() {
+        this._projectUpdateSubscriberCallbacks.forEach((v) => {
+            v(this._active)
+        })
+    }
+
+    public TriggerTreeUpdateSubscribers() {
+        this._treeSubscriberCallbacks.forEach((v) => {
+            v(this._active.data.preprocessor.tree)
+        })
+    }
+
+    public SubscribeProjectUpdate(fnc: (project: Project) => void) {
+        this._projectUpdateSubscriberCallbacks.push(fnc)
+        this.TriggerProjectUpdateSubscribers()
+    }
+
+    public SubscribeTreeData(fnc: (tree: any) => void) {
+        this._treeSubscriberCallbacks.push(fnc)
+        this.TriggerTreeUpdateSubscribers()
+    }
+
+    public async New(): Promise<void> {
+        this._active = {
+            name: "Untitled Project",
+            path: SIMSUNDT_PROJECT_FOLDER + "\\Untitled Project.ssproj",
+            data: {
+                preprocessor: {
+                    tree: constructDefaultTreeData({}, tree.children),
+                    misc: {
+                        accuracy: "3",
+                        binaryPath: "resources\\bin\\UTDef6.exe",
+                        cloudEndpoint: "",
+                        parametric: {
+                            numProcesses: 4
+                        }
+                    }
+                },
+                postprocessor: []
+            }
+        }
+
+        this.TriggerProjectUpdateSubscribers()
 
         return Promise.resolve()
     }
@@ -77,7 +90,7 @@ export class ProjectSingleton {
             this._active.path = path
             this._active.name = await basename(path, ".ssproj") 
             await writeFile(path, JSON.stringify(this._active))
-            this.TriggerSubscribers()
+            this.TriggerProjectUpdateSubscribers()
             return Promise.resolve()
         } catch (err) {
             return Promise.reject()
@@ -94,14 +107,14 @@ export class ProjectSingleton {
         
         this._active = JSON.parse(await readTextFile(path))
 
-        this.TriggerSubscribers()
+        this.TriggerProjectUpdateSubscribers()
 
         return Promise.resolve()
     }
 
     public async PushPostprocessorData(data: any) {
         this._active.data.postprocessor.push(data)
-        this.TriggerSubscribers()
+        this.TriggerProjectUpdateSubscribers()
     }
 
     // Getter / setters

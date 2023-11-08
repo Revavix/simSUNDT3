@@ -281,7 +281,7 @@
                         <div>
                             <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Kernel version</label>
                             <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath} >
-                                <option value="resources\\bin\\UTDef6.exe">UTDefect - Version 6</option>
+                                <option value="resources\bin\UTDef6.exe">UTDefect - Version 6</option>
                                 <!-- To be added
                                 <option value="resources\\bin\\UTDefectLightNoDLL.exe">UTDefect - Light</option>
                                 -->

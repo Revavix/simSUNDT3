@@ -57,7 +57,8 @@
 
     const handleInspect = () => {
         const folder = projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path
-        new Command("notepad", folder + "/utIndefa")
+        let cmd = new Command("notepad", folder + "/utIndefa")
+        cmd.execute()
     }
 </script>
 

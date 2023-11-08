@@ -51,6 +51,9 @@
         <button class="block mt-2 p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 1}>
             Feedback
         </button>
+        <button class="block mt-2 p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 2}>
+            Notebook
+        </button>
     </div>
     <div class="flex flex-col w-full h-full md:w-8/12 xl:w-9/12 bg-stone-300 border border-gray-500 rounded-lg shadow-md ml-4">
         {#if selectedTab === 0}
@@ -92,6 +95,10 @@
                     Feedback can be reported through&nbsp;<a href=https://github.com/Revavix/simSUNDT3/issues class="text-blue-500" target="_blank"> GitHub</a>
                 </div>
             </div>
+        </div>
+        {:else if selectedTab === 2}
+        <div class="flex flex-col w-full h-full">
+
         </div>
         {/if}
     </div>
