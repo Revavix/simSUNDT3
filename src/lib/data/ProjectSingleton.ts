@@ -1,21 +1,18 @@
 import { basename, extname } from "@tauri-apps/api/path"
 import type { Project } from "../models/Project"
 import { exists, readTextFile, writeFile } from "@tauri-apps/api/fs"
-import { SIMSUNDT_PROJECT_FOLDER } from "../models/PresetPaths"
-import { constructDefaultTreeData, tree } from "../tree"
+import { constructDefaultTreeData, tree } from "../tree.js"
+import { writable, type Subscriber, type Writable } from "svelte/store"
 
 export class ProjectSingleton {
-    private _projectUpdateSubscriberCallbacks: Array<(project: Project) => void>
-    private _treeSubscriberCallbacks: Array<(tree: any) => void>
     private _active: Project
+    private _store: Writable<Project>
     private static _instance: ProjectSingleton
 
     private constructor() {
-        this._projectUpdateSubscriberCallbacks = new Array()
-        this._treeSubscriberCallbacks = new Array()
         this._active = {
             name: "Untitled Project",
-            path: SIMSUNDT_PROJECT_FOLDER + "Untitled Project.ssproj",
+            path: null,
             data: {
                 preprocessor: {
                     tree: constructDefaultTreeData({}, tree.children),
@@ -31,6 +28,7 @@ export class ProjectSingleton {
                 postprocessor: []
             }
         }
+        this._store = writable(this._active)
     }
 
     public static GetInstance(): ProjectSingleton {
@@ -38,32 +36,18 @@ export class ProjectSingleton {
         return ProjectSingleton._instance
     }
 
-    public TriggerProjectUpdateSubscribers() {
-        this._projectUpdateSubscriberCallbacks.forEach((v) => {
-            v(this._active)
-        })
+    public ForceRefresh() {
+        return this._store.set(this._active)
     }
 
-    public TriggerTreeUpdateSubscribers() {
-        this._treeSubscriberCallbacks.forEach((v) => {
-            v(this._active.data.preprocessor.tree)
-        })
-    }
-
-    public SubscribeProjectUpdate(fnc: (project: Project) => void) {
-        this._projectUpdateSubscriberCallbacks.push(fnc)
-        this.TriggerProjectUpdateSubscribers()
-    }
-
-    public SubscribeTreeData(fnc: (tree: any) => void) {
-        this._treeSubscriberCallbacks.push(fnc)
-        this.TriggerTreeUpdateSubscribers()
+    public Subscribe(fnc: Subscriber<Project>) {
+        return this._store.subscribe(fnc)
     }
 
     public async New(): Promise<void> {
         this._active = {
             name: "Untitled Project",
-            path: SIMSUNDT_PROJECT_FOLDER + "\\Untitled Project.ssproj",
+            path: null,
             data: {
                 preprocessor: {
                     tree: constructDefaultTreeData({}, tree.children),
@@ -80,7 +64,7 @@ export class ProjectSingleton {
             }
         }
 
-        this.TriggerProjectUpdateSubscribers()
+        this._store.set(this._active)
 
         return Promise.resolve()
     }
@@ -88,9 +72,9 @@ export class ProjectSingleton {
     public async Save(path: string): Promise<void> { 
         try {
             this._active.path = path
-            this._active.name = await basename(path, ".ssproj") 
+            this._active.name = await basename(path, ".ssproj")
+            this._store.set(this._active)
             await writeFile(path, JSON.stringify(this._active))
-            this.TriggerProjectUpdateSubscribers()
             return Promise.resolve()
         } catch (err) {
             return Promise.reject()
@@ -106,15 +90,14 @@ export class ProjectSingleton {
         }
         
         this._active = JSON.parse(await readTextFile(path))
-
-        this.TriggerProjectUpdateSubscribers()
+        this._store.set(this._active)
 
         return Promise.resolve()
     }
 
     public async PushPostprocessorData(data: any) {
         this._active.data.postprocessor.push(data)
-        this.TriggerProjectUpdateSubscribers()
+        this._store.set(this._active)
     }
 
     // Getter / setters

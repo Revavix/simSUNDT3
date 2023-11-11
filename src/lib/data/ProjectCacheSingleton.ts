@@ -38,7 +38,7 @@ export class ProjectCacheSingleton {
             }
         })
 
-        if (!hit) {
+        if (!hit && project.path !== null) {
             this.projects.push({
                 name: project.name,
                 path: project.path,

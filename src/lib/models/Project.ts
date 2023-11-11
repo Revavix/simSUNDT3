@@ -1,6 +1,6 @@
 export interface Project {
     name: string
-    path: string
+    path: string | null
     data: {
         preprocessor: {
             tree: any,

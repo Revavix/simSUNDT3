@@ -7,6 +7,7 @@
     import { afterUpdate } from 'svelte';
     import { kernelProgress } from '../lib/data/Stores';
     import type { Progress } from '../lib/models/Kernel';
+    import type { Project } from '../lib/models/Project';
 
     let size: Vector2 = new Vector2(6, 6)
     let transmitterPos: Vector2 = new Vector2(3, 3)
@@ -26,8 +27,8 @@
         renderer.toneMappingExposure = 1.5
     }
 
-    projectSingleton.SubscribeTreeData((tree: any) => {
-        console.log( tree.method.utTechnique.method)
+    projectSingleton.Subscribe((project: Project) => {
+        let tree = project.data.preprocessor.tree
 
         if (tree !== undefined) {
             size = new Vector2(

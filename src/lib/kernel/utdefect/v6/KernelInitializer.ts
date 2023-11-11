@@ -1,7 +1,7 @@
 import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer, type Run } from "../../../models/Kernel"
-import { constructParametricData } from "../../../tree"
+import { constructParametricData } from "../../../tree.js"
 import { KernelSaver as KernelSaverUTDef6 } from "../../../kernel/utdefect/v6/KernelSaver"
-import { constructIsoSaveData } from "../../../utDefSaverUtils"
+import { constructIsoSaveData } from "../../../utDefSaverUtils.js"
 import { BaseDirectory, documentDir, homeDir, resourceDir } from "@tauri-apps/api/path"
 import { copyFile, createDir, removeDir, removeFile } from "@tauri-apps/api/fs"
 

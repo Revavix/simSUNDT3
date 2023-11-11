@@ -81,7 +81,7 @@
         disabled: false
     }
 
-    ProjectSingleton.GetInstance().SubscribeProjectUpdate((v) => {
+    ProjectSingleton.GetInstance().Subscribe((v) => {
         loadedProjectName = v.name
     })
 </script>

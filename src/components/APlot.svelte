@@ -1,7 +1,7 @@
 <script lang="ts">
     import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "./PlotModebar.svelte";
-    import { rectifyXY } from '../lib/utils';
+    import { rectifyXY } from '../lib/utils.js';
     import { resultData, selectedPosSignal } from '../lib/data/Stores';
     
 

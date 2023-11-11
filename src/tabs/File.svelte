@@ -85,11 +85,15 @@
     }
 
     async function handleSave() {
+        if (projectSingleton.Path === null) {
+            return handleOpenSaveModal()
+        }
+
         await projectSingleton.Save(projectSingleton.Path).then(() => {
             addNewAlert("Project saved successfully", "#65a30d", "done", 1200)
             unsaved = false
         }).catch(() => {
-            handleOpenSaveModal()
+            addNewAlert("Something went wrong when attempting to save, please try again.", "#ef4444", "warning", 6000)
         })
     }
 
@@ -121,7 +125,11 @@
         })
     }
 
-    projectSingleton.SubscribeProjectUpdate((v) => {
+    projectSingleton.Subscribe((v) => {
+        if (v.path === null) return
+
+        console.log(v)
+
         exists(v.path).then(() => {
             if (true) {
                 cacheSingleton.Write(v)

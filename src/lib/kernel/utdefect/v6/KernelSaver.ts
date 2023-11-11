@@ -347,6 +347,4 @@ export class KernelSaver extends Saver {
         
         return Promise.resolve()
     }
-
-    
 }

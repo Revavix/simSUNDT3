@@ -3,11 +3,11 @@
     "beforeBuildCommand": "yarn build",
     "beforeDevCommand": "yarn dev",
     "devPath": "http://localhost:5173",
-    "distDir": "../src"
+    "distDir": "../src/dist"
   },
   "package": {
     "productName": "SimSUNDT",
-    "version": "0.1.0"
+    "version": "23.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -40,7 +40,7 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Productivity",
       "copyright": "",
       "deb": {
         "depends": []
@@ -54,7 +54,7 @@
         "icons/128x128@2x.png",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.revavix.simsundt",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -71,7 +71,15 @@
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "wix": {
+          "license": "../LICENSE",
+          "bannerPath": "icons/banners/msi/493x58_2.bmp",
+          "dialogImagePath": "icons/banners/msi/493x312.bmp"
+        },
+        "nsis": {
+          "license": "../LICENSE"
+        }
       }
     },
     "security": {

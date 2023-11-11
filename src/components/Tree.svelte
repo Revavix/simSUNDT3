@@ -3,17 +3,17 @@
     import { onMount } from 'svelte';
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
 
-    export let tree
-    export let data
-    export let pad
-    export let parametricEnabled
+    export let tree: any
+    export let data: any
+    export let pad: any
+    export let parametricEnabled: any
     
 	const toggleExpansion = () => {
 		tree.expanded = !tree.expanded
 	}
 	$: arrowDown = tree.expanded
 
-    let ulCssPadding
+    let ulCssPadding: any
 
     if (pad) {
         ulCssPadding = "ul-with-padding"
@@ -45,7 +45,7 @@
         }
     })
 
-    function getData(key) {
+    function getData(key: any) {
         if (!data.hasOwnProperty(key)) {
             data[key] = {}
         }
@@ -54,7 +54,7 @@
     }
 
     const handleChangedValue = () => {
-        ProjectSingleton.GetInstance().TriggerTreeUpdateSubscribers()
+        ProjectSingleton.GetInstance().ForceRefresh()
     }
 </script>
 

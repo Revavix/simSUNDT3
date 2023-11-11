@@ -1,0 +1,42 @@
+name: Dev
+
+on: 
+  push:
+    branches:
+      - main
+      - 'releases/**'
+      - 'feature/**'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3 
+      - name: Set version environment variable
+        run: |
+          echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
+          cat ./src-tauri/tauri.conf.json >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=${{ fromJson(env.PACKAGE_JSON).package.version }}" >> $GITHUB ENV
+          echo "PRODUCT_NAME=${{ fromJson(env.PACKAGE_JSON).package.productName }}" >> $GITHUB ENV
+      - name: Install node
+        uses: actions/setup-node@v3
+      - name: Install tauri-cli
+        run: |
+          cargo install tauri-cli
+      - name: Run install
+        run: |
+          npm install yarn
+          cargo tauri build
+      - name: Compress dist
+        run: |
+          tar -zcvf ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz src-tauri/target/release
+          cp ./src-tauri/target/release/bundle/msi/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi ./${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: win-artifact
+          path: |
+            ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz
+            ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi

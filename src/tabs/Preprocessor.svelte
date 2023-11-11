@@ -4,7 +4,7 @@
     import Button from '../components/Button.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
     import { tree } from '../lib/tree.js'
-    import { constructIsoSaveData } from "../lib/utDefSaverUtils";
+    import { constructIsoSaveData } from "../lib/utDefSaverUtils.js";
     import { KernelInitializer as KernelInitializerV6 } from "../lib/kernel/utdefect/v6/KernelInitializer"
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
@@ -94,13 +94,15 @@
 
                 projectSingleton.PushPostprocessorData(groupedResult)
 
-                projectSingleton.Save(projectSingleton.Path).then((v: any) => {
-                    loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully & project auto-saved\
-                        post run completion.")
-                }).catch((e) => {
-                    loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully but failed to auto-\
-                        save, please save manually to ensure results are not lost.")
-                })
+                if (projectSingleton.Path !== null) {
+                    projectSingleton.Save(projectSingleton.Path).then((v: any) => {
+                        loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully & project auto-saved\
+                            post run completion.")
+                    }).catch((e) => {
+                        loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully but failed to auto-\
+                            save, please save manually to ensure results are not lost.")
+                    })
+                }
             }).catch(v => {
                 loggingSingleton.Log(LoggingLevel.WARNING, v)
             })
@@ -283,7 +285,7 @@
                             <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath} >
                                 <option value="resources\bin\UTDef6.exe">UTDefect - Version 6</option>
                                 <!-- To be added
-                                <option value="resources\\bin\\UTDefectLightNoDLL.exe">UTDefect - Light</option>
+                                <option value="resources\bin\UTDefectLightNoDLL.exe">UTDefect - Light</option>
                                 -->
                             </select>
                         </div>

@@ -2,7 +2,6 @@ import * as path from 'path'
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import autoPreprocess from 'svelte-preprocess'
-import typescript from '@rollup/plugin-typescript'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,11 +14,21 @@ export default defineConfig({
   ssr: {
     noExternal: ['three']
   },
+  clearScreen: false,
+  server: {
+    strictPort: true,
+  },
+  envPrefix: ['VITE_', 'TAURI_PLATFORM', 'TAURI_ARCH', 'TAURI_FAMILY', 'TAURI_PLATFORM_VERSION', 'TAURI_PLATFORM_TYPE', 'TAURI_DEBUG'],
   resolve: {
     alias: {
-      '@': path.resolve('src'),
+      '@': path.resolve('./src'),
     },
   },
-  root: path.resolve(process.cwd(), 'src'),
   base: './',
+  root: path.resolve(process.cwd(), 'src'),
+  build: {
+    target: process.env.TAURI_PLATFORM == 'windows' ? 'chrome105' : 'safari13',
+    minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
+    sourcemap: !!process.env.TAURI_DEBUG
+  }
 })
