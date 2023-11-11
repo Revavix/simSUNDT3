@@ -16,10 +16,10 @@ jobs:
         uses: actions/checkout@v3 
       - name: Extract tauri config
         run: |
-          ls
           echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
           cat ./src-tauri/tauri.conf.json >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
+          echo $GITHUB_ENV
       - name: Extract package info from Tauri Config
         run: |
           echo 'PACKAGE_VERSION=${{ fromJson(env.PACKAGE_JSON).package.version }}' >> $GITHUB ENV
