@@ -23,6 +23,8 @@ jobs:
         run: |
           echo 'PRODUCT_VERSION=${{ fromJson(env.PACKAGE_JSON).package.version }}' >> $env:GITHUB_ENV
           echo 'PRODUCT_NAME=${{ fromJson(env.PACKAGE_JSON).package.productName }}' >> $env:GITHUB_ENV
+          echo 'PRODUCT_VERSION=${{ fromJson(env.PACKAGE_JSON).package.version }}' >> $env:GITHUB_OUTPUT
+          echo 'PRODUCT_NAME=${{ fromJson(env.PACKAGE_JSON).package.productName }}' >> $env:GITHUB_OUTPUT
       - name: Install node
         uses: actions/setup-node@v3
       - name: Install tauri-cli
@@ -43,9 +45,6 @@ jobs:
           path: |
             ${{ env.PRODUCT_NAME }}_${{ env.PRODUCT_VERSION }}.tar.gz
             ${{ env.PRODUCT_NAME }}_${{ env.PRODUCT_VERSION }}_x64_en-US.msi
-    outputs:
-      product_name: ${{ env.PRODUCT_NAME }}
-      product_version: ${{ env.PRODUCT_VERSION }}
   publish:
     needs: build-windows
     runs-on: ubuntu-latest
