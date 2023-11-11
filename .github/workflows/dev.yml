@@ -3,10 +3,8 @@ name: Dev
 on: 
   push:
     branches:
-      - main
       - 'releases/**'
       - 'feature/**'
-      - 'experimental/**'
 
 jobs:
   build-windows:
@@ -38,15 +36,10 @@ jobs:
         run: |
           tar -zcvf ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz src-tauri/target/release
           cp ./src-tauri/target/release/bundle/msi/${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi ./${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
-      - name: Upload complete build artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz
-          path: 
-          if-no-files-found: error
-      - name: Upload MSI installer
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
-          path:
-          if-no-files-found: error
+          name: ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_dev
+          path: |
+            ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz
+            ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
