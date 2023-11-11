@@ -36,12 +36,12 @@ jobs:
           cargo tauri build
       - name: Compress dist
         run: |
-          tar -zcvf ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz src-tauri/target/release
-          cp ./src-tauri/target/release/bundle/msi/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi ./${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
+          tar -zcvf ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz src-tauri/target/release
+          cp ./src-tauri/target/release/bundle/msi/${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi ./${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: win-artifact
           path: |
-            ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz
-            ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
+            ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz
+            ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
