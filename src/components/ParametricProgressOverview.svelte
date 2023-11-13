@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
     import { kernelProgress } from '../lib/data/Stores';
+    import type { Progress } from '../lib/models/Kernel';
 
-    let minimized
+    let minimized: boolean
 
     let runs = [
         {
@@ -43,6 +44,14 @@
         
         runs = v
     })
+
+    const getProgress = (p: Progress): number => {
+        if (p !== undefined) {
+            return p.progress
+        }
+
+        return 0
+    }
 </script>
 
 <div class="flex flex-col bg-stone-300 h-60 class:h-40={minimized === true} rounded-lg shadow-lg" style="z-index: 4;">
@@ -58,14 +67,14 @@
                 Run {i+1}
             </div>
             <div class="flex flex-col flex-nowrap justify-end w-4 h-12 bg-gray-200 rounded-md overflow-hidden dark:bg-gray-700">
-                {#if r.progress == 1}
-                <div class="bg-green-400 overflow-hidden" role="progressbar" style="height: {Math.round(r.progress * 100)}%"></div>
+                {#if getProgress(r) === 1}
+                <div class="bg-green-400 overflow-hidden" role="progressbar" style="height: {Math.round(getProgress(r) * 100)}%"></div>
                 {:else}
-                <div class="bg-orange-300 overflow-hidden" role="progressbar" style="height: {Math.round(r.progress * 100)}%"></div>
+                <div class="bg-orange-300 overflow-hidden" role="progressbar" style="height: {Math.round(getProgress(r) * 100)}%"></div>
                 {/if}
             </div>
             <div class="flex flex-row" style="font-size:10px; color:#4d4d4d;"> 
-                {(r.progress * 100).toFixed(1)}
+                {(getProgress(r) * 100).toFixed(1)}
             </div>
         </div>
         {/each}

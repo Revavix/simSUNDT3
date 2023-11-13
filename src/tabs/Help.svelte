@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
     import Modal from '../components/Modal.svelte';
     import { ArticleType, type Article } from '../lib/models/Article';
+    import { BaseDirectory, readDir, readTextFile } from '@tauri-apps/api/fs';
 
     let selectedTab: number = 0
     let articles: Article[] = []
@@ -11,15 +12,17 @@
     let openArticleContent: string = ""
 
     onMount(async () => {
-        let guides = await window.electronAPI.readdir("./articles/guides")
-        let troubleshooting = await window.electronAPI.readdir("./articles/troubleshooting")
+        let guides = await readDir("resources/articles/guides", { dir: BaseDirectory.Resource })
+        let troubleshooting = await readDir("resources/articles/troubleshooting", { dir: BaseDirectory.Resource })
 
         guides.forEach(element => {
-            articles.push({name: element.split(".")[0], type: ArticleType.GUIDE})
+            let name = element.name !== undefined ? element.name : "Unknown"
+            articles.push({name: name.split(".")[0], type: ArticleType.GUIDE})
         });
 
         troubleshooting.forEach(element => {
-            articles.push({name: element.split(".")[0], type: ArticleType.TROUBLESHOOT})
+            let name = element.name !== undefined ? element.name : "Unknown"
+            articles.push({name: name.split(".")[0], type: ArticleType.TROUBLESHOOT})
         });
 
         articles = articles
@@ -29,7 +32,7 @@
         isArticleModalOpen = true
         openArticleName = article.name + " - " + article.type
         
-        window.electronAPI.readFile("./articles/guides/" + article.name + ".md").then((v) => {
+        readTextFile("resources/articles/guides/" + article.name + ".md", { dir: BaseDirectory.Resource }).then((v) => {
             openArticleContent = v
         })
     }
@@ -47,6 +50,9 @@
         </button>
         <button class="block mt-2 p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 1}>
             Feedback
+        </button>
+        <button class="block mt-2 p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 2}>
+            Notebook
         </button>
     </div>
     <div class="flex flex-col w-full h-full md:w-8/12 xl:w-9/12 bg-stone-300 border border-gray-500 rounded-lg shadow-md ml-4">
@@ -89,6 +95,10 @@
                     Feedback can be reported through&nbsp;<a href=https://github.com/Revavix/simSUNDT3/issues class="text-blue-500" target="_blank"> GitHub</a>
                 </div>
             </div>
+        </div>
+        {:else if selectedTab === 2}
+        <div class="flex flex-col w-full h-full">
+
         </div>
         {/if}
     </div>

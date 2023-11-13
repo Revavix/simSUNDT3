@@ -1,4 +1,5 @@
 <script lang="ts">
+    import "@fontsource/fira-mono/500.css";
     import Plotly, { type Datum } from 'plotly.js-dist-min'
     import Button from '../components/Button.svelte'
     import { CalculationMode, DistanceMode } from '../lib/models/SoundYAxisMode'
@@ -17,7 +18,7 @@
     let originalYRange: [Datum, Datum] = [0, 0]
     
     let panModeButton = {
-        label: "",
+        label: undefined,
         color: "#4d4d4d",
         icon: "pan_tool_alt",
         action:  () => {
@@ -36,7 +37,7 @@
     }
 
     let zoomModeButton = {
-        label: "",
+        label: undefined,
         color: "#4d4d4d",
         icon: "search",
         action:  () => {
@@ -55,7 +56,7 @@
     }
 
     let zoomOutButton = {
-        label: "",
+        label: undefined,
         color: "#4d4d4d",
         icon: "zoom_out",
         action:  () => {
@@ -65,7 +66,7 @@
     }
 
     let zoomInButton = {
-        label: "",
+        label: undefined,
         color: "#4d4d4d",
         icon: "zoom_in",
         action:  () => {
@@ -75,7 +76,7 @@
     }
 
     let zoomResetButton = {
-        label: "",
+        label: undefined,
         color: "#4d4d4d",
         icon: "zoom_out_map",
         action:  () => {
@@ -165,13 +166,13 @@
         {/if}
         {#if calculationMode === CalculationMode.Distance}
         <div class="flex flex-col w-full mx-0.5">
-            <button style="color:#4d4d4d; font-size: 12px" on:click={() => { calculationMode = CalculationMode.Time}}>
+            <button style="color:#4d4d4d; font-size: 14px; font-family: Fira Mono; font-weight: 500" on:click={() => { calculationMode = CalculationMode.Time}}>
                 μs
             </button>
         </div>
         {:else if calculationMode === CalculationMode.Time}
         <div class="flex flex-col w-full mx-0.5">
-            <button style="color:#4d4d4d; font-size: 12px" on:click={() => { calculationMode = CalculationMode.Distance}}>
+            <button style="color:#4d4d4d; font-size: 14px; font-family: Fira Mono; font-weight: 500" on:click={() => { calculationMode = CalculationMode.Distance}}>
                 mm
             </button>
         </div>
@@ -180,22 +181,22 @@
     {#if plotDiv != undefined}
         {#if plotDiv._fullLayout.dragmode == "zoom"}
         <div class="flex flex-col w-full mx-0.5">
-            <Button data={panModeButton}></Button>
+            <Button data={panModeButton}/>
         </div>
         {:else}
         <div class="flex flex-col w-full mx-0.5">
-            <Button data={zoomModeButton}></Button>
+            <Button data={zoomModeButton}/>
         </div>
         {/if}
     {/if}
     <div class="flex flex-col w-full mx-0.5">
-        <Button data={zoomOutButton}></Button>
+        <Button data={zoomOutButton}/>
     </div>
     <div class="flex flex-col w-full mx-0.5">
-        <Button data={zoomInButton}></Button>
+        <Button data={zoomInButton}/>
     </div>
     <div class="flex flex-col w-full mx-0.5">
-        <Button data={zoomResetButton}></Button>
+        <Button data={zoomResetButton}/>
     </div>
 </div>
 

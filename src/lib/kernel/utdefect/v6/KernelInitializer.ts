@@ -1,7 +1,9 @@
-import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer } from "../../../models/Kernel"
-import { constructParametricData } from "../../../tree"
+import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer, type Run } from "../../../models/Kernel"
+import { constructParametricData } from "../../../tree.js"
 import { KernelSaver as KernelSaverUTDef6 } from "../../../kernel/utdefect/v6/KernelSaver"
-import { constructIsoSaveData } from "../../../utDefSaverUtils"
+import { constructIsoSaveData } from "../../../utDefSaverUtils.js"
+import { BaseDirectory, documentDir, homeDir, resourceDir } from "@tauri-apps/api/path"
+import { copyFile, createDir, removeDir, removeFile } from "@tauri-apps/api/fs"
 
 export class KernelInitializer extends Initializer {
 
@@ -12,80 +14,71 @@ export class KernelInitializer extends Initializer {
         this.executable = "UTDef6.exe"
         this.binary = ""
         
-        window.electronAPI.getHomeDir().then((v) => {
+        homeDir().then((v) => {
             this.home = v
         })
     }
 
-    public async Execute(name: string, data: any): Promise<InitializerExecutionResult> {
+    public async Execute(name: string, data: any): Promise<InitializerExecutionResult | undefined | string> {
         let runs = this.mode === InitializerMode.PARAMETRIC ? constructParametricData(data.tree, data.misc) : [constructIsoSaveData(data.tree, data.misc)]
         let validation: InitializerValidationResult = this.Validate(runs.length)
 
         if (validation.pass === false) return Promise.reject(validation.message)
+        if (this.saver === null) return Promise.reject("No valid saver found")
 
         for (let i = 0; i < runs.length; i++) {
-            let folder: string = name + "/" + (i + 1)
+            let folder: string = name + "\\" + (i + 1)
             this.saver.data = runs[i]
 
             // Create a new folder for each combination produced by constructParametricData
-            await window.electronAPI.mkdir(this.home + "/Documents/simSUNDT/Simulations/" + folder)
+            await createDir("simSUNDT\\Simulations\\" + folder, { dir: BaseDirectory.Document, recursive: true })
 
             // Save each individual run data to folder created above
-            await this.saver.Save(this.home + "/Documents/simSUNDT/Simulations/" + folder + "/utdefdat").then((v) => {
-                if (v === false) return Promise.reject("Failed to save the utdefdat file to folder")
+            await this.saver?.Save("simSUNDT\\Simulations\\" + folder + "\\utdefdat").catch(() => {
+                return Promise.reject("Failed to save the utdefdat file to folder")
             })
 
             // Copy binary to the simulation folder
-            await window.electronAPI.copyFile(this.binary, this.home + "/Documents/simSUNDT/Simulations/" + folder + "/" + this.executable).then((v) => {
-                if (v === false) return Promise.reject("Failed to copy the source binary to the target binary")
-            })
+            //await copyFile(await resourceDir() + this.binary, await documentDir() + "simSUNDT\\Simulations\\" + folder + "\\" + this.executable)
 
-            this.runner.runs.push({ folder: folder, progress: 0, processId: null, finished: false, exitReason: null})
+            this.runner?.runs.push({
+                executable: this.executable,
+                path: await documentDir() + "simSUNDT\\Simulations\\" + folder,
+                started: false,
+                handle: null,
+                watcherId: -1,
+                closed: {
+                    code: null,
+                    signal: null
+                }
+            })
         }
 
-        try {
-            let date = new Date()
-            let runResult = await this.runner.Execute(this.executable)
-            let retval = {
-                date: date.toLocaleDateString("en-US"), 
-                time: date.toLocaleTimeString("en-US"),
-                runs: runResult
+        return await this.runner?.Execute(this.executable).then(() => {
+            let retval: InitializerExecutionResult = {
+                timestamp: new Date(),
+                runs: this.runner?.runs !== undefined ? this.runner?.runs : []
             }
-            let failResults = []
-            let genericFailRejection = false
-    
+
             // Clean up unused files post run
-            await runResult.forEach(async (element) => {
-                await window.electronAPI.rmDir(this.home + "/Documents/simSUNDT/Simulations/" + element.folder + "/" + this.executable)
-                await window.electronAPI.rmDir(this.home + "/Documents/simSUNDT/Simulations/" + element.folder + "/utdefcontrol")
-                await window.electronAPI.rmDir(this.home + "/Documents/simSUNDT/Simulations/" + element.folder + "/utdefdat")
-            });
-    
-            // Check if we should return a generic failure string or if we can assert it was a user cancellation
-            runResult.forEach(e => {
-                if (e.exitReason != 0) {
-                    failResults.push(e.exitReason)
-                }
-            })
-    
-            failResults.forEach(element => {
-                if (element != 2) {
-                    genericFailRejection = true
+            this.runner?.runs.forEach(async (element) => {
+                try {
+                    await removeFile(element.path + "\\" + this.executable)
+                    await removeDir(element.path + "\\utdefcontrol")
+                    await removeDir(element.path + "\\utdefdat")
+                } catch (e) {
+
                 }
             });
-    
-            // Produce failure if one exists
-            if (genericFailRejection && failResults.length > 0) {
-                return Promise.reject("The parametric runner aborted unexpectedly, the program exited with the exit codes: " + failResults.toString())
-            } else if (failResults.length > 0 && !genericFailRejection) {
-                return Promise.reject("The parametric runner was cancelled by user")
-            }
-    
+
+            let faultyRuns: Array<Run> | undefined = this.runner?.runs.filter((run) => run.closed.code !== 0)
+
+            if (faultyRuns !== undefined && faultyRuns?.length > 0) return Promise.reject("The subprocess of the kernel had faulty exit codes, the codes where [" + faultyRuns.map((r) => r.closed.code) + "]")
+
             return Promise.resolve(retval)
-        } catch (err) {
-            await this.runner.Stop()
-            return Promise.reject("The parametric runner closed with error " + err)
-        }
+        }).catch((e) => {
+            return Promise.reject(e)
+        })
     }
 
     private Validate(runs: number): InitializerValidationResult {

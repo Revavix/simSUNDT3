@@ -23,4 +23,4 @@ export const selectedPosSide: Writable<number> = writable()
 export const selectedPosEnd: Writable<number> = writable()
 
 // Interpolation mode, smoothing of C scan
-export const interpolationMode = writable([])
+export const interpolationMode: Writable<Array<string | boolean>> = writable([])

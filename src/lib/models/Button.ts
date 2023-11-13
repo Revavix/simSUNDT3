@@ -6,4 +6,5 @@ export interface Button {
     disabled?: boolean
     hoverColor?: string
     size?: number
+    labelSize?: number
 }

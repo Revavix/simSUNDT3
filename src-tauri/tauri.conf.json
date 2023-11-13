@@ -1,0 +1,102 @@
+{
+  "build": {
+    "beforeBuildCommand": "yarn build",
+    "beforeDevCommand": "yarn dev",
+    "devPath": "http://localhost:5173",
+    "distDir": "../src/dist"
+  },
+  "package": {
+    "productName": "SimSUNDT",
+    "version": "3.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true,
+      "path": {
+        "all": true
+      },
+      "fs": {
+        "all": true,
+        "scope": [
+          "$DOCUMENT/**",
+          "$APPDATA/**",
+          "$RESOURCE/**"
+        ]
+      },
+      "shell": {
+        "sidecar": true,
+        "scope": [
+          {
+            "name": "binaries/v6/UTDef6",
+            "sidecar": true
+          },
+          {
+            "name": "notepad",
+            "cmd": "notepad",
+            "args": [{"validator": "\\S+"}]
+          }
+        ]
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "Productivity",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [
+        "binaries/v6/UTDef6"
+      ],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.ico"
+      ],
+      "identifier": "com.revavix.simsundt",
+      "longDescription": "",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [
+        "resources/*"
+      ],
+      "shortDescription": "",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": "",
+        "wix": {
+          "license": "../LICENSE",
+          "bannerPath": "icons/banners/msi/493x58_2.bmp",
+          "dialogImagePath": "icons/banners/msi/493x312.bmp"
+        },
+        "nsis": {
+          "license": "../LICENSE"
+        }
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 1024,
+        "resizable": true,
+        "title": "SimSUNDT",
+        "width": 1280,
+        "decorations": false
+      }
+    ]
+  }
+}

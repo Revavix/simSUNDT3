@@ -4,8 +4,8 @@
     export let label: string = "Modal"
     export let description: string | null = null
     export let isOpen: boolean = false
-    export let width: 6 | 8 | 10 | 12 = 6
-    export let height: 6 | 8 | 10 | 12 = 6
+    export let width: 4 | 6 | 8 | 10 | 12 = 6
+    export let height: 4 | 6 | 8 | 10 | 12 = 6
 </script>
 
 {#if isOpen}

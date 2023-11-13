@@ -1,5 +1,5 @@
-import { tree } from "./tree"
-import { convertAutoElementsToISHA, convertFocusAndTechniqueToIMODE, convertNFRToLP } from "./utDefUtils"
+import { tree } from "./tree.js"
+import { convertAutoElementsToISHA, convertFocusAndTechniqueToIMODE, convertNFRToLP } from "./utDefUtils.js"
 
 export function constructTransversalyIsoData(data, misc) {
 

@@ -4,23 +4,25 @@
     import Button from '../components/Button.svelte'
     import OutputLogComponent from '../components/OutputLog.svelte'
     import { tree } from '../lib/tree.js'
-    import { constructIsoSaveData } from "../lib/utDefSaverUtils";
+    import { constructIsoSaveData } from "../lib/utDefSaverUtils.js";
     import { KernelInitializer as KernelInitializerV6 } from "../lib/kernel/utdefect/v6/KernelInitializer"
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
     import { kernelStatus } from "../lib/data/Stores";
-    import { Initializer, InitializerMode } from "../lib/models/Kernel";
+    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult } from "../lib/models/Kernel";
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
-
+    import { BaseDirectory, homeDir } from "@tauri-apps/api/path";
+    import { createDir } from "@tauri-apps/api/fs";
+    import { ProjectSingleton } from "../lib/data/ProjectSingleton";
 
     export let unsaved
-    export let kernelRunner: any
-    export let projectHandler: any
-
-    let kernelInitializer: Initializer = new KernelInitializerV6()
+    export let kernelRunner: Runner
+ 
+    let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
+    let kernelInitializer: Initializer = new KernelInitializerV6()
 
     let mainLogContents: any[] = []
     let parametricEnabled = false
@@ -49,60 +51,58 @@
         icon: "play_arrow",
         action: async () => {
             // Clean up old runs
-            const homeDir = await window.electronAPI.getHomeDir()
-            await window.electronAPI.mkdir(homeDir + "/Documents/simSUNDT/Simulations")
+            await createDir("simSUNDT/Simulations", { dir: BaseDirectory.Document, recursive: true})
 
             // Prep default Isometric data in the saver
             const saver = new KernelSaverUTDef6()
-            saver.data = constructIsoSaveData(projectHandler.currentProject.data.preprocessor.tree, 
-                        projectHandler.currentProject.data.preprocessor.misc)
-
-            // Prep binary info
-            const srcBinary = projectHandler.currentProject.data.preprocessor.misc.binaryPath
-            const execName = await window.electronAPI.getPathBasename(srcBinary) + 
-                             await window.electronAPI.extname(srcBinary)
+            console.log(projectSingleton.Tree)
+            saver.data = constructIsoSaveData(projectSingleton.Tree, projectSingleton.Misc)
 
             // Run name
             const name = namingSchemeMethod == 1 ? crypto.randomUUID() : namingSchemeName
             
-            const data = {
-                tree: projectHandler.currentProject.data.preprocessor.tree,
-                misc: projectHandler.currentProject.data.preprocessor.misc
-            }
+            // Construct expected data object
+            const data = { tree: projectSingleton.Tree, misc: projectSingleton.Misc }
+
+            // Configure the runner and clear it
+            kernelRunner.processes = projectSingleton.ProcessCount
+            kernelRunner.runs = []
 
             // Configure the initializer
-            kernelInitializer.binary = srcBinary,
-            kernelInitializer.executable = execName
+            kernelInitializer.binary = projectSingleton.BinaryPath,
+            kernelInitializer.executable = "UTDef6.exe"
             kernelInitializer.mode = parametricEnabled ? InitializerMode.PARAMETRIC : InitializerMode.NON_PARAMETRIC
             kernelInitializer.runner = kernelRunner
-            kernelInitializer.runner.processes = projectHandler.currentProject.data.preprocessor.misc.parametric.numProcesses
             kernelInitializer.saver = saver
-            kernelInitializer.Execute(name, data).then(v => {
+            kernelInitializer.Execute(name, data).then((v) => {
+                if (typeof v === 'string') {
+                    loggingSingleton.Log(LoggingLevel.WARNING, "Simulation completed, but an unexpected value was returned, the value '" + v + "'")
+                    return
+                }
+                
                 let groupedResult: any = {
                     name: name,
-                    date: v.date,
-                    time: v.time,
-                    runs: [],
-                    parametric: true
+                    timestamp: v?.timestamp,
+                    runs: []
                 }
 
-                v.runs.forEach(element => {
+                v?.runs?.forEach(element => {
                     groupedResult.runs.push({
-                        path: homeDir + "/Documents/simSUNDT/Simulations/" + element.folder
+                        path: element.path
                     })
                 });
 
-                projectHandler.currentProject.data.postprocessor.push(groupedResult)
+                projectSingleton.PushPostprocessorData(groupedResult)
 
-                projectHandler.Save().then((v: any) => {
-                    if (v.status === "OK")  {
+                if (projectSingleton.Path !== null) {
+                    projectSingleton.Save(projectSingleton.Path).then((v: any) => {
                         loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully & project auto-saved\
-                        post run completion.")
-                    } else {
+                            post run completion.")
+                    }).catch((e) => {
                         loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully but failed to auto-\
-                        save, please save manually to ensure results are not lost.")
-                    }
-                })
+                            save, please save manually to ensure results are not lost.")
+                    })
+                }
             }).catch(v => {
                 loggingSingleton.Log(LoggingLevel.WARNING, v)
             })
@@ -167,23 +167,11 @@
         disabled: false
     }
 
-    // Get default path (OS dependant) to UTDefect
-    let defaultPath: string
-    
-    async function UpdateDefaultBinaryPath() {
-        defaultPath = await window.electronAPI.getDefaultBinaryPath()
-    }
-
     function handleTreeMessage(ev: any) {
         if (ev.detail.type == "Save") {
             unsaved = true
         }
     }
-
-    UpdateDefaultBinaryPath()
-
-    // Variable watchers
-    $: projectHandler.currentProject.data.preprocessor.misc.binaryPath, projectHandler.currentProject.data.preprocessor.misc.binaryPath === '' ? runButton.disabled = true : runButton.disabled = false 
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
@@ -205,7 +193,7 @@
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
         <div class="flex flex-col w-20 pt-1 -space-y-1">
-            <select bind:value={projectHandler.currentProject.data.preprocessor.misc.accuracy} class="pl-1 mb-auto bg-gray-50 border-2 border-transparent text-gray-900 text-xs rounded-md focus:border-amber-500 focus:outline-none focus:ring-0 disabled:opacity-75" required on:change={() => unsaved = true}> 
+            <select bind:value={projectSingleton.Accuracy} class="pl-1 mb-auto bg-gray-50 border-2 border-transparent text-gray-900 text-xs rounded-md focus:border-amber-500 focus:outline-none focus:ring-0 disabled:opacity-75" required on:change={() => unsaved = true}> 
                 <option value=5>Highest</option>
                 <option value=4>High</option>
                 <option value=3>Medium</option>
@@ -253,7 +241,7 @@
             </div>
             {#if !treeMinimized}
             <div class="h-full rounded-md my-1 mb-2 w-full px-2" style="overflow: auto;">
-                <TreeComponent tree={tree} data={projectHandler.currentProject.data.preprocessor.tree} pad={false} bind:parametricEnabled={parametricEnabled} on:message={handleTreeMessage}></TreeComponent>
+                <TreeComponent tree={tree} data={projectSingleton.Tree} pad={false} bind:parametricEnabled={parametricEnabled} on:message={handleTreeMessage}></TreeComponent>
             </div>
             {/if}
         </div>
@@ -294,10 +282,10 @@
                     <div class="px-3 mt-2 space-y-2">
                         <div>
                             <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Kernel version</label>
-                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectHandler.currentProject.data.preprocessor.misc.binaryPath} >
-                                <option value="bin/UTDef6.exe">UTDefect - Version 6</option>
+                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath} >
+                                <option value="resources\bin\UTDef6.exe">UTDefect - Version 6</option>
                                 <!-- To be added
-                                <option value="bin/UTDefectLightNoDLL.exe">UTDefect - Light</option>
+                                <option value="resources\bin\UTDefectLightNoDLL.exe">UTDefect - Light</option>
                                 -->
                             </select>
                         </div>
@@ -327,7 +315,7 @@
         </div>
     {/if}
 
-    <ParametricSettings bind:isModalOpen={showParametricSettingsModal} bind:numProcesses={projectHandler.currentProject.data.preprocessor.misc.parametric.numProcesses}/>
+    <ParametricSettings bind:isModalOpen={showParametricSettingsModal} bind:numProcesses={projectSingleton.ProcessCount}/>
 </div>
 
 <style>

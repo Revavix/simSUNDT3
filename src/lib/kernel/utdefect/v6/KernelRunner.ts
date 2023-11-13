@@ -1,106 +1,141 @@
+import { homeDir } from "@tauri-apps/api/path";
 import { LoggingSingleton } from "../../../data/LoggingSingleton";
 import { kernelProgress } from "../../../data/Stores";
 import { Runner } from "../../../models/Kernel";
-import type { Run } from "../../../models/Kernel";
+import type { Progress, Run } from "../../../models/Kernel";
 import { LoggingLevel } from "../../../models/Logging";
-
-async function updateFinishConditionForAllRuns(runs) {
-    for(let i = 0; i < runs.length; i++)
-    {
-        if (runs[i].processId != null && runs[i].processId != 'INVALID' && runs[i].finished == false) {
-            let status = await window.electronAPI.utDefMpGetStatus(runs[i].processId)
-            
-            if (status['exitCode'] == 0) {
-                runs[i].finished = true
-            } else if (status['exitCode'] == 2) {
-                runs[i].finished = true
-            } else if (status['exitCode'] != -1) {
-                runs[i].finished = true
-            }
-
-            runs[i].exitReason = status['exitCode']
-        }
-    }
-}
-
-async function updateProgressForAllRuns(runs) {
-    let parametricProgress = []
-
-    for(let i = 0; i < runs.length; i++)
-    {
-        if (runs[i].processId != null && runs[i].processId != 'INVALID' && runs[i].finished == false) {
-            let status = await window.electronAPI.utDefMpGetStatus(runs[i].processId)
-            runs[i].progress = status['progress']
-        }
-
-        parametricProgress.push({
-            progress: runs[i].finished == true ? 1 : runs[i].progress,
-            finished: runs[i].finished
-        })
-    }
-
-    kernelProgress.set(parametricProgress)
-}
+import { Child, Command } from "@tauri-apps/api/shell";
+import { readTextFile } from "@tauri-apps/api/fs";
 
 export class KernelRunner extends Runner {
+    progress: Array<Progress>
     loggingSingleton: LoggingSingleton
     
     constructor(processes: number) {
         super()
+        this.progress = []
         this.aborted = false
         this.runs = []
         this.processes = processes
         this.retries = 5
         this.loggingSingleton = LoggingSingleton.GetInstance()
         
-        window.electronAPI.getHomeDir().then((v) => {
+        homeDir().then((v) => {
             this.home = v
         })
     }
 
-    async Execute(): Promise<Array<Run>> {
-        if (this.runs.length == 0) {
+    private get MaxNumberOfProcesses() {
+        return this.processes
+    }
+
+    private get NumActiveProccesses() {
+        return this.runs.filter((r) => r.started && r.closed.code === null && r.closed.signal === null).length
+    }
+
+    private get UnfinishedRuns() {
+        return this.runs.filter((r) => r.closed.code === null && r.closed.signal === null).length !== 0
+    }
+
+    private async StartProgressWatcher(run: Run, index: number): Promise<void> {
+        run.watcherId = setInterval(async () => {
+            let progressFileContents: string[] = (await readTextFile(run.path + "\\utdefcontrol")).split("\r\n")
+            let lastLine: string = progressFileContents[progressFileContents.length-2]
+
+            if (lastLine !== undefined) {
+                let parsedLine = lastLine.split(/\s+/g)
+                this.progress[index] = {
+                    raw: {
+                        freq: parseFloat(parsedLine[1]),
+                        target: parseFloat(parsedLine[2])
+                    },
+                    progress: parseFloat(parsedLine[1]) / parseFloat(parsedLine[2]), 
+                    finished: false 
+                }
+            } else {
+                this.progress[index] = {
+                    raw: {
+                        freq: 0,
+                        target: 0
+                    },
+                    progress: 0, 
+                    finished: false 
+                }
+            }
+        }, 100)
+    }
+
+    private async StopProgressWatcher(run: Run, index: number): Promise<void> {
+        clearInterval(run.watcherId)
+        this.progress[index] = {
+            raw: {
+                freq: this.progress[index].raw.freq,
+                target: this.progress[index].raw.target
+            },
+            progress: 1, 
+            finished: true 
+        } 
+    }
+    
+    public async Execute(): Promise<void> {
+        if (this.runs?.length == 0) {
             return Promise.reject("No run data is set in the this.runs variable")
         }
 
+        let commands: Array<Command> = []
         this.aborted = false
+        this.progress = new Array<Progress>(this.runs.length)
 
-        this.loggingSingleton.Log(LoggingLevel.INFO, "Attempting to start simulation, the runner will execute " + this.runs.length +
+        this.loggingSingleton.Log(LoggingLevel.INFO, "Attempting to start simulation, the runner will execute " + this.runs?.length +
         " total simulation(s).")
 
-        // Update the max parallel processes for the IPC
-        await window.electronAPI.utDefMpInit(this.processes)
+        // Prepare commands & their handlers
+        for(let i = 0; i < this.runs.length; i++) {
+            let cmd: Command = Command.sidecar("binaries/v6/UTDef6", [], { cwd: this.runs[i].path })
 
-        while(this.runs.find((e) => e.finished === false)) {
-            let freeProcessIdx = this.runs.findIndex((e) => e.processId === null && e.finished === false)
-            let numberOfRuns = this.runs.filter((e) => e.processId !== null && e.finished === false).length
+            cmd.on('close', data => {
+                this.runs[i].closed.code = data.code
+                this.runs[i].closed.signal = data.signal
+                this.StopProgressWatcher(this.runs[i], i)
+                kernelProgress.set(this.progress)
+            })
+            cmd.on('error', err => {
+                this.runs[i].closed.code = -1
+                this.runs[i].closed.signal = -1
+                this.StopProgressWatcher(this.runs[i], i)
+            })
 
-            if (freeProcessIdx != -1 && numberOfRuns < this.processes) {
-                let process = await window.electronAPI.utDefMpStart(this.home + "/Documents/simSUNDT/Simulations/" + this.runs[freeProcessIdx].folder + "/" + "UTDef6.exe")
-                this.runs[freeProcessIdx].processId = process == 'INVALID' ? null : process
-            }
-
-            await new Promise(r => setTimeout(r, 200));
-
-            updateProgressForAllRuns(this.runs)
-            updateFinishConditionForAllRuns(this.runs)
+            commands.push(cmd)
         }
 
+        // Execute commands
+        let index: number = 0
+        while (this.UnfinishedRuns) {
+            if (this.NumActiveProccesses < this.MaxNumberOfProcesses &&
+                index < this.runs.length
+            ) {
+                this.runs[index].started = true
+                commands[index].spawn().then((child: Child) => {
+                    this.runs[index].handle = child
+                    this.StartProgressWatcher(this.runs[index], index)
+                    index += 1
+                }).catch((e) => {
+                    this.loggingSingleton.Log(LoggingLevel.WARNING, "Run " + index + " failed to start, canceling simulation(s)" + e)
+                    return Promise.reject()
+                })
+            }
 
-        const retval = [...this.runs]
-        this.runs = []
+            kernelProgress.set(this.progress)
 
-        return Promise.resolve(retval)
+            await new Promise(r => setTimeout(r, 100));
+        }
+
+        return Promise.resolve()
     }
 
-    async Stop(): Promise<void> {
-        for(let i = 0; i < this.runs.length; i++) {
-            if (this.runs[i].processId !== null) {
-                await window.electronAPI.utDefMpStop(this.runs[i].processId)
-            }
-
-            this.runs[i].finished = true
-            this.runs[i].exitReason = 2
-        }
+    public async Stop(): Promise<void> {
+        this.runs.forEach(run => {
+            run.handle?.kill()
+        });
     }
 }

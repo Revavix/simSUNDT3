@@ -1,18 +1,19 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { onMount } from 'svelte';
+    import { ProjectSingleton } from "../lib/data/ProjectSingleton";
 
-    export let tree
-    export let data
-    export let pad
-    export let parametricEnabled
+    export let tree: any
+    export let data: any
+    export let pad: any
+    export let parametricEnabled: any
     
 	const toggleExpansion = () => {
 		tree.expanded = !tree.expanded
 	}
 	$: arrowDown = tree.expanded
 
-    let ulCssPadding
+    let ulCssPadding: any
 
     if (pad) {
         ulCssPadding = "ul-with-padding"
@@ -44,12 +45,16 @@
         }
     })
 
-    function getData(key) {
+    function getData(key: any) {
         if (!data.hasOwnProperty(key)) {
             data[key] = {}
         }
 
         return data[key]
+    }
+
+    const handleChangedValue = () => {
+        ProjectSingleton.GetInstance().ForceRefresh()
     }
 </script>
 
@@ -74,27 +79,27 @@
             <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
                 <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
                 <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
-                <input bind:value={data.end} type="number" class="pl-1 w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
-                <input bind:value={data.increment} type="number" class="pl-1 w-12 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
+                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
+                <input bind:value={data.end} type="number" class="pl-1 w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
+                <input bind:value={data.increment} type="number" class="pl-1 w-12 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
             </div>
         {:else if tree.type == "Number" && (tree.parametric == false || !parametricEnabled) }
             <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
                 <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
                 <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required>
+                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
             </div>
         {:else if tree.type == "Checkbox"}
         <div class="flex flex-row">
             <span style="font-family:'Material Icons'; font-size:20px;">check_box</span>
             <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-            <input bind:checked={data.value} type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required>
+            <input bind:checked={data.value} type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required on:change={handleChangedValue}>
         </div>
         {:else if tree.type == "Dropdown"}
         <div class="flex flex-row">
             <span style="font-family:'Material Icons'; font-size:20px;">list</span>
             <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-            <select bind:value={data.value} class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required> 
+            <select bind:value={data.value} class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required on:change={handleChangedValue}> 
                 {#each tree.values as opt}
                 <option value={opt.value}>{opt.text}</option>
                 {/each}

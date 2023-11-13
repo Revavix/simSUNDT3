@@ -1,5 +1,4 @@
-import { constructIsoSaveData } from "./utDefSaverUtils"
-import { convertFocusAndTechniqueToIMODE } from "./utDefUtils"
+import { constructIsoSaveData } from "./utDefSaverUtils.js"
 
 export const tree = {
     type: "Root",

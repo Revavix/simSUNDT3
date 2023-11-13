@@ -1,3 +1,4 @@
+import type { Child } from "@tauri-apps/api/shell"
 import type { KernelSaver as KernelSaverUTDef6 } from "../kernel/utdefect/v6/KernelSaver"
 
 interface StatusMessage {
@@ -7,11 +8,15 @@ interface StatusMessage {
 }
 
 export interface Run {
-    processId: string | null,
-    progress: number,
-    folder: string,
-    exitReason: number,
-    finished: boolean
+    executable: string,
+    path: string
+    started: boolean,
+    handle: Child | null,
+    watcherId: number,
+    closed: {
+        code: number | null,
+        signal: number | null
+    }
 }
 
 export interface Status {
@@ -20,33 +25,54 @@ export interface Status {
 }
 
 export interface Progress {
+    raw: {
+        freq: number
+        target: number
+    }
     progress: number,
     finished: boolean
 }
 
 // KernelRunner interfaces / enums / abstract classes
 export abstract class Runner {
-    home: string
-    aborted: boolean
+    home: string | null
+    aborted: boolean | null
     runs: Array<Run>
     processes: number
-    retries: number
+    retries: number | null
 
-    abstract Execute(executable: string): Promise<Array<Run>>
+    constructor() {
+        this.home = null,
+        this.aborted = null
+        this.runs = [],
+        this.processes = 4,
+        this.retries = null
+    }
+
+    abstract Execute(executable: string): Promise<void>
 
     abstract Stop(): Promise<void>
 }
 
 // KernelInitializer interfaces / enums / abstract classes
 export abstract class Initializer {
-    saver: KernelSaverUTDef6
-    runner: Runner
+    saver: KernelSaverUTDef6 | null
+    runner: Runner | null
     executable: string
     binary: string
     home: string
-    mode: InitializerMode
+    mode: InitializerMode | null
 
-    abstract Execute(name: string, data: any): Promise<InitializerExecutionResult>
+    constructor() {
+        this.saver = null
+        this.runner = null
+        this.executable = "null"
+        this.binary = "null"
+        this.home = "null"
+        this.mode = null
+    }
+
+    abstract Execute(name: string, data: any): Promise<InitializerExecutionResult | undefined | string>
 }
 
 export interface InitializerValidationResult {
@@ -55,9 +81,8 @@ export interface InitializerValidationResult {
 }
 
 export interface InitializerExecutionResult {
-    date: string,
-    time: string,
-    runs: Array<Run>
+    timestamp: Date | null
+    runs: Array<Run> | null
 }
 
 export enum InitializerMode {
@@ -67,5 +92,5 @@ export enum InitializerMode {
 
 // KernelSaver interfaces / enums / abstract classes
 export abstract class Saver {
-    abstract Save(destination: string): Promise<boolean>
+    abstract Save(destination: string): Promise<void>
 }
