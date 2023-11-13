@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - 'experimental/**'
 
 jobs:
   build-windows:
@@ -60,7 +59,7 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ needs.build-windows.outputs.product_name }}_${{ needs.build-windows.outputs.product_version }}
-          tag_name: ${{ needs.build-windows.outputs.product_name }}_${{ needs.build-windows.outputs.product_version }}
+          name: ${{ needs.build-windows.outputs.product_version }}
+          tag_name: ${{ needs.build-windows.outputs.product_version }}
           files: |
             ${{ needs.build-windows.outputs.product_name }}_${{ needs.build-windows.outputs.product_version }}_x64_en-US.msi

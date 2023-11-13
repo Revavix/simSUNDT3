@@ -6,6 +6,7 @@
     import { SIMSUNDT_PROJECT_FOLDER } from '../lib/models/PresetPaths';
     import { ProjectCacheSingleton } from '../lib/data/ProjectCacheSingleton';
     import { exists } from '@tauri-apps/api/fs';
+    import ImportModal from '../components/modals/ImportModal.svelte';
 
     export let currentTab
     export let unsaved
@@ -13,6 +14,7 @@
 
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     let cacheSingleton: ProjectCacheSingleton = ProjectCacheSingleton.GetInstance()
+    let isImportModalOpen: boolean = false
 
     onMount(async () => {
         // Get project list from cache
@@ -46,7 +48,7 @@
     }
 
     async function handleOpenImportModal() {
-        alert("Not implemented yet")
+        isImportModalOpen = true
     }
 
     async function handleLoadByName(project: any) {
@@ -127,8 +129,6 @@
 
     projectSingleton.Subscribe((v) => {
         if (v.path === null) return
-
-        console.log(v)
 
         exists(v.path).then(() => {
             if (true) {
@@ -218,6 +218,7 @@
             </div>
         </div>
     </div>
+    <ImportModal bind:isOpen={isImportModalOpen}/>
 </div>
 
 <style>

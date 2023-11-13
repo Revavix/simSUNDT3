@@ -44,7 +44,6 @@
         const extractedData = await kernelResultParser.Extract(folder)
 
         kernelResultParser.Parse(extractedData).then((v: any) => {
-            console.log(v)
             if (Object.keys(v).length != 0) {
                 resultData.set(v)
                 status = "Ok"
@@ -69,7 +68,7 @@
                 <div class="flex flex-col w-full">
                     <select bind:value={selectedTest} on:change={updateGraphsWithSelected} class="flex flex-row mb-auto py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
                         {#each projectSingleton.Postprocessor as data, i}
-                            <option value="{i}">{data.name} ({data.timestamp})</option>
+                            <option value="{i}">{data.name} ({data.timestamp?.toLocaleString()})</option>
                         {/each}
                     </select>
                 </div>

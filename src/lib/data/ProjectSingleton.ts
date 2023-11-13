@@ -92,6 +92,10 @@ export class ProjectSingleton {
         this._active = JSON.parse(await readTextFile(path))
         this._store.set(this._active)
 
+        this._active.data.postprocessor.forEach((element) => {
+            element.timestamp = new Date(element.timestamp)
+        })
+
         return Promise.resolve()
     }
 
