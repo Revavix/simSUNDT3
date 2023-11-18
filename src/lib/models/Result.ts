@@ -96,3 +96,16 @@ export enum LoadingState {
     OK = 1,
     INVALID = 2
 }
+
+export enum Rectification {
+    UNRECTIFIED = 0,
+    FULLWAVE = 1,
+    HALFWAVE_POS = 2,
+    HALFWAVE_NEG = 3
+}
+
+export enum Interpolation {
+    OFF = 0,
+    FAST = 1,
+    BEST = 2
+}

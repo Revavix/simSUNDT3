@@ -6,31 +6,20 @@
     import { UltraVision } from '../../lib/plotting/Colorscales';
     import { interpolationMode, loadedMetadata, selectedPosEnd, selectedPosSide, selectedPosSignal } from '../../lib/data/Stores';
     import { invoke } from '@tauri-apps/api/tauri';
-    import { LoadingState, type Metadata, type Top } from '../../lib/models/Result';
+    import { Interpolation, LoadingState, Rectification, type Metadata, type Top } from '../../lib/models/Result';
     import Spinner from '../Spinner.svelte';
     import { onDestroy, onMount } from 'svelte';
     import { fade } from 'svelte/transition';
+    import { interpolationToZsmooth } from '../../lib/plotting/Utils';
+    import { clayout } from '../../lib/plotting/Layouts';
 
-    export let rectification: any
+    export let interpolation: Interpolation
 
     let mode = "A"
     let loading: LoadingState = LoadingState.LOADING
-    let smoothing: false | "fast" | "best" | undefined = false
     let currentMetadata: Metadata
     let plot: any
     let div: any
-    let layout: any = {
-        paper_bgcolor: 'rgba(0, 0, 0, 0)',
-        plot_bgcolor: 'rgba(0, 0, 0, 0)',
-        margin: {
-            t: 20,
-            l: 40,
-            r: 20,
-            b: 40
-        },
-        shapes: [],
-        annotations: []
-    }
     let cfg = {
         responsive: true,
         displayModeBar: false,
@@ -52,18 +41,18 @@
             let midPointX = Math.floor(((top.columns-1) * metadata.coordinates.x.increment) / 2) + metadata.coordinates.x.start
             let midPointY = Math.floor(((top.rows-1) * metadata.coordinates.y.increment) / 2) + metadata.coordinates.y.start
 
-            layout.annotations = [
+            clayout.annotations = [
                 dot(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', - metadata.coordinates.y.increment * 10),
                 verticalLine(midPointX, 'D'),
                 horizontalLine(midPointY, 'B')
             ]
 
             let data: Data[] = [
-            {
+                {
                     x: top.content.map(c => metadata.coordinates.x.start + (c.x * metadata.coordinates.x.increment)),
                     y: top.content.map(c => metadata.coordinates.y.start + (c.y * metadata.coordinates.y.increment)),
                     z: top.content.map(c => c.z),
-                    zsmooth: smoothing,
+                    zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
                     colorscale: UltraVision
                 }
@@ -71,7 +60,7 @@
 
             loading = LoadingState.OK
             setTimeout(() => {
-                plot = Plotly.react(div, data, layout, cfg)
+                plot = Plotly.react(div, data, clayout, cfg)
                 currentMetadata = metadata
 
                 // Manually update on first plot draw
@@ -113,7 +102,7 @@
                             if (x === d.points[i].x && y === d.points[i].y) {
                                 // Update annotations according to chosen mode
                                 if (mode == "A") {
-                                    layout.annotations[0] = dot(
+                                    clayout.annotations[0] = dot(
                                         x, 
                                         y, 
                                         'A [' + x + ', ' + y + ']',
@@ -131,7 +120,7 @@
                                         }
                                     })
                                 } else if (mode == "D") {
-                                    layout.annotations[1] = verticalLine(x, 'D')
+                                    clayout.annotations[1] = verticalLine(x, 'D')
                                     selectedPosEnd.set({
                                         amplitude: top.amplitude,
                                         ref: {
@@ -142,7 +131,7 @@
                                         x: x
                                     })
                                 } else if (mode == "B") {
-                                    layout.annotations[2] = horizontalLine(y, 'B')
+                                    clayout.annotations[2] = horizontalLine(y, 'B')
                                     selectedPosSide.set({
                                         amplitude: top.amplitude,
                                         ref: {
@@ -152,7 +141,7 @@
                                         y: y
                                     })
                                 }
-                                Plotly.relayout(div, layout)
+                                Plotly.relayout(div, clayout)
                             }
                         })
                     }
@@ -167,10 +156,7 @@
         unsubscribe()
     })
 
-    interpolationMode.subscribe(v => {
-        if (v === undefined) return
-        //smoothing = v[0]
-    })
+    $: interpolation, loadedMetadata.update(m => m)
 </script>
 
 <div class="flex flex-row">
@@ -193,7 +179,7 @@
     </div>
 </div>
 <div class="flex flex-row h-full" style="max-height: calc(100% - 28px);">
-    <div class="w-full h-full" style="{loading === LoadingState.LOADING ? 'margin-bottom:-' + (layout.margin.b + 4) + 'px;' : null}">
+    <div class="w-full h-full" style="{loading === LoadingState.LOADING ? 'margin-bottom:-' + (clayout.margin.b + 4) + 'px;' : null}">
         <div class="w-full h-full" bind:this={div}>
             {#if loading === LoadingState.LOADING}
             <Spinner/>

@@ -9,6 +9,7 @@
     import { invoke } from '@tauri-apps/api/tauri';
     import Spinner from '../Spinner.svelte';
     import type { Position2D } from '../../lib/models/Positions';
+    import { rectify } from '../../lib/plotting/Utils';
     
 
     export let rectification: any
@@ -59,7 +60,7 @@
             let plotData: Data[] = [
                 {
                     x: signal.map(s => (metadata.timegate.start + (s.x * metadata.timegate.increment)) * Math.pow(10, -6)),
-                    y: signal.map(s => s.y / point.amplitude),
+                    y: signal.map(s => rectify(rectification, s.y / point.amplitude)),
                     type: 'scatter',
                 }
             ]
@@ -75,7 +76,7 @@
         unsubscribe()
     })
 
-    //$: rectification, updatePlot()
+    $: rectification, selectedPosSignal.update(s => s)
 </script>
 
 <div class="flex flex-row">

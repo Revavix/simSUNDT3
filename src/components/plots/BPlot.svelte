@@ -5,15 +5,17 @@
     import { UltraVision } from '../../lib/plotting/Colorscales';
     import { CalculationMode, DistanceMode } from '../../lib/models/SoundYAxisMode';
     import { onDestroy, onMount } from 'svelte';
-    import { bLayout } from '../../lib/plotting/Layouts';
+    import { blayout } from '../../lib/plotting/Layouts';
     import { loadedMetadata, selectedPosSide } from '../../lib/data/Stores';
     import { invoke } from '@tauri-apps/api/tauri';
-    import { LoadingState, type Metadata } from '../../lib/models/Result';
+    import { LoadingState, Rectification, type Metadata, Interpolation } from '../../lib/models/Result';
     import { get } from 'svelte/store';
     import type { Position3D } from '../../lib/models/Positions';
     import Spinner from '../Spinner.svelte';
+    import { interpolationToZsmooth, rectify } from '../../lib/plotting/Utils';
 
-    export let rectification: any
+    export let rectification: Rectification
+    export let interpolation: Interpolation
 
     let loading: LoadingState = LoadingState.LOADING
     let calculationMode = CalculationMode.Time
@@ -61,18 +63,18 @@
                 {
                     x: signals.map(s => metadata.coordinates.x.start + (s.x * metadata.coordinates.x.increment)),
                     y: signals.map(s => s.y * getYMultiplier(metadata) * ((metadata.timegate.end - metadata.timegate.start ) / side.ref.samples)),
-                    z: signals.map(s => s.z),
-                    zsmooth: false,
+                    z: signals.map(s => rectify(rectification, s.z)),
+                    zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
                     colorscale: UltraVision
                 }
             ]
         
-            bLayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'mm'
-            bLayout.margin.l = calculationMode === CalculationMode.Time ? 40 : 60
+            blayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'mm'
+            blayout.margin.l = calculationMode === CalculationMode.Time ? 40 : 60
 
             loading = LoadingState.OK
-            plot = Plotly.react(div, data, bLayout, cfg)
+            plot = Plotly.react(div, data, blayout, cfg)
         }).catch((e) => {
             loading = LoadingState.INVALID
         })
@@ -82,7 +84,7 @@
         unsubscribe()
     })
 
-    $: calculationMode || distanceMode, selectedPosSide.update(n => n)
+    $: calculationMode || distanceMode || rectification, selectedPosSide.update(n => n)
 </script>
 
 
@@ -95,7 +97,7 @@
     </div>
 </div>
 <div class="flex flex-row w-full h-full" style="max-height: calc(100% - 28px);">
-    <div class="flex flex-col w-full h-full" style="{loading === LoadingState.LOADING ? 'margin-top:-' + (bLayout.margin.t + 4) + 'px;' : null}">
+    <div class="flex flex-col w-full h-full" style="{loading === LoadingState.LOADING ? 'margin-top:-' + (blayout.margin.t + 4) + 'px;' : null}">
         <div class="w-full h-full" bind:this={div}>
         {#if loading === LoadingState.LOADING}
         <Spinner/>
