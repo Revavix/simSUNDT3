@@ -462,7 +462,7 @@ pub fn parse_metadata(path: String) -> Result<Metadata, String> {
                 }
             }
         }
-        Err(e) => {
+        Err(_e) => {
             error = format!("Failed to find file, or file is invalid");
         }
     }
@@ -507,7 +507,7 @@ pub fn parse_top_view(path: String) -> Result<Top, String> {
                 }
             };
         }
-        Err(e) => {
+        Err(_e) => {
             error = "Failed to find file, or file is invalid".to_string();
         }
     }
@@ -540,7 +540,7 @@ pub fn parse_point_view(path: String, index: usize, samples: usize) -> Result<Ve
                 }
             };
         }
-        Err(e) => {
+        Err(_e) => {
             error = "Failed to find file, or file is invalid".to_string();
         }
     }
@@ -578,7 +578,7 @@ pub fn parse_side_view(path: String, indicies: Vec<usize>, samples: usize) -> Re
                 }
             };
         }
-        Err(e) => {
+        Err(_e) => {
             error = "Failed to find file, or file is invalid".to_string();
         }
     }
