@@ -1,5 +1,6 @@
 <script lang="ts">
     import { ImportVariant, ImportType } from "../../lib/models/Import";
+    import type { Button as IButton } from "../../lib/models/Button";
     import Button from "../Button.svelte";
     import Modal from "../Modal.svelte";
     import SimsundtTwoResults from '../importing/SimsundtTwoResults.svelte';
@@ -9,7 +10,24 @@
     let height: number
     let importVariant: ImportVariant = 0
     let importType: ImportType = 0
-    let submit: () => {}
+
+    let cancelButton: IButton = {
+        color: "#ba3822", 
+        icon: "close", 
+        label: "Cancel", 
+        labelSize: 14, 
+        action: () => {
+            isOpen = false
+        }
+    }
+
+    let submitButton: IButton = {
+        color: "#55b13c", 
+        icon: "input", 
+        label: "Submit", 
+        labelSize: 14, 
+        action: () => {}
+    }
 </script>
 
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} />
@@ -29,14 +47,14 @@
         </div>
     </div>
     {#if importVariant === ImportVariant.SIMSUNDT_V2 && importType === ImportType.RESULTS}
-    <SimsundtTwoResults bind:submit={submit}/>
+    <SimsundtTwoResults bind:parentCancelButton={cancelButton} bind:parentSubmitButton={submitButton}/>
     {/if}
     <div class="flex flex-row w-full p-3">
         <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 mr-auto">
-            <Button data={{ color: "#ba3822", icon: "close", label: "Cancel", labelSize: 14, action: () => {isOpen = false} }}/>
+            <Button data={cancelButton}/>
         </div>
         <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 ml-auto">
-            <Button data={{ color: "#55b13c", icon: "input", label: "Submit", labelSize: 14, action: submit }}/>
+            <Button data={submitButton}/>
         </div>
     </div>
 </Modal>
