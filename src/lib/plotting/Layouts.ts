@@ -1,6 +1,6 @@
 import type { Layout } from "plotly.js-dist-min"
 
-export const bLayout: any = {
+export const blayout: any = {
     paper_bgcolor: 'rgba(0, 0, 0, 0)',
     plot_bgcolor: 'rgba(0, 0, 0, 0)',
     margin: {
@@ -18,7 +18,7 @@ export const bLayout: any = {
     }
 }
 
-export const dLayout: any = {
+export const dlayout: any = {
     paper_bgcolor: 'rgba(0, 0, 0, 0)',
     plot_bgcolor: 'rgba(0, 0, 0, 0)',
     margin: {
@@ -34,4 +34,17 @@ export const dLayout: any = {
         ticksuffix: 's',
         autorange: 'reversed'
     }
+}
+
+export const clayout: any = {
+    paper_bgcolor: 'rgba(0, 0, 0, 0)',
+    plot_bgcolor: 'rgba(0, 0, 0, 0)',
+    margin: {
+        t: 20,
+        l: 40,
+        r: 20,
+        b: 40
+    },
+    shapes: [],
+    annotations: []
 }

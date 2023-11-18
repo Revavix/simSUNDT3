@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "SimSUNDT",
-    "version": "3.1.0"
+    "version": "3.1.1"
   },
   "tauri": {
     "allowlist": {
@@ -40,6 +40,7 @@
     },
     "bundle": {
       "active": true,
+      "publisher": "Revavix, University West",
       "category": "Productivity",
       "copyright": "",
       "deb": {

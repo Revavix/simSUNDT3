@@ -6,12 +6,13 @@
     import CompressionalWave from './icons/CompressionalWave.svelte';
     import ShearWave from './icons/ShearWave.svelte';
     import Tooltip from './Tooltip.svelte';
-    import type { ResultInfo } from '../lib/models/Result';
+    import type { Metadata } from "../lib/models/Result";
+    import TooltipMultiline from "./TooltipMultiline.svelte";
     
     export let calculationMode: CalculationMode | undefined = undefined
     export let distanceMode: DistanceMode | undefined = undefined
     export let plot: Promise<object>
-    export let info: ResultInfo | null = null
+    export let metadata: Metadata | null = null
 
     let plotDiv: any
     let originalXRange: [Datum, Datum] = [0, 0]
@@ -23,15 +24,15 @@
         icon: "pan_tool_alt",
         action:  () => {
             Plotly.relayout(plotDiv, {
-                dragmode: 'pan'
+                dragmode: 'zoom'
             })
 
             // Force update for Svelte
             plotDiv = plotDiv
 
             // Re-enable zoom buttons in pan mode
-            zoomOutButton.disabled = false
-            zoomInButton.disabled = false
+            zoomOutButton.disabled = true
+            zoomInButton.disabled = true
         },
         disabled: false
     }
@@ -42,15 +43,15 @@
         icon: "search",
         action:  () => {
             Plotly.relayout(plotDiv, {
-                dragmode: 'zoom'
+                dragmode: 'pan'
             })
 
             // Force update for Svelte
             plotDiv = plotDiv
 
             // Disable zoom buttons in zoom mode, unexpected behavior outside of bounds
-            zoomOutButton.disabled = true
-            zoomInButton.disabled = true
+            zoomOutButton.disabled = false
+            zoomInButton.disabled = false
         },
         disabled: false
     }
@@ -93,13 +94,14 @@
     $: plot, update()
 
     async function update() {
-        if (plot != undefined) {
-            plot.then((v: any) => {
-                plotDiv = v
-                originalXRange = v.layout.xaxis.range
-                originalYRange = v.layout.yaxis.range
-            })
-        }
+        if (plot === undefined) return
+
+        plot.then((v: any) => {
+            if (v.childNodes.length === 0) return
+            plotDiv = v
+            originalXRange = v.layout.xaxis.range
+            originalYRange = v.layout.yaxis.range
+        })
     }
 
     function zoom(mag: number) {
@@ -137,20 +139,23 @@
 </script>
 
 <div class="flex flex-row w-full">
-    {#if info !== null}
+    {#if metadata !== null}
     <div class="flex flex-col px-0.5 items-center" style="color:#4d4d4d; font-size: 12px; cursor: pointer">
-        <Tooltip label={"Calibration level: " + info.calibration}>
+        <TooltipMultiline labels={[
+            "Calibration level: " + metadata.max_output, 
+            "True angle: " + metadata.probe.true_angle
+        ]}>
             <div class="flex flex-col" style="font-family:'Material Icons'; font-size:12px; color:#4d4d4d">
                 info
             </div>
-        </Tooltip>
+        </TooltipMultiline>
     </div>
     {/if}
     {#if calculationMode !== undefined && distanceMode !== undefined}
         {#if distanceMode === DistanceMode.Shear}
         <div class="flex flex-col w-full mx-0.5">
             <button style="color:#4d4d4d; font-size: 12px" on:click={() => { distanceMode = DistanceMode.Compressional}} disabled={calculationMode === CalculationMode.Time}>
-                <Tooltip label="Swap to Shear Wave distance mode" disabled={calculationMode === CalculationMode.Time}>
+                <Tooltip label="Calculating distance using shear wave" disabled={calculationMode === CalculationMode.Time}>
                     <ShearWave opacity={calculationMode === CalculationMode.Time ? 0.5 : 1.0}/>
                 </Tooltip>
             </button>
@@ -158,7 +163,7 @@
         {:else if distanceMode === DistanceMode.Compressional}
         <div class="flex flex-col w-full mx-0.5">
             <button style="color:#4d4d4d; font-size: 12px" on:click={() => { distanceMode = DistanceMode.Shear}} disabled={calculationMode === CalculationMode.Time}>
-                <Tooltip label="Swap to Compressional Wave distance mode" disabled={calculationMode === CalculationMode.Time}>
+                <Tooltip label="Calculating distance using compressional wave" disabled={calculationMode === CalculationMode.Time}>
                     <CompressionalWave opacity={calculationMode === CalculationMode.Time ? 0.5 : 1.0}/>
                 </Tooltip>
             </button>
@@ -167,27 +172,25 @@
         {#if calculationMode === CalculationMode.Distance}
         <div class="flex flex-col w-full mx-0.5">
             <button style="color:#4d4d4d; font-size: 14px; font-family: Fira Mono; font-weight: 500" on:click={() => { calculationMode = CalculationMode.Time}}>
-                μs
+                mm
             </button>
         </div>
         {:else if calculationMode === CalculationMode.Time}
         <div class="flex flex-col w-full mx-0.5">
             <button style="color:#4d4d4d; font-size: 14px; font-family: Fira Mono; font-weight: 500" on:click={() => { calculationMode = CalculationMode.Distance}}>
-                mm
+                μs
             </button>
         </div>
         {/if}
     {/if}
-    {#if plotDiv != undefined}
-        {#if plotDiv._fullLayout.dragmode == "zoom"}
-        <div class="flex flex-col w-full mx-0.5">
-            <Button data={panModeButton}/>
-        </div>
-        {:else}
-        <div class="flex flex-col w-full mx-0.5">
-            <Button data={zoomModeButton}/>
-        </div>
-        {/if}
+    {#if plotDiv?._fullLayout?.dragmode == "zoom"}
+    <div class="flex flex-col w-full mx-0.5">
+        <Button data={zoomModeButton}/>
+    </div>
+    {:else}
+    <div class="flex flex-col w-full mx-0.5">
+        <Button data={panModeButton}/>
+    </div>
     {/if}
     <div class="flex flex-col w-full mx-0.5">
         <Button data={zoomOutButton}/>
