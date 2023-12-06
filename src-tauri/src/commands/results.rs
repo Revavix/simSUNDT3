@@ -341,7 +341,7 @@ pub fn parse_metadata(path: String) -> Result<Metadata, String> {
             regex: r"\d{1}".to_string(),
             fields: 2,
             max_offset: 6,
-            optional: false
+            optional: true
         },
         Identifier { 
             id: r"Near field length and wavelength:".to_string(), 
@@ -359,8 +359,9 @@ pub fn parse_metadata(path: String) -> Result<Metadata, String> {
             max_offset: 14,
             optional: false
         },
+        // Depth varies between different defect types
         Identifier { 
-            id: r"The depth to the centre of the defect is:".to_string(), 
+            id: r"(The depth to the centre of the defect is:|The depth to the back surface is:)".to_string(), 
             operation: set_defect_depth,
             regex: r"-?\d+\.\d+".to_string(),
             fields: 1,
@@ -368,7 +369,7 @@ pub fn parse_metadata(path: String) -> Result<Metadata, String> {
             optional: false
         },
         Identifier { 
-            id: r"Defect is .+ with diameter:".to_string(), 
+            id: r"(Defect is .+ with diameter:|The width of the crack is:)".to_string(), 
             operation: set_defect_diameter,
             regex: r"-?\d+\.\d+".to_string(),
             fields: 1,

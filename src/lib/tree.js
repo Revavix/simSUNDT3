@@ -1748,16 +1748,7 @@ export const tree = {
                                     name: "Tilt of Crack",
                                     type: "Number",
                                     divisor: 1,
-                                    identity: ["UNDECLARED_18", null],
-                                    parametric: true,
-                                    disabled: false,
-                                    default: 0
-                                },
-                                tiltOfSurface: {
-                                    name: "Tilt of Surface",
-                                    type: "Number",
-                                    divisor: 1,
-                                    identity: ["UNDECLARED_19", null],
+                                    identity: ["PS", null],
                                     parametric: true,
                                     disabled: false,
                                     default: 0
