@@ -31,13 +31,14 @@
             let metadata = v as Metadata
             metadata.path = projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path
             loadedMetadata.set(metadata)
+            console.log(metadata)
 
             // Check if large dataset
             let columns = (Math.abs(metadata.coordinates.x.end) + Math.abs(metadata.coordinates.x.start)) / metadata.coordinates.x.increment
             let rows = (Math.abs(metadata.coordinates.y.end) + Math.abs(metadata.coordinates.y.start)) / metadata.coordinates.y.increment
             largeDataSet = columns * rows > 6400 ? true : false
         }).catch((e) => {
-            console.log(e)
+            console.error(e)
             // TODO: Add error feedback
         })
     }

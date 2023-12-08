@@ -63,7 +63,7 @@
                 {
                     x: signals.map(s => metadata.coordinates.x.start + (s.x * metadata.coordinates.x.increment)),
                     y: signals.map(s => s.y * getYMultiplier(metadata) * ((metadata.timegate.end - metadata.timegate.start ) / side.ref.samples)),
-                    z: signals.map(s => rectify(rectification, s.z)),
+                    z: signals.map(s => rectify(rectification, s.z / side.amplitude)),
                     zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
                     colorscale: UltraVision

@@ -127,7 +127,6 @@
 
         invoke('commands_results_parse_point_view', { path: apath, x: tempContent[0].x, y: tempContent[0].y, columns: tempColumns, samples: tempSamples }).then((v) => {
             pointviewHasError = false
-            console.log(v)
         }).catch((e) => {
             pointviewHasError = true
             pointviewErrorText = e

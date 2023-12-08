@@ -16,65 +16,65 @@ export class KernelSaver extends Saver {
         let writeArray = []
         writeArray.push("Indefa")
         writeArray.push(" 1" + "   " + "Mode")
-        writeArray.push(" " + (10*this.data.LS + this.data.LP) + "   " + "UT Technique")
-        writeArray.push(" " + this.data.XS + " , " + this.data.XE + " , " + this.data.XI + "   " + "X Start, X End, X Increment");
-        writeArray.push(" " + this.data.YS + " , " + this.data.YE + " , " + this.data.YI + "   " + "Y Start, Y End, Y Increment")
-        writeArray.push(" " + this.data.CP + " , " + this.data.CS + "   " + "Longitudinal Wavespeed & Transversal Wavespeed")
+        writeArray.push(" " + (10*this.data.LS + this.data.LP) + "   " + "UT Technique (LSTY)")
+        writeArray.push(" " + this.data.XS + " , " + this.data.XE + " , " + this.data.XI + "   " + "X Start, X End, X Increment (XS, XE, XI)");
+        writeArray.push(" " + this.data.YS + " , " + this.data.YE + " , " + this.data.YI + "   " + "Y Start, Y End, Y Increment (YS, YE, YI)");
+        writeArray.push(" " + this.data.CP + " , " + this.data.CS + "   " + "Longitudinal Wavespeed & Transversal Wavespeed (CP, CS)")
 
         if (this.data.CP < 0) {
-            writeArray.push(" " + this.data.DBA + "   " + "Dampening");
+            writeArray.push(" " + this.data.DBA + "   " + "Dampening (DBA)");
         }
 
-        writeArray.push(" " + this.data.NFR + "   " + "Spectrum");
+        writeArray.push(" " + this.data.NFR + "   " + "Spectrum (NFR)");
 
         if (this.data.NFR < 0 || this.data.NFR == 1) {
-            writeArray.push(" " + this.data.FREQ + " , " + this.data.BANDW + "   " + "Frequency & Bandwidth");
+            writeArray.push(" " + this.data.FREQ + " , " + this.data.BANDW + "   " + "Frequency & Bandwidth (FREQ, BANDW)");
         } else {
-            writeArray.push(" " + this.data.F1 + " , " + this.data.F2 + " , " + this.data.F3 + " , " + this.data.F4 + "   " + "F1, F2, F3, F4");
-            writeArray.push(" " + this.data.AF + " , " + this.data.BF + "   " + "Height of F2 and F3");
+            writeArray.push(" " + this.data.F1 + " , " + this.data.F2 + " , " + this.data.F3 + " , " + this.data.F4 + "   " + "Frequencies (F1, F2, F3, F4)");
+            writeArray.push(" " + this.data.AF + " , " + this.data.BF + "   " + "Height of F2 and F3 (AF, BF)");
         }
 
         if (this.data.NFR != 1 && this.data.LS != 0) {
-            writeArray.push(" " + this.data.LTTY + "   " + "Time Window Type");
+            writeArray.push(" " + this.data.LTTY + "   " + "Time Window Type (LTTY)");
 
             if (this.data.LTTY == 2) { 
                 writeArray.push(" " + this.data.TS + " , " + this.data.TE + " , " + this.data.TI + "   " + 
-                "Time Window: Start, End, and Increment"); 
+                "Time Window: Start, End, and Increment (TS, TE, TI)"); 
             }
 
             if (this.data.LTTY == 3) { 
-                writeArray.push(" " + this.data.XD + " , " + this.data.YD + " , " + this.data.ZD + "   " + "Time Window: X Depth, Y Depth, Depth of Diffraction");
-                writeArray.push(" " + this.data.TS + " , " + this.data.TI + "   " + "Time Window: Start and Increment");
+                writeArray.push(" " + this.data.XD + " , " + this.data.YD + " , " + this.data.ZD + "   " + "Time Window: X Depth, Y Depth, Depth of Diffraction (XD, YD, ZD)");
+                writeArray.push(" " + this.data.TS + " , " + this.data.TI + "   " + "Time Window: Start and Increment (TS, TI)");
             }
         }
-
+        
         if (this.data.IMODE[0] == 4 || this.data.IMODE[0] == 24){
-            writeArray.push(" " + this.data.IMODE[0] + " , " + this.data.ISHA[0] + " , " + this.data.COUP[0] + "   " + "Focus, Shape and Coupling");
+            writeArray.push(" " + this.data.IMODE[0] + " , " + this.data.ISHA[0] + " , " + this.data.COUP[0] + "   " + "Focus, Shape and Coupling (IMODE, ISHA, COUP)");
         } else {
-            writeArray.push(" " + this.data.IMODE[0] + " , " + this.data.INSTY[0] + " , " + this.data.COUP[0] + "   " + "Focus, Suppression and Coupling");
+            writeArray.push(" " + this.data.IMODE[0] + " , " + this.data.INSTY[0] + " , " + this.data.COUP[0] + "   " + "Focus, Suppression and Coupling (IMODE, INSTY, COUP)");
         }
 
         if (this.data.IMODE[0] < 0) { pharr[0] = 2; this.data.IMODE[0] = -this.data.IMODE[0]; }
 
         if (this.data.IMODE[0] != 4 && this.data.IMODE[0] != 24) {
-            writeArray.push(" " + this.data.PGA[0] + " , " + this.data.PSI[0] + "   " + "Probe Angle and Skew");
-            writeArray.push(" " + this.data.ISHA[0] + " , " + this.data.PA[0] + " , " + this.data.PB[0] + "   " + "Probe Type, Length in X, and Y Direction");
+            writeArray.push(" " + this.data.PGA[0] + " , " + this.data.PSI[0] + "   " + "Probe Angle and Skew (PGA, PSI)");
+            writeArray.push(" " + this.data.ISHA[0] + " , " + this.data.PA[0] + " , " + this.data.PB[0] + "   " + "Probe Type, Length in X, and Y Direction (ISHA, PA, PB)");
 
             if (this.data.ISHA[0] < 0) {
-                writeArray.push(" " + this.data.NAWX[0] + " , " + this.data.NAWY[0] + "   " + "Probe Separation");
+                writeArray.push(" " + this.data.NAWX[0] + " , " + this.data.NAWY[0] + "   " + "Probe Separation (NAWX, NAWY)");
 
                 if (pharr[0] != 0) {
-                    writeArray.push(" " + this.data.GAPX[0] + " , " + this.data.GAPY[0] + " , " + this.data.RHOW[0] + "   " + "Gap of X, Y and Density");
+                    writeArray.push(" " + this.data.GAPX[0] + " , " + this.data.GAPY[0] + " , " + this.data.RHOW[0] + "   " + "Gap of X, Y and Density (GAPX, GAPY, RHOW)");
 
                     if (this.data.RHOW[0] > 0) {
-                        writeArray.push(" " + this.data.CPW[0] + " , " + this.data.CSW[0] + "   " + "Wedge Longitudinal and Transversal");
-                        writeArray.push(" " + this.data.PCW[0] + " , " + this.data.GW[0] + "   " + "Wedge Width and Gradient");
+                        writeArray.push(" " + this.data.CPW[0] + " , " + this.data.CSW[0] + "   " + "Wedge Longitudinal and Transversal (CPW, CSW)");
+                        writeArray.push(" " + this.data.PCW[0] + " , " + this.data.GW[0] + "   " + "Wedge Width and Gradient (PCW, GW)");
                     }
                 }
             }
 
             if (this.data.IMODE[0] > 10) {
-                writeArray.push(" " + this.data.FOC[0]);
+                writeArray.push(" " + this.data.FOC[0] + "   " + "Focus (FOC)");
             }
 
             if (pharr[0] != 0 && this.data.LP == 1) {
@@ -101,23 +101,25 @@ export class KernelSaver extends Saver {
             // ISHA[0] = INSTY[0]; In immersion mode, it seems that INSTY is overwritten to be ISHA?
 
             if (this.data.ISHA[0] < 0) {
-                writeArray.push(" " + this.data.NAWX[0] + " , " + this.data.NAWY[0]);
+                writeArray.push(" " + this.data.NAWX[0] + " , " + this.data.NAWY[0] + "   " + "Probe Separation (NAWX, NAWY)");
             }
 
-            writeArray.push(" " + this.data.PD[0] + " , " + this.data.PA[0] + " , " + this.data.PB[0] + "   " + "Height, Shape X, Shape Y");
-            writeArray.push(" " + this.data.RF + " , " + this.data.CF + "   " + "Immersion Density and Wavespeed");
-            writeArray.push(" " + this.data.FPHI[0] + " , " + this.data.FTHE[0] + " , " + this.data.FPSI[0] + "   " + "Immersion Euler Angles, Phi, Theta and Psi");
+            writeArray.push(" " + this.data.PD[0] + " , " + this.data.PA[0] + " , " + this.data.PB[0] + "   " + "Height, Shape X, Shape Y (PD, PA, PB)");
+            writeArray.push(" " + this.data.RF + " , " + this.data.CF + "   " + "Immersion Density and Wavespeed (RF, CF)");
+            writeArray.push(" " + this.data.FPHI[0] + " , " + this.data.FTHE[0] + " , " + this.data.FPSI[0] + "   " + "Immersion Euler Angles, Phi, Theta and Psi (FPHI, FTHE, FPSI)");
 
             if (this.data.CF < 0) {
                 writeArray.push(" " + this.data.DBF);
             }
 
-            // For some reason source program does: if (this.data.IMODE[0] > 10) { writeArray.push(" " + FOC[0]); } ==> impossible to reach
+            if (this.data.IMODE[0] > 10) {
+                writeArray.push(" " + this.data.FOC[0] + "   " + "Focus (FOC)");
+            }
         }
 
         // LP in fortran. TODO: Investigate that this.data.is correct
         if (this.data.LS >= 2) {
-            writeArray.push(" " + this.data.IMODE[1] + " , " + this.data.INSTY[1] + " , " + this.data.COUP[1] + "   " + "Focus, Suppression and Coupling for Receiver");
+            writeArray.push(" " + this.data.IMODE[1] + " , " + this.data.INSTY[1] + " , " + this.data.COUP[1] + "   " + "Focus, Suppression and Coupling for Receiver (IMODE, INSTY, COUP)");
 
             pharr[1] = 0;
 
@@ -172,76 +174,78 @@ export class KernelSaver extends Saver {
             this.data.YSEP = 0;
         }
 
-        writeArray.push(" " + this.data.LDTY + " , " + this.data.DZ + "   " + "Defect Type and Centre Depth");
+        writeArray.push(" " + this.data.LDTY + " , " + this.data.DZ + "   " + "Defect Type and Centre Depth (LDTY, DZ)");
 
         if (this.data.LDTY == 1 || this.data.LDTY == 11) {
-            writeArray.push(" " + this.data.DA + "   " + "Defect Diameter");
+            writeArray.push(" " + this.data.DA + "   " + "Defect Diameter (DA)");
         }
 
         if (this.data.LDTY == 2 || this.data.LDTY == 12) {
-            writeArray.push(" " + this.data.DA + " , " + this.data.DRR + " , " +  this.data.CPI + " , " + this.data.CSI);
+            writeArray.push(" " + this.data.DA + " , " + this.data.DRR + " , " +  this.data.CPI + " , " + this.data.CSI + "   " + 
+            "Defect Diameter, Relative Density, Inclusion Longitudinal and Inclusion Transversal Wavespeed (DA, DRR, CPI, CSI)");
         }
 
         if (this.data.CPI < 0) {
-            writeArray.push(" " + this.data.DBI);
+            writeArray.push(" " + this.data.DBI + "   " + "Inclusion Dampening (DBI)");
         }
 
         if (this.data.LDTY == 3 || this.data.LDTY == 13) {
-            writeArray.push(" " + this.data.DA + " , " + this.data.ETHA + " , " + this.data.PHI);
-            writeArray.push(" " + this.data.LDC);
+            writeArray.push(" " + this.data.DA + " , " + this.data.ETHA + " , " + this.data.PHI + "   " + "Defect Diameter, Euler Angles Phi and Theta (DA, ETHA, PHI)");
+            writeArray.push(" " + this.data.LDC + "   " + "Circular variant (LDC)");
 
             if (this.data.LDC == 3)
             {
-                writeArray.push(" " + this.data.DC + " , " + this.data.DAC);
+                writeArray.push(" " + this.data.DC + " , " + this.data.DAC + "   " + "Stress Quotient, Contact Diameter (DC, DAC)");
             }
         }
 
         if (this.data.LDTY == 4 || this.data.LDTY == 14) {
-            writeArray.push(" " + this.data.DA + " , " + this.data.DB + " , " + this.data.ETHA + " , " + this.data.PHI);
+            writeArray.push(" " + this.data.DA + " , " + this.data.DB + " , " + this.data.ETHA + " , " + this.data.PHI + "   " + "Defect Diameter, Defect Height, Euler Angles Phi and Theta (DA, DB, ETHA, PHI)");
         }
 
         if (this.data.LDTY == 5 || this.data.LDTY == 25) {
-            writeArray.push(" " + this.data.A + " , " + this.data.B + " , " + this.data.PS);
+            writeArray.push(" " + this.data.A + " , " + this.data.B + " , " + this.data.PS + "   " + "Defect Length, Defect Parallel Length, Tilt of Crack (A, B, PS)");
         }
 
         if (this.data.LDTY == 7 || this.data.LDTY == 27) {
-            writeArray.push(" " + this.data.DA + " , " + this.data.PS);
+            writeArray.push(" " + this.data.DA + " , " + this.data.PS + "   " + "Defect Diameter, Tilt of Crack (DA, PS)");
         }
 
         if (this.data.LDTY == 8) {
-            writeArray.push(" " + this.data.DA);
+            writeArray.push(" " + this.data.DA + "   " + "Defect Diameter (DA)");
         }
 
         if (this.data.LDTY == 15 || this.data.LDTY == 35) {
-            writeArray.push(" " + this.data.A + " , " + this.data.B + " , " + this.data.PS + " , " + this.data.ET);
+            writeArray.push(" " + this.data.A + " , " + this.data.B + " , " + this.data.PS + " , " + this.data.ET + "   " + 
+            "Defect Length, Defect Parallel Length, Tilt of Crack, Tilt from Horizontal (A, B, PS, ET)");
         }
 
         if (this.data.LDTY == 17 || this.data.LDTY == 19 || this.data.LDTY == 37) {
-            writeArray.push(" " + this.data.DA + " , " + this.data.PS + " , " + this.data.ET);
+            writeArray.push(" " + this.data.DA + " , " + this.data.PS + " , " + this.data.ET + "   " + "Defect Diameter, Tilt of Crack, Tilt from Horizontal (DA, PS, ET)");
         }
 
         if (this.data.DA < 0) { writeArray.push(" " + this.data.DEL); } // Can't find the point of this
 
         if ((this.data.LDTY > 10 && this.data.LDTY < 18) || this.data.LDTY == 37) {
-            writeArray.push(" " + this.data.BZ);
+            writeArray.push(" " + this.data.BZ + "   " + "Backwall Depth (BZ)");
         }
 
         if (this.data.LDTY >= 27) {
-            writeArray.push(" " + this.data.PSI + " , " + this.data.LZ);
+            writeArray.push(" " + this.data.EPSI + " , " + this.data.LZ + "   " + "RMS Height, Roughness Corr Length (PSI, LZ)");
         }
 
-        writeArray.push(" " + this.data.LCTY + "   " + "Calibration Type");
+        writeArray.push(" " + this.data.LCTY + "   " + "Calibration Type (LCTY)");
 
         if (this.data.LCTY == 1 || this.data.LCTY == 2) {
-            writeArray.push(" " + this.data.CA + " , " + this.data.CZ);
+            writeArray.push(" " + this.data.CA + " , " + this.data.CZ + "   " + "Calibration Diameter and Depth (CA, CZ)");
         }
 
         if (this.data.LCTY == 3) {
-            writeArray.push(" " + this.data.CZ);
+            writeArray.push(" " + this.data.CZ + "   " + "Calibration Depth (CZ)");
         }
 
-        writeArray.push(" " + this.data.IA + "   " + "Accuracy Index");
-        writeArray.push(" " + this.data.XDEF + " , " + this.data.YDEF + "   " + "X/Y Position of the Defect");
+        writeArray.push(" " + this.data.IA + "   " + "Accuracy Index (IACC)");
+        writeArray.push(" " + this.data.XDEF + " , " + this.data.YDEF + "   " + "X/Y Position of the Defect (XDEF, YDEF)");
 
         writeArray.push(" " + this.data.WELD);
 

@@ -25,16 +25,25 @@ export interface Metadata {
     probe: {
         frequency: number,
         bandwidth: number,
-        angle: number,
         couplant: number,
-        size: Position2D,
-        rotation: number,
-        elements: Position2D,
-        nearfield: {
-            length: number,
-            wavelength: number
-        },
-        true_angle: number
+        wave_properties: {
+            angle: number,
+            rotation: number,
+            size: Position2D,
+            elements: Position2D,
+            nearfield: {
+                length: number,
+                wavelength: number
+            },
+        } | null,
+        immersion_properties: {
+            fluid_wavespeed: number,
+            density_ratio: number,
+            distance: number,
+            eulers: Position3D
+        } | null,
+        true_angle: number,
+        focal_distance: number | null
     },
     defect: {
         position: Position2D,
