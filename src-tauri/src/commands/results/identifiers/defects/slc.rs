@@ -35,7 +35,7 @@ pub static DEFECT_SLC_IDENTIFIERS: &[interfaces::Identifier] = &[
         operation: set_depth,
         regex: r"-?\d+\.\d+",
         fields: 1,
-        max_offset: 9,
+        max_offset: 10,
         optional: false
     },
     interfaces::Identifier { 

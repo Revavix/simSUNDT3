@@ -28,7 +28,7 @@ pub static DEFECT_RC_IDENTIFIERS: &[interfaces::Identifier] = &[
         operation: set_position,
         regex: r"-?\d+\.\d+",
         fields: 2,
-        max_offset: 14,
+        max_offset: 18,
         optional: false
     },
     interfaces::Identifier { 
@@ -36,7 +36,7 @@ pub static DEFECT_RC_IDENTIFIERS: &[interfaces::Identifier] = &[
         operation: set_depth,
         regex: r"-?\d+\.\d+",
         fields: 1,
-        max_offset: 9,
+        max_offset: 10,
         optional: false
     },
     interfaces::Identifier { 
@@ -44,7 +44,7 @@ pub static DEFECT_RC_IDENTIFIERS: &[interfaces::Identifier] = &[
         operation: set_properties,
         regex: r"-?\d+\.\d+",
         fields: 3,
-        max_offset: 28,
+        max_offset: 30,
         optional: false
     }
 ];
