@@ -16,6 +16,9 @@
     let increment: Vector2 = new Vector2(6, 6)
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     let isReceiverActive: boolean = false
+    let defectPos: Vector2 = new Vector2(3, 3)
+    let defectDepth: number = 0
+    let defectDiameter: number = 0
 
     interactivity()
 
@@ -42,6 +45,10 @@
             receiverPos.x = tree.transmitter.position.x.value + tree.receiver.separation.x.value  / 10
             receiverPos.y = tree.transmitter.position.y.value + tree.receiver.separation.y.value / 10
             isReceiverActive = tree.method.utTechnique.method.value !== 1
+            defectPos.x = tree.defect.position.x.value / 10
+            defectPos.y = tree.defect.position.y.value / 10
+            defectDepth = tree.defect.specification.measurement.centreDepth.value / 10
+            defectDiameter = tree.defect.specification.measurement.diameter.value / 10
         }
     })
 
@@ -56,8 +63,6 @@
                 positions.push(new Vector2(x / 10, y / 10))
             }  
         }
-
-        console.log("Total positions: " + positions.length + " increment x " + increment.x )
 
         let currentPosition: Vector2 = positions[Math.floor(value[0].progress * positions.length)]
 
@@ -135,14 +140,14 @@
     {/if}
     <!-- Defect -->
     <T.Mesh>
-        <MeshLineGeometry points={[new Vector3(1.5, 4 - 3, 1), new Vector3(1.5, 4, 1)]} />
+        <MeshLineGeometry points={[new Vector3(defectPos.x, 4 - defectDepth, defectPos.y), new Vector3(defectPos.x, 4, defectPos.y)]} />
         <MeshLineMaterial
           width={0.015}
           color="#b22929"
         />
     </T.Mesh>
-    <T.Mesh position={[1.5, 4 - 3, 1]}>
-        <T.SphereGeometry args={[0.05]} />
+    <T.Mesh position={[defectPos.x, 4 - defectDepth, defectPos.y]}>
+        <T.SphereGeometry args={[defectDiameter/2]} />
         <MeshLineMaterial
             width={0.0025}
             color="#b22929"

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onDestroy, tick } from 'svelte';
     import { LoggingSingleton } from '../lib/data/LoggingSingleton';
     import type { LoggingEntry } from '../lib/models/Logging';
     import Button from './Button.svelte';
@@ -6,6 +7,7 @@
     let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
     let minimized: boolean = false
     let logs: Array<LoggingEntry> = []
+    let log: HTMLDivElement
 
     function updateMinState() {
         if (minimized == true) {
@@ -39,9 +41,19 @@
         disabled: false
     }
 
-    loggingSingleton.Subscribe((v: Array<LoggingEntry>) => {
+    let unsubscribe = loggingSingleton.Subscribe(async (v: LoggingEntry[]) => {
         logs = v
+        await tick()
+        scrollToBottom(log)
+    });
+
+    onDestroy(() => {
+        unsubscribe()
     })
+
+    const scrollToBottom = async (node: any) => {
+        node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
+    }; 
 </script>
 
 <div class="flex flex-col bg-stone-300 rounded-lg shadow-lg" style="z-index: 4;">
@@ -62,7 +74,7 @@
     </div>
     {#if minimized == false}
     <!--<div class="bg-gradient-to-r from-yellow-600 ... h-0.5"></div>-->
-    <div class="max-h-48 border border-stone-400 rounded-md m-2 h-48" style="padding-left: 0px; overflow: auto">
+    <div bind:this={log} class="max-h-48 border border-stone-400 rounded-md m-2 h-48" style="padding-left: 0px; overflow: auto">
         {#each logs as item}
             <div class="inline-block px-1">
                 <div class="inline item-icon align-middle " style="color:{item['color']}">

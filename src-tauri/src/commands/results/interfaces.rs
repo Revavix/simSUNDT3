@@ -107,11 +107,47 @@ pub struct SpheroidalCavity {
 }
 
 #[derive(Serialize, Clone, Copy, Default)]
+pub struct RectangularCrack {
+    pub position: Vector2,
+    pub depth: f64,
+    pub sides: Vector2,
+    pub tilt: f64
+}
+
+#[derive(Serialize, Clone, Copy, Default)]
+pub struct StripLikeCrack {
+    pub position: Vector2,
+    pub depth: f64,
+    pub width: f64,
+    pub tilt: f64
+}
+
+#[derive(Serialize, Clone, Copy, Default)]
+pub struct SideDrilledHole {
+    pub position: Vector2,
+    pub depth: f64,
+    pub diameter: f64
+}
+
+#[derive(Serialize, Clone, Copy, Default)]
+pub struct SurfaceBreakingStripLikeCrack {
+    pub position: Vector2,
+    pub depth: f64,
+    pub width: f64,
+    pub vertical_tilt: f64,
+    pub horizontal_tilt: f64
+}
+
+#[derive(Serialize, Clone, Copy, Default)]
 pub struct Defect {
     pub spherical_cavity: Option<SphericalCavity>,
     pub spherical_inclusion: Option<SphericalInclusion>,
     pub circular_crack: Option<CircularCrack>,
-    pub spheroidal_cavity: Option<SpheroidalCavity>
+    pub spheroidal_cavity: Option<SpheroidalCavity>,
+    pub rectangular_crack: Option<RectangularCrack>,
+    pub strip_like_crack: Option<StripLikeCrack>,
+    pub side_drilled_hole: Option<SideDrilledHole>,
+    pub surface_breaking_strip_like_crack: Option<SurfaceBreakingStripLikeCrack>
 }
 
 
@@ -233,23 +269,27 @@ impl Metadata {
                 }
 
                 if rectangular_open_crack.is_some() {
-
+                    self.defect.rectangular_crack = Some(Default::default());
+                    defects::rc::DEFECT_RC_IDENTIFIERS.iter().for_each(|i| identifiers.push(i));
                 }
 
                 if strip_like_open_crack.is_some() {
-
+                    self.defect.strip_like_crack = Some(Default::default());
+                    defects::slc::DEFECT_SLC_IDENTIFIERS.iter().for_each(|i| identifiers.push(i));
                 }
 
                 if strip_like_open_rough_crack.is_some() {
-
+                    // TODO: Implement this, currently an issue to start this defect using UTDef6
                 }
 
                 if side_drilled_hole.is_some() {
-
+                    self.defect.side_drilled_hole = Some(Default::default());
+                    defects::sdh::DEFECT_SDH_IDENTIFIERS.iter().for_each(|i| identifiers.push(i));
                 }
 
                 if surface_breaking_strip_like_open_crack.is_some() {
-
+                    self.defect.surface_breaking_strip_like_crack = Some(Default::default());
+                    defects::sbsl::DEFECT_SBSL_IDENTIFIERS.iter().for_each(|i| identifiers.push(i));
                 }
             }
             Err(_e) => {

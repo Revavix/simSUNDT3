@@ -9,7 +9,7 @@
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
-    import { kernelStatus } from "../lib/data/Stores";
+    import { kernelProgress, kernelStatus } from "../lib/data/Stores";
     import { Initializer, InitializerMode, Runner, type InitializerExecutionResult } from "../lib/models/Kernel";
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
@@ -32,17 +32,6 @@
     let kernelRunnerIsRunning = false
     let namingSchemeMethod = 1
     let namingSchemeName = ""
-
-    kernelStatus.subscribe(v => {
-        if (v === undefined) return
-
-        kernelRunnerIsRunning = v.running
-
-        if (v.message != null) {
-            mainLogContents.push(v.message)
-            mainLogContents = mainLogContents
-        }
-    })
 
     // Simulate section buttons
     let runButton = {
@@ -106,7 +95,6 @@
             }).catch(v => {
                 loggingSingleton.Log(LoggingLevel.WARNING, v)
             })
-            
         },
         disabled: false
     }
@@ -172,13 +160,14 @@
             unsaved = true
         }
     }
+    
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 4; overflow-x: auto; overflow-y: hidden;">
         <div class="flex flex-col w-20 pt-1 -space-y-1">
             <div class="flex flex-col mb-auto">
-                {#if kernelRunnerIsRunning === false}
+                {#if $kernelProgress?.find((v) => !v?.finished) === undefined || $kernelProgress === undefined}
                 <Button data={runButton}></Button>
                 {:else}
                 <Button data={stopButton}></Button>
