@@ -87,7 +87,7 @@
             <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
                 <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
                 <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
+                <input bind:value={data.value} type="number" step="0.01" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
             </div>
         {:else if tree.type == "Checkbox"}
         <div class="flex flex-row">
