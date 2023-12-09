@@ -1,15 +1,14 @@
+import { writable, type Unsubscriber, type Writable, get } from "svelte/store"
 import type { LoggingEntry } from "../models/Logging"
 import { LoggingLevel } from "../models/Logging"
 
 export class LoggingSingleton {
-    private _logs: Array<LoggingEntry>
-    private _callbacks: Array<(logs: Array<LoggingEntry>) => void>
+    private _logs: Writable<LoggingEntry[]>
     private _maxEntries: number
     private static _instance: LoggingSingleton
 
     private constructor() {
-        this._callbacks = []
-        this._logs = []
+        this._logs = writable([] as LoggingEntry[])
         this._maxEntries = 500
     }
 
@@ -26,23 +25,21 @@ export class LoggingSingleton {
         return this._maxEntries
     }
 
-    public Subscribe(fnc: (logs: Array<LoggingEntry>) => void) {
-        this._callbacks.push(fnc)
+    public Subscribe(fnc: (logs: Array<LoggingEntry>) => void): Unsubscriber {
+        return this._logs.subscribe(fnc)
     }
 
     public Log(level: LoggingLevel, message: string) {
-        if (this._logs.length >= this._maxEntries) return
-        this._logs.push({
+        let logs = get(this._logs)
+        if (logs.length >= this._maxEntries) return
+        this._logs.update((v) => [...v, {
             icon: level === LoggingLevel.INFO ? "info" : "warning",
             message: message,
             color: level === LoggingLevel.INFO ? "#4d4d4d" : "#ef4444"
-        })
-        this._callbacks.forEach((v) => {
-            v(this._logs)
-        })
+        }])
     }
 
     public Clear() {
-        this._logs = []
+        this._logs.set([] as LoggingEntry[])
     }
 }

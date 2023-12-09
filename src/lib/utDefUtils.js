@@ -12,7 +12,7 @@ export function convertNFRToLP(n) {
 }
 
 export function convertFocusAndTechniqueToIMODE(focusType, technique) {
-    if (technique < 0) {
+    if (technique > 0) {
         return technique + focusType
     } else {
         return technique - focusType
@@ -20,6 +20,7 @@ export function convertFocusAndTechniqueToIMODE(focusType, technique) {
 }
 
 export function convertAutoElementsToISHA(autoNumElements, isha) {
+    console.log(autoNumElements, isha)
     if (!autoNumElements) {
         return isha
     } else {

@@ -75,6 +75,8 @@ export class KernelRunner extends Runner {
             progress: 1, 
             finished: true 
         } 
+
+        kernelProgress.set(this.progress)
     }
     
     public async Execute(): Promise<void> {
@@ -97,7 +99,6 @@ export class KernelRunner extends Runner {
                 this.runs[i].closed.code = data.code
                 this.runs[i].closed.signal = data.signal
                 this.StopProgressWatcher(this.runs[i], i)
-                kernelProgress.set(this.progress)
             })
             cmd.on('error', err => {
                 this.runs[i].closed.code = -1
@@ -137,5 +138,9 @@ export class KernelRunner extends Runner {
         this.runs.forEach(run => {
             run.handle?.kill()
         });
+        
+        this.progress.forEach((p, i) => { 
+            p.finished = true
+        })
     }
 }

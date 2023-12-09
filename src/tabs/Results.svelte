@@ -37,7 +37,7 @@
             let rows = (Math.abs(metadata.coordinates.y.end) + Math.abs(metadata.coordinates.y.start)) / metadata.coordinates.y.increment
             largeDataSet = columns * rows > 6400 ? true : false
         }).catch((e) => {
-            console.log(e)
+            console.error(e)
             // TODO: Add error feedback
         })
     }

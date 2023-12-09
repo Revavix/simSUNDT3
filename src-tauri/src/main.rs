@@ -4,7 +4,7 @@
   windows_subsystem = "windows"
 )]
 
-use commands::results::{Metadata, Top, Vector2, Vector3};
+use commands::results::interfaces::{Metadata, Top, Vector2, Vector3};
 use tauri::Manager;
 use window_shadows::set_shadow;
 
