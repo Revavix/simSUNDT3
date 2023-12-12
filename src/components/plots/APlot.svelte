@@ -52,7 +52,7 @@
         const metadata: Metadata = get(loadedMetadata)
         let col = (point.pos.x - metadata.coordinates.x.start) / metadata.coordinates.x.increment
         let row = (point.pos.y - metadata.coordinates.y.start) / metadata.coordinates.y.increment
-        let index = col + (row * point.ref.cols)
+        let index = Math.floor(col + (row * point.ref.cols))
 
         invoke('commands_results_parse_point_view', { path: metadata.path + "\\utIndefa-A.dat", index: index, samples: point.ref.samples }).then((v: any) => {
             let signal = v as Array<Position2D>
@@ -68,6 +68,7 @@
             plot = Plotly.react(div, plotData, layout, cfg)
             loading = LoadingState.OK
         }).catch((e) => {
+            console.error(e)
             loading = LoadingState.INVALID
         })
     })

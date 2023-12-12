@@ -39,7 +39,9 @@
         invoke('commands_results_parse_top_view', { path: metadata.path + "\\utIndefa-C.dat"  }).then((cdat: any) => {
             let top = cdat as Top
             let midPointX = Math.floor(((top.columns-1) * metadata.coordinates.x.increment) / 2) + metadata.coordinates.x.start
+            midPointX += midPointX % metadata.coordinates.x.increment
             let midPointY = Math.floor(((top.rows-1) * metadata.coordinates.y.increment) / 2) + metadata.coordinates.y.start
+            midPointY += midPointY % metadata.coordinates.y.increment
 
             clayout.annotations = [
                 dot(midPointX, midPointY, 'A [' + midPointX + ', ' + midPointY + ']', - metadata.coordinates.y.increment * 10),

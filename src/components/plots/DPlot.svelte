@@ -53,7 +53,7 @@
         for (let i = 0; i < end.ref.rows; i++) {
             let col = (end.x - metadata.coordinates.x.start) / metadata.coordinates.x.increment
             let row = i
-            indicies.push(col + (row * end.ref.cols))
+            indicies.push(Math.floor(col + (row * end.ref.cols)))
         }
 
         invoke('commands_results_parse_side_view', { path: metadata.path + "\\utIndefa-A.dat", indicies: indicies, samples: end.ref.samples }).then((v: any) => {
