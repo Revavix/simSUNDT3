@@ -117,7 +117,6 @@ pub fn parse_point_view(path: String, index: usize, samples: usize) -> Result<Ve
                 let ret = std::slice::from_raw_parts(bytes.as_ptr() as *const f32, bytes.len() / 4);
 
                 if ret.len() < (index+1)*samples {
-                    println!("{} {}", ret.len(), (index+1)*samples);
                     error = "Data missing, A is probably not from the same test as chosen C test, or an invalid file was chosen".to_string();
                 } else {
                     for i in ((index*samples) as usize)..(((index+1)*samples) as usize) {
