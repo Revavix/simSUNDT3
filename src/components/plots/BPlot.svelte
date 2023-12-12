@@ -76,6 +76,7 @@
             loading = LoadingState.OK
             plot = Plotly.react(div, data, blayout, cfg)
         }).catch((e) => {
+            console.error(e)
             loading = LoadingState.INVALID
         })
     })
