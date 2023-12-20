@@ -2,114 +2,98 @@
     import { createEventDispatcher } from "svelte";
     import { onMount } from 'svelte';
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
+    import TreeNode from "../lib/models/tree/TreeNode";
+    import { TreeInput } from "../lib/models/tree/TreeInput";
+    import { TreeDropdown } from "../lib/models/tree/TreeDropdown";
+    import { TreeCheckbox } from "../lib/models/tree/TreeCheckbox";
 
-    export let tree: any
-    export let data: any
-    export let pad: any
-    export let parametricEnabled: any
+    export let node: TreeNode | TreeInput | TreeDropdown | TreeCheckbox
+    export let parametricEnabled: boolean
     
 	const toggleExpansion = () => {
-		tree.expanded = !tree.expanded
+        if (node.expanded === null) return
+		node.expanded = !node.expanded
 	}
-	$: arrowDown = tree.expanded
+	$: arrowDown = node?.expanded
 
     let ulCssPadding: any
 
-    if (pad) {
+    if (node?.padding) {
         ulCssPadding = "ul-with-padding"
     } else {
         ulCssPadding = "ul-without-padding"
     }
 
-    onMount(() => {
-        if (pad == "Root") {
-            data = {}
-        } else if (tree.type == "Number") {
-            if (!data.hasOwnProperty("value")) {
-                data.value = tree.default
-            }
-            if (!data.hasOwnProperty("end")) {
-                data.end = tree.default
-            }
-            if (!data.hasOwnProperty("increment")) {
-                data.increment = 1
-            }
-        } else if (tree.type == "Dropdown") {
-            if (!data.hasOwnProperty("value")) {
-                data.value = tree.values[0].value
-            }
-        } else if (tree.type == "Checkbox") {
-            if (!data.hasOwnProperty("value")) {
-                data.value = false
-            }
-        }
-    })
-
-    function getData(key: any) {
-        if (!data.hasOwnProperty(key)) {
-            data[key] = {}
-        }
-
-        return data[key]
-    }
-
     const handleChangedValue = () => {
         ProjectSingleton.GetInstance().ForceRefresh()
+
+        if (node instanceof TreeInput) {
+            console.log(node.min)
+        }
+    }
+
+    const handleBasicValidation = (value: number) => {
+        if (node instanceof TreeInput && node.min !== null && node.max !== null) {
+            if (value < node.min || value > node.max) {
+                return true
+            }
+        }
     }
 </script>
 
 <ul class={ulCssPadding}>
 	<li>
-        {#if tree.type == "Root"}
-            {#each Object.entries(tree.children) as [k, v]}
-                <svelte:self tree={v} data={getData(k)} pad={false} bind:parametricEnabled={parametricEnabled}/>
-            {/each}
-		{:else if tree.type == "Expandable"}
+		{#if node instanceof TreeNode && 
+        !(node instanceof TreeInput) && 
+        !(node instanceof TreeDropdown) && 
+        !(node instanceof TreeCheckbox)}
+            {#if node.expanded !== null}
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<!-- svelte-ignore a11y-no-static-element-interactions -->
 			<span class="whitespace-nowrap" style="font-size:16px;" on:click={toggleExpansion}>
 				<span class="arrow whitespace-nowrap" class:arrowDown>&#x25b6</span>
-				{tree.name}
+				{node.name}
 			</span>
-			{#if tree.expanded}
-				{#each Object.entries(tree.children) as [k, v]}
-					<svelte:self tree={v} data={getData(k)} pad={true} bind:parametricEnabled={parametricEnabled}/> <!-- data = {} -> data.method -->
+            {/if}
+			{#if (node.expanded || node.expanded === null) && node.children}
+				{#each Object.entries(node.children) as [k, v]}
+					<svelte:self node={v} bind:parametricEnabled={parametricEnabled}/> <!-- data = {} -> data.method -->
 				{/each}
 			{/if}
-        {:else if tree.type == "Number" && tree.parametric == true && parametricEnabled}
+        {:else if node instanceof TreeInput && node.parametric == true && parametricEnabled}
             <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
                 <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
-                <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-                <input bind:value={data.value} type="number" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
-                <input bind:value={data.end} type="number" class="pl-1 w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
-                <input bind:value={data.increment} type="number" class="pl-1 w-12 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
+                <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{node.name}</span>
+                <input bind:value={node.value} type="number" step="any" class="pl-1 ml-auto w-16 bg-gray-50 border text-gray-900 text-sm rounded-lg disabled:opacity-75 
+                {handleBasicValidation(node.value) ? 'ring-2 ring-red-300' : ''}" disabled={node.disabled} placeholder="0" required on:change={handleChangedValue}>
+                <input bind:value={node.end} type="number" step="any" class="pl-1 ml-auto w-16 bg-gray-50 border text-gray-900 text-sm rounded-lg disabled:opacity-75 
+                {handleBasicValidation(node.end) ? 'ring-2 ring-red-300' : ''}" disabled={node.disabled} placeholder="0" required on:change={handleChangedValue}>
+                <input bind:value={node.increment} type="number" step="any" class="pl-1 w-12 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={node.disabled} placeholder="0" required on:change={handleChangedValue}>
             </div>
-        {:else if tree.type == "Number" && (tree.parametric == false || !parametricEnabled) }
+        {:else if node instanceof TreeInput && (node.parametric == false || !parametricEnabled) }
             <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
                 <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
-                <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-                <input bind:value={data.value} type="number" step="any" class="pl-1 ml-auto w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} placeholder="0" required on:change={handleChangedValue}>
+                <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{node.name}</span>
+                <input bind:value={node.value} type="number" step="any" class="pl-1 my-0.5 ml-auto w-16 bg-gray-50  text-gray-900 text-sm rounded-lg disabled:opacity-75 focus:outline-none
+                {handleBasicValidation(node.value) ? 'ring-2 ring-red-300' : ''}" 
+                disabled={node.disabled} placeholder="0" required on:change={handleChangedValue}>
             </div>
-        {:else if tree.type == "Checkbox"}
+        {:else if node instanceof TreeCheckbox}
         <div class="flex flex-row">
             <span style="font-family:'Material Icons'; font-size:20px;">check_box</span>
-            <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-            <input bind:checked={data.value} type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required on:change={handleChangedValue}>
+            <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{node.name}</span>
+            <input bind:checked={node.value} type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={node.disabled} required on:change={handleChangedValue}>
         </div>
-        {:else if tree.type == "Dropdown"}
+        {:else if node instanceof TreeDropdown}
         <div class="flex flex-row">
             <span style="font-family:'Material Icons'; font-size:20px;">list</span>
-            <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{tree.name}</span>
-            <select bind:value={data.value} class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={tree.disabled} required on:change={handleChangedValue}> 
-                {#each tree.values as opt}
+            <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{node.name}</span>
+            <select bind:value={node.value} class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={node.disabled} required on:change={handleChangedValue}> 
+                {#each node.options as opt}
                 <option value={opt.value}>{opt.text}</option>
                 {/each}
             </select>
         </div>
-		{:else}
-			<span>
-				<span class="no-arrow whitespace-nowrap"/>
-				{tree.name}
-			</span>
 		{/if}
 	</li>
 </ul>

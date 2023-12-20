@@ -3,6 +3,9 @@ import type { Project } from "../models/Project"
 import { exists, readTextFile, writeFile } from "@tauri-apps/api/fs"
 import { constructDefaultTreeData, tree } from "../tree.js"
 import { writable, type Subscriber, type Writable } from "svelte/store"
+import Root from "../tree/Root"
+import TreeNode from "../models/tree/TreeNode"
+import { Deserialize, Serialize } from "../tree/Utils"
 
 export class ProjectSingleton {
     private _active: Project
@@ -15,7 +18,7 @@ export class ProjectSingleton {
             path: null,
             data: {
                 preprocessor: {
-                    tree: constructDefaultTreeData({}, tree.children),
+                    tree: Object.assign(new TreeNode("Root", false, null), Root),
                     misc: {
                         accuracy: "3",
                         binaryPath: "resources\\bin\\UTDef6.exe",
@@ -28,6 +31,7 @@ export class ProjectSingleton {
                 postprocessor: []
             }
         }
+        console.log(this._active)
         this._store = writable(this._active)
     }
 
@@ -50,7 +54,7 @@ export class ProjectSingleton {
             path: null,
             data: {
                 preprocessor: {
-                    tree: constructDefaultTreeData({}, tree.children),
+                    tree: Object.assign(new TreeNode("Root", false, null), Root),
                     misc: {
                         accuracy: "3",
                         binaryPath: "resources\\bin\\UTDef6.exe",
@@ -62,7 +66,7 @@ export class ProjectSingleton {
                 },
                 postprocessor: []
             }
-        }
+        } as Project
 
         this._store.set(this._active)
 
@@ -74,7 +78,18 @@ export class ProjectSingleton {
             this._active.path = path
             this._active.name = await basename(path, ".ssproj")
             this._store.set(this._active)
-            await writeFile(path, JSON.stringify(this._active))
+            let saveData: any = {
+                name: this._active.name,
+                path: this._active.path,
+                data: {
+                    preprocessor: {
+                        tree: Serialize(this._active.data.preprocessor.tree !== null ? this._active.data.preprocessor.tree : {} as TreeNode),
+                        misc: this._active.data.preprocessor.misc
+                    },
+                    postprocessor: this._active.data.postprocessor
+                }
+            }
+            await writeFile(path, JSON.stringify(saveData, null, 4))
             return Promise.resolve()
         } catch (err) {
             return Promise.reject()
@@ -88,8 +103,13 @@ export class ProjectSingleton {
         if (!exist || !(extension == 'ssproj')) {
             return Promise.reject()
         }
-        
-        this._active = JSON.parse(await readTextFile(path))
+
+        let saveData: any = JSON.parse(await readTextFile(path))
+        this._active.name = saveData.name
+        this._active.path = saveData.path
+        this._active.data.preprocessor.misc = saveData.data.preprocessor.misc
+        this._active.data.preprocessor.tree = Deserialize(saveData.data.preprocessor.tree)
+        this._active.data.postprocessor = saveData.data.postprocessor
         this._store.set(this._active)
 
         this._active.data.postprocessor.forEach((element) => {

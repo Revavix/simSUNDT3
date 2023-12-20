@@ -8,6 +8,9 @@
     import { kernelProgress } from '../lib/data/Stores';
     import type { Progress } from '../lib/models/Kernel';
     import type { Project } from '../lib/models/Project';
+    import type { TreeInput } from '../lib/models/tree/TreeInput';
+    import type TreeNode from '../lib/models/tree/TreeNode';
+    import type { TreeDropdown } from '../lib/models/tree/TreeDropdown';
 
     let size: Vector2 = new Vector2(6, 6)
     let transmitterPos: Vector2 = new Vector2(3, 3)
@@ -31,24 +34,30 @@
     }
 
     projectSingleton.Subscribe((project: Project) => {
-        let tree = project.data.preprocessor.tree
+        let rootNode: TreeNode | null = project.data.preprocessor.tree
 
-        if (tree !== undefined) {
+        console.log(rootNode)
+
+        if (rootNode !== null) {
             size = new Vector2(
-                Math.abs(tree.method.mesh.size.xs.value - tree.method.mesh.size.xe.value) / 10,
-                Math.abs(tree.method.mesh.size.ys.value - tree.method.mesh.size.ye.value) / 10,
+                Math.abs((rootNode?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput)?.value - 
+                    (rootNode?.FindChildByPattern("Method:Mesh:Size:XEnd") as TreeInput)?.value) / 10,
+                Math.abs((rootNode?.FindChildByPattern("Method:Mesh:Size:YStart") as TreeInput)?.value - 
+                    (rootNode?.FindChildByPattern("Method:Mesh:Size:YEnd") as TreeInput)?.value) / 10,
             )
-            increment.x = tree.method.mesh.size.xi.value / 10
-            increment.y = tree.method.mesh.size.yi.value / 10
-            transmitterPos.x = tree.transmitter.position.x.value  / 10 + size.x / 2
-            transmitterPos.y = tree.transmitter.position.y.value / 10 + size.y / 2
-            receiverPos.x = tree.transmitter.position.x.value + tree.receiver.separation.x.value  / 10
-            receiverPos.y = tree.transmitter.position.y.value + tree.receiver.separation.y.value / 10
-            isReceiverActive = tree.method.utTechnique.method.value !== 1
-            defectPos.x = tree.defect.position.x.value / 10
-            defectPos.y = tree.defect.position.y.value / 10
-            defectDepth = tree.defect.specification.measurement.centreDepth.value / 10
-            defectDiameter = tree.defect.specification.measurement.diameter.value / 10
+            increment.x = (rootNode?.FindChildByPattern("Method:Mesh:Size:XIncrement") as TreeInput)?.value / 10
+            increment.y = (rootNode?.FindChildByPattern("Method:Mesh:Size:YIncrement") as TreeInput)?.value / 10
+            transmitterPos.x = (rootNode?.FindChildByPattern("Transmitter:Position:X") as TreeInput)?.value / 10 + size.x / 2
+            transmitterPos.y = (rootNode?.FindChildByPattern("Transmitter:Position:Y") as TreeInput)?.value / 10 + size.y / 2
+            receiverPos.x = (rootNode?.FindChildByPattern("Transmitter:Position:X") as TreeInput)?.value + 
+                (rootNode?.FindChildByPattern("Receiver:Separation:X") as TreeInput)?.value  / 10
+            receiverPos.y = (rootNode?.FindChildByPattern("Transmitter:Position:Y") as TreeInput)?.value + 
+                (rootNode?.FindChildByPattern("Receiver:Separation:Y") as TreeInput)?.value  / 10
+            isReceiverActive = (rootNode?.FindChildByPattern("Method:UTTechnique:ProbeType") as TreeDropdown)?.value !== 1
+            defectPos.x = (rootNode?.FindChildByPattern("Defect:Position:X") as TreeInput)?.value / 10
+            defectPos.y = (rootNode?.FindChildByPattern("Defect:Position:Y") as TreeInput)?.value / 10
+            defectDepth = (rootNode?.FindChildByPattern("Defect:Specification:Measurement:CentreDepth") as TreeInput)?.value / 10
+            defectDiameter = (rootNode?.FindChildByPattern("Defect:Specification:Measurement:Diameter") as TreeInput)?.value / 10
         }
     })
 

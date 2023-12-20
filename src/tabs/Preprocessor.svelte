@@ -2,36 +2,42 @@
     import { KernelSaver as KernelSaverUTDef6 } from "../lib/kernel/utdefect/v6/KernelSaver";
     import TreeComponent from '../components/Tree.svelte'
     import Button from '../components/Button.svelte'
-    import OutputLogComponent from '../components/OutputLog.svelte'
-    import { tree } from '../lib/tree.js'
-    import { constructIsoSaveData } from "../lib/utDefSaverUtils.js";
+    import LogComponent from '../components/Log.svelte'
     import { KernelInitializer as KernelInitializerV6 } from "../lib/kernel/utdefect/v6/KernelInitializer"
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
-    import { kernelProgress, kernelStatus } from "../lib/data/Stores";
-    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult } from "../lib/models/Kernel";
+    import { kernelProgress } from "../lib/data/Stores";
+    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult, type IKernelValidator } from "../lib/models/Kernel";
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
-    import { BaseDirectory, homeDir } from "@tauri-apps/api/path";
+    import { BaseDirectory } from "@tauri-apps/api/path";
     import { createDir } from "@tauri-apps/api/fs";
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
+    import { KernelValidator as KernelValidatorV6 } from "../lib/kernel/utdefect/v6/KernelValidator";
+    import type TreeNode from "../lib/models/tree/TreeNode";
+    import { onMount } from "svelte";
 
     export let unsaved
     export let kernelRunner: Runner
  
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
-    let kernelInitializer: Initializer = new KernelInitializerV6()
+    let kernelInitializer: Initializer | null = null
+    let kernelValidator: IKernelValidator | null = null
 
-    let mainLogContents: any[] = []
     let parametricEnabled = false
     let treeMinimized = false
     let showConfigureModal = false
     let showParametricSettingsModal = false
-    let kernelRunnerIsRunning = false
     let namingSchemeMethod = 1
     let namingSchemeName = ""
+
+    onMount(() => {
+        kernelInitializer = new KernelInitializerV6()
+        kernelValidator = new KernelValidatorV6(projectSingleton.Tree as TreeNode)
+        kernelValidator.SetBasicValidation()
+    })
 
     // Simulate section buttons
     let runButton = {
@@ -39,19 +45,20 @@
         color: "#55b13c",
         icon: "play_arrow",
         action: async () => {
+            if (kernelInitializer === null) {
+                loggingSingleton.Log(LoggingLevel.WARNING, "Kernel initializer is null, cannot run simulation.")
+                return
+            }
+
             // Clean up old runs
             await createDir("simSUNDT/Simulations", { dir: BaseDirectory.Document, recursive: true})
 
             // Prep default Isometric data in the saver
             const saver = new KernelSaverUTDef6()
-            console.log(projectSingleton.Tree)
-            saver.data = constructIsoSaveData(projectSingleton.Tree, projectSingleton.Misc)
+            saver.rootNode = projectSingleton.Tree
 
             // Run name
             const name = namingSchemeMethod == 1 ? crypto.randomUUID() : namingSchemeName
-            
-            // Construct expected data object
-            const data = { tree: projectSingleton.Tree, misc: projectSingleton.Misc }
 
             // Configure the runner and clear it
             kernelRunner.processes = projectSingleton.ProcessCount
@@ -63,7 +70,7 @@
             kernelInitializer.mode = parametricEnabled ? InitializerMode.PARAMETRIC : InitializerMode.NON_PARAMETRIC
             kernelInitializer.runner = kernelRunner
             kernelInitializer.saver = saver
-            kernelInitializer.Execute(name, data).then((v) => {
+            kernelInitializer.Execute(name).then((v) => {
                 if (typeof v === 'string') {
                     loggingSingleton.Log(LoggingLevel.WARNING, "Simulation completed, but an unexpected value was returned, the value '" + v + "'")
                     return
@@ -91,6 +98,9 @@
                         loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully but failed to auto-\
                             save, please save manually to ensure results are not lost.")
                     })
+                } else {
+                    loggingSingleton.Log(LoggingLevel.WARNING, "Runner completed, but project was not auto-saved since the project has not been manually saved yet.\
+                         Please save manually to ensure results are not lost.")
                 }
             }).catch(v => {
                 loggingSingleton.Log(LoggingLevel.WARNING, v)
@@ -155,12 +165,13 @@
         disabled: false
     }
 
-    function handleTreeMessage(ev: any) {
-        if (ev.detail.type == "Save") {
-            unsaved = true
+    const handleKernelVersionChange = () => {
+        if (projectSingleton.BinaryPath == "resources\\bin\\UTDef6.exe") {
+            kernelInitializer = new KernelInitializerV6()
+            kernelValidator = new KernelValidatorV6(projectSingleton.Tree as TreeNode)
+            kernelValidator.SetBasicValidation()
         }
     }
-    
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
@@ -230,7 +241,9 @@
             </div>
             {#if !treeMinimized}
             <div class="h-full rounded-md my-1 mb-2 w-full px-2" style="overflow: auto;">
-                <TreeComponent tree={tree} data={projectSingleton.Tree} pad={false} bind:parametricEnabled={parametricEnabled} on:message={handleTreeMessage}></TreeComponent>
+                {#if projectSingleton.Tree !== null}
+                <TreeComponent node={projectSingleton.Tree} bind:parametricEnabled={parametricEnabled}></TreeComponent>
+                {/if}
             </div>
             {/if}
         </div>
@@ -238,7 +251,7 @@
     <div class="absolute-bottom-above pb-4 px-4 w-full opacity-90 hover:opacity-100">
         <div class="flex flex-row w-full items-end">
             <div class="flex flex-col w-1/2 pr-1">
-                <OutputLogComponent/>
+                <LogComponent/>
             </div>
             <div class="flex flex-col w-1/2 pl-1">
                 {#if parametricEnabled}
@@ -271,7 +284,7 @@
                     <div class="px-3 mt-2 space-y-2">
                         <div>
                             <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Kernel version</label>
-                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath} >
+                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath} on:change={handleKernelVersionChange}>
                                 <option value="resources\bin\UTDef6.exe">UTDefect - Version 6</option>
                                 <!-- To be added
                                 <option value="resources\bin\UTDefectLightNoDLL.exe">UTDefect - Light</option>

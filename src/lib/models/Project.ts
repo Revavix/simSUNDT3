@@ -1,9 +1,11 @@
+import type TreeNode from "./tree/TreeNode"
+
 export interface Project {
     name: string
     path: string | null
     data: {
         preprocessor: {
-            tree: any,
+            tree: TreeNode | null,
             misc: {
                 accuracy: string,
                 binaryPath: string,

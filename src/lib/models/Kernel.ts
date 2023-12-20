@@ -72,7 +72,12 @@ export abstract class Initializer {
         this.mode = null
     }
 
-    abstract Execute(name: string, data: any): Promise<InitializerExecutionResult | undefined | string>
+    abstract Execute(name: string): Promise<InitializerExecutionResult | undefined | string>
+}
+
+export interface IKernelValidator {
+    SetBasicValidation(): void
+    SetSpecialValidation(): void
 }
 
 export interface InitializerValidationResult {
