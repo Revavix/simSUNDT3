@@ -19,7 +19,7 @@ shapeAndElements.AddChild(new TreeDropdown("Type", null, [
         value: -2
     }
 ] as Array<TreeDropdownOption>, -1))
-shapeAndElements.AddChild(new TreeCheckbox("Auto Num Elements", null, false))
+shapeAndElements.AddChild(new TreeCheckbox("Auto Num Elements", null, true))
 
 // Transmitter:ShapeAndElements:X
 const shapeAndElementsX = shapeAndElements.AddChild(new TreeNode("X", true, false))

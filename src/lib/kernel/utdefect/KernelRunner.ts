@@ -1,9 +1,9 @@
 import { homeDir } from "@tauri-apps/api/path";
-import { LoggingSingleton } from "../../../data/LoggingSingleton";
-import { kernelProgress } from "../../../data/Stores";
-import { Runner } from "../../../models/Kernel";
-import type { Progress, Run } from "../../../models/Kernel";
-import { LoggingLevel } from "../../../models/Logging";
+import { LoggingSingleton } from "../../data/LoggingSingleton";
+import { kernelProgress } from "../../data/Stores";
+import { Runner } from "../../models/Kernel";
+import type { Progress, Run } from "../../models/Kernel";
+import { LoggingLevel } from "../../models/Logging";
 import { Child, Command } from "@tauri-apps/api/shell";
 import { readTextFile } from "@tauri-apps/api/fs";
 

@@ -1,4 +1,4 @@
 export default interface IValidationError {
     type: "WARNING" | "ERROR";
-    message: string;
+    message: string | null;
 }

@@ -36,8 +36,6 @@
     projectSingleton.Subscribe((project: Project) => {
         let rootNode: TreeNode | null = project.data.preprocessor.tree
 
-        console.log(rootNode)
-
         if (rootNode !== null) {
             size = new Vector2(
                 Math.abs((rootNode?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput)?.value - 
@@ -47,8 +45,8 @@
             )
             increment.x = (rootNode?.FindChildByPattern("Method:Mesh:Size:XIncrement") as TreeInput)?.value / 10
             increment.y = (rootNode?.FindChildByPattern("Method:Mesh:Size:YIncrement") as TreeInput)?.value / 10
-            transmitterPos.x = (rootNode?.FindChildByPattern("Transmitter:Position:X") as TreeInput)?.value / 10 + size.x / 2
-            transmitterPos.y = (rootNode?.FindChildByPattern("Transmitter:Position:Y") as TreeInput)?.value / 10 + size.y / 2
+            transmitterPos.x = -(rootNode?.FindChildByPattern("Transmitter:Position:X") as TreeInput)?.value / 10 + size.x / 2
+            transmitterPos.y = -(rootNode?.FindChildByPattern("Transmitter:Position:Y") as TreeInput)?.value / 10 + size.y / 2
             receiverPos.x = (rootNode?.FindChildByPattern("Transmitter:Position:X") as TreeInput)?.value + 
                 (rootNode?.FindChildByPattern("Receiver:Separation:X") as TreeInput)?.value  / 10
             receiverPos.y = (rootNode?.FindChildByPattern("Transmitter:Position:Y") as TreeInput)?.value + 

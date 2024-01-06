@@ -1,6 +1,6 @@
 import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs"
-import { Saver } from "../../../models/Kernel"
-import type TreeNode from "../../../models/tree/TreeNode"
+import { Saver } from "../../models/Kernel"
+import type TreeNode from "../../models/tree/TreeNode"
 import KernelSaverData from "./KernelSaverData"
 
 

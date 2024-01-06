@@ -1,5 +1,5 @@
-import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer, type Run } from "../../../models/Kernel"
-import { KernelSaver as KernelSaverUTDef6 } from "../../../kernel/utdefect/v6/KernelSaver"
+import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer, type Run } from "../../models/Kernel"
+import { KernelSaver as KernelSaverUTDef6 } from "./KernelSaver"
 import { BaseDirectory, documentDir, homeDir } from "@tauri-apps/api/path"
 import { createDir, removeDir, removeFile } from "@tauri-apps/api/fs"
 import { GenerateParametricCombinations } from "./KernelUtils"

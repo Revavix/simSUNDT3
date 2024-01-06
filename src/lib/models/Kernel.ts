@@ -1,5 +1,9 @@
 import type { Child } from "@tauri-apps/api/shell"
-import type { KernelSaver as KernelSaverUTDef6 } from "../kernel/utdefect/v6/KernelSaver"
+import type { KernelSaver as KernelSaverUTDef6 } from "../kernel/utdefect/KernelSaver"
+import type IValidationResult from "./validation/ValidationResult"
+import type { TreeInput } from "./tree/TreeInput"
+import type { TreeDropdown } from "./tree/TreeDropdown"
+import type { TreeCheckbox } from "./tree/TreeCheckbox"
 
 interface StatusMessage {
     icon: string, 
@@ -73,11 +77,6 @@ export abstract class Initializer {
     }
 
     abstract Execute(name: string): Promise<InitializerExecutionResult | undefined | string>
-}
-
-export interface IKernelValidator {
-    SetBasicValidation(): void
-    SetSpecialValidation(): void
 }
 
 export interface InitializerValidationResult {

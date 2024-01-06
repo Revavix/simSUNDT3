@@ -1,5 +1,5 @@
-import { TreeInput } from "../../../models/tree/TreeInput";
-import type TreeNode from "../../../models/tree/TreeNode";
+import { TreeInput } from "../../models/tree/TreeInput";
+import type TreeNode from "../../models/tree/TreeNode";
 
 export function GenerateParametricCombinations(rootNode: TreeNode): Array<TreeNode> {
     const combinations: Array<TreeNode> = [];

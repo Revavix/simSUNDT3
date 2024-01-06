@@ -14,7 +14,7 @@
     import Viewport from './components/Viewport.svelte'
     import Button from "./components/Button.svelte"
     import Alert from "./components/Alert.svelte";
-    import { KernelRunner as UTDefectV3Runner } from "./lib/kernel/utdefect/v6/KernelRunner";
+    import { KernelRunner as UTDefectV3Runner } from "./lib/kernel/utdefect/KernelRunner";
     import SimsundtIcon from "./components/icons/SimsundtIcon.svelte";
     import { Canvas } from "@threlte/core";
 

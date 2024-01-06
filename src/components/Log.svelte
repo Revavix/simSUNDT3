@@ -7,6 +7,9 @@
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
     import type { Project } from '../lib/models/Project';
     import { TreeInput } from '../lib/models/tree/TreeInput';
+    import type { IValidator } from '../lib/models/validation/Validator';
+
+    export let kernelValidator: IValidator | null = null
 
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
@@ -49,22 +52,18 @@
     }
 
     let unsubscribeProject = projectSingleton.Subscribe(async (v: Project) => {
+        if (kernelValidator === null) return
         errors = []
 
         function recurseChildren(parentName: string, children: any[]) {
             for (let child of children) {
-                if (child instanceof TreeInput && child.min !== null && child.max !== null) {
-                    if (child.value < child.min) {
-                        errors.push({
-                            type: "ERROR",
-                            message: `Value of ${parentName}:${child.name} is below the minimum value of ${child.min}`
-                        })
-                    } else if (child.value > child.max) {
-                        errors.push({
-                            type: "ERROR",
-                            message: `Value of ${parentName}:${child.name} is above the maximum value of ${child.max}`
-                        })
-                    }
+                let result = kernelValidator?.Validate((parentName + ":" + child.name).replace(/\W/g, ""), child.value)
+
+                if (result?.isValid === false) {
+                    errors.push({
+                        type: "ERROR",
+                        message: "[" + (parentName + ":" + child.name).replace(/:/g, " -> ") + "] " + result.message
+                    })
                 }
 
                 if (child.children) {

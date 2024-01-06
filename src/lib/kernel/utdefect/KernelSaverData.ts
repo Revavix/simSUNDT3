@@ -1,8 +1,8 @@
-import { ProjectSingleton } from "../../../data/ProjectSingleton"
-import type { TreeCheckbox } from "../../../models/tree/TreeCheckbox"
-import type { TreeDropdown } from "../../../models/tree/TreeDropdown"
-import type { TreeInput } from "../../../models/tree/TreeInput"
-import type TreeNode from "../../../models/tree/TreeNode"
+import { ProjectSingleton } from "../../data/ProjectSingleton"
+import type { TreeCheckbox } from "../../models/tree/TreeCheckbox"
+import type { TreeDropdown } from "../../models/tree/TreeDropdown"
+import type { TreeInput } from "../../models/tree/TreeInput"
+import type TreeNode from "../../models/tree/TreeNode"
 
 export default class KernelSaverData {
     LS: number

@@ -1,22 +1,22 @@
 <script lang="ts">
-    import { KernelSaver as KernelSaverUTDef6 } from "../lib/kernel/utdefect/v6/KernelSaver";
+    import { KernelSaver as KernelSaverUTDef6 } from "../lib/kernel/utdefect/KernelSaver";
     import TreeComponent from '../components/Tree.svelte'
     import Button from '../components/Button.svelte'
-    import LogComponent from '../components/Log.svelte'
-    import { KernelInitializer as KernelInitializerV6 } from "../lib/kernel/utdefect/v6/KernelInitializer"
+    import Log from '../components/Log.svelte'
+    import { KernelInitializer as KernelInitializerV6 } from "../lib/kernel/utdefect/KernelInitializer"
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
     import { kernelProgress } from "../lib/data/Stores";
-    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult, type IKernelValidator } from "../lib/models/Kernel";
+    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult } from "../lib/models/Kernel";
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
     import { BaseDirectory } from "@tauri-apps/api/path";
     import { createDir } from "@tauri-apps/api/fs";
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
-    import { KernelValidator as KernelValidatorV6 } from "../lib/kernel/utdefect/v6/KernelValidator";
-    import type TreeNode from "../lib/models/tree/TreeNode";
+    import { Validator } from "../lib/validation/Validator";
     import { onMount } from "svelte";
+    import type { IValidator } from "../lib/models/validation/Validator";
 
     export let unsaved
     export let kernelRunner: Runner
@@ -24,7 +24,7 @@
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
     let kernelInitializer: Initializer | null = null
-    let kernelValidator: IKernelValidator | null = null
+    let kernelValidator: IValidator | null = null
 
     let parametricEnabled = false
     let treeMinimized = false
@@ -35,8 +35,7 @@
 
     onMount(() => {
         kernelInitializer = new KernelInitializerV6()
-        kernelValidator = new KernelValidatorV6(projectSingleton.Tree as TreeNode)
-        kernelValidator.SetBasicValidation()
+        kernelValidator = new Validator()
     })
 
     // Simulate section buttons
@@ -168,8 +167,7 @@
     const handleKernelVersionChange = () => {
         if (projectSingleton.BinaryPath == "resources\\bin\\UTDef6.exe") {
             kernelInitializer = new KernelInitializerV6()
-            kernelValidator = new KernelValidatorV6(projectSingleton.Tree as TreeNode)
-            kernelValidator.SetBasicValidation()
+            kernelValidator = new Validator()
         }
     }
 </script>
@@ -242,7 +240,7 @@
             {#if !treeMinimized}
             <div class="h-full rounded-md my-1 mb-2 w-full px-2" style="overflow: auto;">
                 {#if projectSingleton.Tree !== null}
-                <TreeComponent node={projectSingleton.Tree} bind:parametricEnabled={parametricEnabled}></TreeComponent>
+                <TreeComponent node={projectSingleton.Tree} bind:kernelValidator={kernelValidator} bind:parametricEnabled={parametricEnabled}></TreeComponent>
                 {/if}
             </div>
             {/if}
@@ -251,7 +249,7 @@
     <div class="absolute-bottom-above pb-4 px-4 w-full opacity-90 hover:opacity-100">
         <div class="flex flex-row w-full items-end">
             <div class="flex flex-col w-1/2 pr-1">
-                <LogComponent/>
+                <Log bind:kernelValidator={kernelValidator}/>
             </div>
             <div class="flex flex-col w-1/2 pl-1">
                 {#if parametricEnabled}

@@ -1,7 +1,6 @@
 import { basename, extname } from "@tauri-apps/api/path"
 import type { Project } from "../models/Project"
 import { exists, readTextFile, writeFile } from "@tauri-apps/api/fs"
-import { constructDefaultTreeData, tree } from "../tree.js"
 import { writable, type Subscriber, type Writable } from "svelte/store"
 import Root from "../tree/Root"
 import TreeNode from "../models/tree/TreeNode"
