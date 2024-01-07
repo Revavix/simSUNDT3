@@ -5,7 +5,6 @@
 
     // Svelte Imports
     import { ProjectSingleton } from "./lib/data/ProjectSingleton";
-    import { KernelResultParser as UTDefectV3ResultParser } from "./lib/kernel/utdefect/v6/KernelResultParser";
     import { slide } from "svelte/transition";
     import File from './tabs/File.svelte'
     import Help from './tabs/Help.svelte'
@@ -15,7 +14,7 @@
     import Viewport from './components/Viewport.svelte'
     import Button from "./components/Button.svelte"
     import Alert from "./components/Alert.svelte";
-    import { KernelRunner as UTDefectV3Runner } from "./lib/kernel/utdefect/v6/KernelRunner";
+    import { KernelRunner as UTDefectV3Runner } from "./lib/kernel/utdefect/KernelRunner";
     import SimsundtIcon from "./components/icons/SimsundtIcon.svelte";
     import { Canvas } from "@threlte/core";
 
@@ -32,7 +31,6 @@
 
     let loadedProjectName: string = ""
     let kernelRunner: Runner = new UTDefectV3Runner(4)
-    let kernelResultParser: UTDefectV3ResultParser = new UTDefectV3ResultParser()
 
     let version = '3'
 
@@ -151,7 +149,7 @@
     {:else if activeTab == "Preprocessor"}
         <Preprocessor bind:kernelRunner={kernelRunner} bind:unsaved={unsaved}/>
     {:else if activeTab == "Results"}
-        <Results bind:kernelResultParser={kernelResultParser}/>
+        <Results/>
     {:else if activeTab == "Help"}
         <Help/>
     {/if}

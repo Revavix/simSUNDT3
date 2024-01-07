@@ -1,7 +1,6 @@
 <script lang="ts">
     import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "../PlotModebar.svelte";
-    import { rectifyXY } from '../../lib/utils.js';
     import { loadedMetadata, selectedPosSignal } from '../../lib/data/Stores';
     import { onDestroy, onMount } from 'svelte';
     import { get } from 'svelte/store';
@@ -68,6 +67,7 @@
             plot = Plotly.react(div, plotData, layout, cfg)
             loading = LoadingState.OK
         }).catch((e) => {
+            console.error(e)
             loading = LoadingState.INVALID
         })
     })

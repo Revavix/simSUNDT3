@@ -9,6 +9,7 @@
     import { Path } from "three";
     import { onMount } from "svelte";
 
+    export let parentModalIsOpen: boolean
     export let parentCancelButton: IButton
     export let parentSubmitButton: IButton
 
@@ -125,9 +126,8 @@
             return
         }
 
-        invoke('commands_results_parse_point_view', { path: apath, x: tempContent[0].x, y: tempContent[0].y, columns: tempColumns, samples: tempSamples }).then((v) => {
+        invoke('commands_results_parse_point_view', { path: apath, index: 0, samples: tempSamples }).then((v) => {
             pointviewHasError = false
-            console.log(v)
         }).catch((e) => {
             pointviewHasError = true
             pointviewErrorText = e
@@ -166,6 +166,8 @@
             parentCancelButton.action()
         }).catch((e) => {
 
+        }).finally(() => {
+            parentModalIsOpen = false
         })
     }
 

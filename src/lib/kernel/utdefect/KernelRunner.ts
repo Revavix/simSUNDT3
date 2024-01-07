@@ -1,9 +1,9 @@
 import { homeDir } from "@tauri-apps/api/path";
-import { LoggingSingleton } from "../../../data/LoggingSingleton";
-import { kernelProgress } from "../../../data/Stores";
-import { Runner } from "../../../models/Kernel";
-import type { Progress, Run } from "../../../models/Kernel";
-import { LoggingLevel } from "../../../models/Logging";
+import { LoggingSingleton } from "../../data/LoggingSingleton";
+import { kernelProgress } from "../../data/Stores";
+import { Runner } from "../../models/Kernel";
+import type { Progress, Run } from "../../models/Kernel";
+import { LoggingLevel } from "../../models/Logging";
 import { Child, Command } from "@tauri-apps/api/shell";
 import { readTextFile } from "@tauri-apps/api/fs";
 
@@ -75,6 +75,8 @@ export class KernelRunner extends Runner {
             progress: 1, 
             finished: true 
         } 
+
+        kernelProgress.set(this.progress)
     }
     
     public async Execute(): Promise<void> {
@@ -97,7 +99,6 @@ export class KernelRunner extends Runner {
                 this.runs[i].closed.code = data.code
                 this.runs[i].closed.signal = data.signal
                 this.StopProgressWatcher(this.runs[i], i)
-                kernelProgress.set(this.progress)
             })
             cmd.on('error', err => {
                 this.runs[i].closed.code = -1
@@ -130,6 +131,9 @@ export class KernelRunner extends Runner {
             await new Promise(r => setTimeout(r, 100));
         }
 
+        // Call stop to kill any remaining processes and setting progress finished to true
+        await this.Stop()
+
         return Promise.resolve()
     }
 
@@ -137,5 +141,9 @@ export class KernelRunner extends Runner {
         this.runs.forEach(run => {
             run.handle?.kill()
         });
+        
+        this.progress.forEach((p, i) => { 
+            p.finished = true
+        })
     }
 }

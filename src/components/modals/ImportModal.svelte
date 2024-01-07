@@ -47,7 +47,7 @@
         </div>
     </div>
     {#if importVariant === ImportVariant.SIMSUNDT_V2 && importType === ImportType.RESULTS}
-    <SimsundtTwoResults bind:parentCancelButton={cancelButton} bind:parentSubmitButton={submitButton}/>
+    <SimsundtTwoResults bind:parentModalIsOpen={isOpen} bind:parentCancelButton={cancelButton} bind:parentSubmitButton={submitButton}/>
     {/if}
     <div class="flex flex-row w-full p-3">
         <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 mr-auto">

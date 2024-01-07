@@ -1,7 +1,6 @@
 <script lang="ts">
     import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "../PlotModebar.svelte";
-    import { rectifyXYZ } from '../../lib/utils.js';
     import { UltraVision } from '../../lib/plotting/Colorscales';
     import { CalculationMode, DistanceMode } from '../../lib/models/SoundYAxisMode';
     import { onDestroy, onMount } from 'svelte';
@@ -63,7 +62,7 @@
                 {
                     x: signals.map(s => metadata.coordinates.y.start + (s.x * metadata.coordinates.y.increment)),
                     y: signals.map(s => s.y * getYMultiplier(metadata) * ((metadata.timegate.end - metadata.timegate.start ) / end.ref.samples)),
-                    z: signals.map(s => rectify(rectification, s.z)),
+                    z: signals.map(s => rectify(rectification, s.z / end.amplitude)),
                     zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
                     colorscale: UltraVision
