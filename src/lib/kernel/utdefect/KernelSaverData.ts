@@ -355,7 +355,6 @@ export default class KernelSaverData {
     }
     
     private calculateISHA(autoNumElements: boolean, isha: number) {
-        console.log(autoNumElements, isha)
         if (!autoNumElements) {
             return isha
         } else {

@@ -13,6 +13,11 @@ export interface Project {
                 parametric: {
                     numProcesses: number
                 }
+                viewport: {
+                    showOrigin: boolean,
+                    showAxes: boolean,
+                    showGrid: boolean
+                }
             }
         }
         postprocessor: Array<any>

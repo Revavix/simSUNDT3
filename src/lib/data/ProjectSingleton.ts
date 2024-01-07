@@ -24,13 +24,17 @@ export class ProjectSingleton {
                         cloudEndpoint: "",
                         parametric: {
                             numProcesses: 4
+                        },
+                        viewport: {
+                            showOrigin: false,
+                            showAxes: true,
+                            showGrid: true
                         }
                     }
                 },
                 postprocessor: []
             }
         }
-        console.log(this._active)
         this._store = writable(this._active)
     }
 
@@ -60,6 +64,11 @@ export class ProjectSingleton {
                         cloudEndpoint: "",
                         parametric: {
                             numProcesses: 4
+                        },
+                        viewport: {
+                            showOrigin: false,
+                            showAxes: true,
+                            showGrid: true
                         }
                     }
                 },

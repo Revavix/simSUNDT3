@@ -8,7 +8,7 @@
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
     import { kernelProgress } from "../lib/data/Stores";
-    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult } from "../lib/models/Kernel";
+    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult, type Progress } from "../lib/models/Kernel";
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
     import { BaseDirectory } from "@tauri-apps/api/path";
@@ -222,6 +222,38 @@
             </div>
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
+        <!-- 3D settings -->
+        <div class="flex flex-col w-40 pt-1 h-full -space-y-1">
+            <div class="flex flex-row w-full">
+                <!-- Checkbox to show axes -->
+                <div class="flex flex-col">
+                    <div class="flex flex-row items-center">
+                        <input bind:checked={projectSingleton.Misc.viewport.showAxes} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
+                        <div class="px-2" style="font-size:12px; color:#4d4d4d;">Axes</div>
+                    </div>
+                </div>
+                <!-- Checkbox to show origin -->
+                <div class="flex flex-col">
+                    <div class="flex flex-row items-center">
+                        <input bind:checked={projectSingleton.Misc.viewport.showOrigin} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
+                        <div class="px-2" style="font-size:12px; color:#4d4d4d;">Origin</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Checkbox to show grid -->
+            <div class="flex flex-row w-full">
+                <div class="flex flex-row items-center">
+                    <input bind:checked={projectSingleton.Misc.viewport.showGrid} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
+                    <div class="px-2" style="font-size:12px; color:#4d4d4d;">Grid</div>
+                </div>
+            </div>
+            <!-- 3D View Footer -->
+            <div class="flex flex-row w-full justify-center pt-7">
+                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                3D View
+                </div>
+            </div>
+        </div>
     </div>
     <div class="flex flex-col tree-view">
         <div class="flex flex-col shadow-lg rounded-lg px-2 mt-2 bg-stone-300 min-w-96 min-w-sm w-full sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg mb-4 opacity-90 hover:opacity-100" style="z-index: 4; position:relative; overflow: auto;">

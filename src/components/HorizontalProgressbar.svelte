@@ -20,7 +20,6 @@
         }
 
         if (progress/maxValue == 1) {
-            console.log("Progress is " + progress + " and maxprogress is " + maxValue)
             progressColor = 'bg-green-600'
         }
 

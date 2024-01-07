@@ -30,8 +30,6 @@ export function Serialize(node: TreeNode | TreeInput | TreeCheckbox | TreeDropdo
 
     traverse(node, '');
 
-    console.log(dictionary)
-
     return dictionary;
 }
 

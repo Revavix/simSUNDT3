@@ -14,7 +14,7 @@
     export let kernelValidator: IValidator | null = null
     export let parametricEnabled: boolean
 
-    let validationResult: IValidationResult | null = null
+    let validationResult: IValidationResult | null = { isValid: true, isDisabled: false, message: null }
     
 	const toggleExpansion = () => {
         if (node.expanded === null) return
@@ -36,6 +36,13 @@
 
     let unsubscribe = ProjectSingleton.GetInstance().Subscribe(() => {
         // Perform validation
+        if (kernelValidator && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
+            validationResult = kernelValidator.Validate((parentRef + node.name).replace(/\W/g, ""), node.value)
+        }
+    })
+
+    onMount(() => {
+        // Perform initial validation
         if (kernelValidator && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
             validationResult = kernelValidator.Validate((parentRef + node.name).replace(/\W/g, ""), node.value)
         }

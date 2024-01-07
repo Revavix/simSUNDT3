@@ -131,6 +131,9 @@ export class KernelRunner extends Runner {
             await new Promise(r => setTimeout(r, 100));
         }
 
+        // Call stop to kill any remaining processes and setting progress finished to true
+        await this.Stop()
+
         return Promise.resolve()
     }
 
