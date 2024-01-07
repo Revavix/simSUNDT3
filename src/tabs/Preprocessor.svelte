@@ -1,37 +1,42 @@
 <script lang="ts">
-    import { KernelSaver as KernelSaverUTDef6 } from "../lib/kernel/utdefect/v6/KernelSaver";
+    import { KernelSaver as KernelSaverUTDef6 } from "../lib/kernel/utdefect/KernelSaver";
     import TreeComponent from '../components/Tree.svelte'
     import Button from '../components/Button.svelte'
-    import OutputLogComponent from '../components/OutputLog.svelte'
-    import { tree } from '../lib/tree.js'
-    import { constructIsoSaveData } from "../lib/utDefSaverUtils.js";
-    import { KernelInitializer as KernelInitializerV6 } from "../lib/kernel/utdefect/v6/KernelInitializer"
+    import Log from '../components/Log.svelte'
+    import { KernelInitializer as KernelInitializerV6 } from "../lib/kernel/utdefect/KernelInitializer"
     import ParametricProgressOverview from "../components/ParametricProgressOverview.svelte";
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
-    import { kernelProgress, kernelStatus } from "../lib/data/Stores";
-    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult } from "../lib/models/Kernel";
+    import { kernelProgress } from "../lib/data/Stores";
+    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult, type Progress } from "../lib/models/Kernel";
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
-    import { BaseDirectory, homeDir } from "@tauri-apps/api/path";
+    import { BaseDirectory } from "@tauri-apps/api/path";
     import { createDir } from "@tauri-apps/api/fs";
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
+    import { Validator } from "../lib/validation/Validator";
+    import { onMount } from "svelte";
+    import type { IValidator } from "../lib/models/validation/Validator";
 
     export let unsaved
     export let kernelRunner: Runner
  
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
-    let kernelInitializer: Initializer = new KernelInitializerV6()
+    let kernelInitializer: Initializer | null = null
+    let kernelValidator: IValidator | null = null
 
-    let mainLogContents: any[] = []
     let parametricEnabled = false
     let treeMinimized = false
     let showConfigureModal = false
     let showParametricSettingsModal = false
-    let kernelRunnerIsRunning = false
     let namingSchemeMethod = 1
     let namingSchemeName = ""
+
+    onMount(() => {
+        kernelInitializer = new KernelInitializerV6()
+        kernelValidator = new Validator()
+    })
 
     // Simulate section buttons
     let runButton = {
@@ -39,19 +44,20 @@
         color: "#55b13c",
         icon: "play_arrow",
         action: async () => {
+            if (kernelInitializer === null) {
+                loggingSingleton.Log(LoggingLevel.WARNING, "Kernel initializer is null, cannot run simulation.")
+                return
+            }
+
             // Clean up old runs
             await createDir("simSUNDT/Simulations", { dir: BaseDirectory.Document, recursive: true})
 
             // Prep default Isometric data in the saver
             const saver = new KernelSaverUTDef6()
-            console.log(projectSingleton.Tree)
-            saver.data = constructIsoSaveData(projectSingleton.Tree, projectSingleton.Misc)
+            saver.rootNode = projectSingleton.Tree
 
             // Run name
             const name = namingSchemeMethod == 1 ? crypto.randomUUID() : namingSchemeName
-            
-            // Construct expected data object
-            const data = { tree: projectSingleton.Tree, misc: projectSingleton.Misc }
 
             // Configure the runner and clear it
             kernelRunner.processes = projectSingleton.ProcessCount
@@ -63,7 +69,7 @@
             kernelInitializer.mode = parametricEnabled ? InitializerMode.PARAMETRIC : InitializerMode.NON_PARAMETRIC
             kernelInitializer.runner = kernelRunner
             kernelInitializer.saver = saver
-            kernelInitializer.Execute(name, data).then((v) => {
+            kernelInitializer.Execute(name).then((v) => {
                 if (typeof v === 'string') {
                     loggingSingleton.Log(LoggingLevel.WARNING, "Simulation completed, but an unexpected value was returned, the value '" + v + "'")
                     return
@@ -91,6 +97,9 @@
                         loggingSingleton.Log(LoggingLevel.INFO, "Runner completed successfully but failed to auto-\
                             save, please save manually to ensure results are not lost.")
                     })
+                } else {
+                    loggingSingleton.Log(LoggingLevel.WARNING, "Runner completed, but project was not auto-saved since the project has not been manually saved yet.\
+                         Please save manually to ensure results are not lost.")
                 }
             }).catch(v => {
                 loggingSingleton.Log(LoggingLevel.WARNING, v)
@@ -155,12 +164,12 @@
         disabled: false
     }
 
-    function handleTreeMessage(ev: any) {
-        if (ev.detail.type == "Save") {
-            unsaved = true
+    const handleKernelVersionChange = () => {
+        if (projectSingleton.BinaryPath == "resources\\bin\\UTDef6.exe") {
+            kernelInitializer = new KernelInitializerV6()
+            kernelValidator = new Validator()
         }
     }
-    
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
@@ -213,6 +222,38 @@
             </div>
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
+        <!-- 3D settings -->
+        <div class="flex flex-col w-40 pt-1 h-full -space-y-1">
+            <div class="flex flex-row w-full">
+                <!-- Checkbox to show axes -->
+                <div class="flex flex-col">
+                    <div class="flex flex-row items-center">
+                        <input bind:checked={projectSingleton.Misc.viewport.showAxes} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
+                        <div class="px-2" style="font-size:12px; color:#4d4d4d;">Axes</div>
+                    </div>
+                </div>
+                <!-- Checkbox to show origin -->
+                <div class="flex flex-col">
+                    <div class="flex flex-row items-center">
+                        <input bind:checked={projectSingleton.Misc.viewport.showOrigin} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
+                        <div class="px-2" style="font-size:12px; color:#4d4d4d;">Origin</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Checkbox to show grid -->
+            <div class="flex flex-row w-full">
+                <div class="flex flex-row items-center">
+                    <input bind:checked={projectSingleton.Misc.viewport.showGrid} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
+                    <div class="px-2" style="font-size:12px; color:#4d4d4d;">Grid</div>
+                </div>
+            </div>
+            <!-- 3D View Footer -->
+            <div class="flex flex-row w-full justify-center pt-7">
+                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                3D View
+                </div>
+            </div>
+        </div>
     </div>
     <div class="flex flex-col tree-view">
         <div class="flex flex-col shadow-lg rounded-lg px-2 mt-2 bg-stone-300 min-w-96 min-w-sm w-full sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg mb-4 opacity-90 hover:opacity-100" style="z-index: 4; position:relative; overflow: auto;">
@@ -230,7 +271,9 @@
             </div>
             {#if !treeMinimized}
             <div class="h-full rounded-md my-1 mb-2 w-full px-2" style="overflow: auto;">
-                <TreeComponent tree={tree} data={projectSingleton.Tree} pad={false} bind:parametricEnabled={parametricEnabled} on:message={handleTreeMessage}></TreeComponent>
+                {#if projectSingleton.Tree !== null}
+                <TreeComponent node={projectSingleton.Tree} bind:kernelValidator={kernelValidator} bind:parametricEnabled={parametricEnabled}></TreeComponent>
+                {/if}
             </div>
             {/if}
         </div>
@@ -238,7 +281,7 @@
     <div class="absolute-bottom-above pb-4 px-4 w-full opacity-90 hover:opacity-100">
         <div class="flex flex-row w-full items-end">
             <div class="flex flex-col w-1/2 pr-1">
-                <OutputLogComponent/>
+                <Log bind:kernelValidator={kernelValidator}/>
             </div>
             <div class="flex flex-col w-1/2 pl-1">
                 {#if parametricEnabled}
@@ -271,7 +314,7 @@
                     <div class="px-3 mt-2 space-y-2">
                         <div>
                             <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Kernel version</label>
-                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath} >
+                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath} on:change={handleKernelVersionChange}>
                                 <option value="resources\bin\UTDef6.exe">UTDefect - Version 6</option>
                                 <!-- To be added
                                 <option value="resources\bin\UTDefectLightNoDLL.exe">UTDefect - Light</option>

@@ -1,7 +1,6 @@
 <script lang="ts">
     import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "../PlotModebar.svelte";
-    import { rectifyXYZ } from '../../lib/utils.js';
     import { UltraVision } from '../../lib/plotting/Colorscales';
     import { CalculationMode, DistanceMode } from '../../lib/models/SoundYAxisMode';
     import { onDestroy, onMount } from 'svelte';

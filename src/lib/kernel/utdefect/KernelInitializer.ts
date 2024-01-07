@@ -1,9 +1,8 @@
-import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer, type Run } from "../../../models/Kernel"
-import { constructParametricData } from "../../../tree.js"
-import { KernelSaver as KernelSaverUTDef6 } from "../../../kernel/utdefect/v6/KernelSaver"
-import { constructIsoSaveData } from "../../../utDefSaverUtils.js"
-import { BaseDirectory, documentDir, homeDir, resourceDir } from "@tauri-apps/api/path"
-import { copyFile, createDir, removeDir, removeFile } from "@tauri-apps/api/fs"
+import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer, type Run } from "../../models/Kernel"
+import { KernelSaver as KernelSaverUTDef6 } from "./KernelSaver"
+import { BaseDirectory, documentDir, homeDir } from "@tauri-apps/api/path"
+import { createDir, removeDir, removeFile } from "@tauri-apps/api/fs"
+import { GenerateParametricCombinations } from "./KernelUtils"
 
 export class KernelInitializer extends Initializer {
 
@@ -19,23 +18,24 @@ export class KernelInitializer extends Initializer {
         })
     }
 
-    public async Execute(name: string, data: any): Promise<InitializerExecutionResult | undefined | string> {
-        let runs = this.mode === InitializerMode.PARAMETRIC ? constructParametricData(data.tree, data.misc) : [constructIsoSaveData(data.tree, data.misc)]
+    public async Execute(name: string): Promise<InitializerExecutionResult | undefined | string> {
+        if (this.saver === null || !this.saver.rootNode) return Promise.reject("No valid saver found")
+
+        let runs = this.mode === InitializerMode.PARAMETRIC ? GenerateParametricCombinations(this.saver.rootNode) : [this.saver?.rootNode]
         let validation: InitializerValidationResult = this.Validate(runs.length)
 
         if (validation.pass === false) return Promise.reject(validation.message)
-        if (this.saver === null) return Promise.reject("No valid saver found")
 
         for (let i = 0; i < runs.length; i++) {
             let folder: string = name + "\\" + (i + 1)
-            this.saver.data = runs[i]
+            this.saver.rootNode = runs[i]
 
             // Create a new folder for each combination produced by constructParametricData
             await createDir("simSUNDT\\Simulations\\" + folder, { dir: BaseDirectory.Document, recursive: true })
 
             // Save each individual run data to folder created above
-            await this.saver?.Save("simSUNDT\\Simulations\\" + folder + "\\utdefdat").catch(() => {
-                return Promise.reject("Failed to save the utdefdat file to folder")
+            await this.saver?.Save("simSUNDT\\Simulations\\" + folder + "\\utdefdat").catch((v) => {
+                return Promise.reject("Failed to save the utdefdat file to folder (" + v + ")")
             })
 
             // Copy binary to the simulation folder
