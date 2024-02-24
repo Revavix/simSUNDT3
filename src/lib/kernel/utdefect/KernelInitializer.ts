@@ -10,8 +10,7 @@ export class KernelInitializer extends Initializer {
     constructor() {
         super()
         this.saver = new KernelSaverUTDef6()
-        this.executable = "UTDef6.exe"
-        this.binary = ""
+        this.sidecarName = ""
         
         homeDir().then((v) => {
             this.home = v
@@ -22,6 +21,7 @@ export class KernelInitializer extends Initializer {
         if (this.saver === null || !this.saver.rootNode) return Promise.reject("No valid saver found")
 
         let runs = this.mode === InitializerMode.PARAMETRIC ? GenerateParametricCombinations(this.saver.rootNode) : [this.saver?.rootNode]
+        console.log(runs)
         let validation: InitializerValidationResult = this.Validate(runs.length)
 
         if (validation.pass === false) return Promise.reject(validation.message)
@@ -42,7 +42,6 @@ export class KernelInitializer extends Initializer {
             //await copyFile(await resourceDir() + this.binary, await documentDir() + "simSUNDT\\Simulations\\" + folder + "\\" + this.executable)
 
             this.runner?.runs.push({
-                executable: this.executable,
                 path: await documentDir() + "simSUNDT\\Simulations\\" + folder,
                 started: false,
                 handle: null,
@@ -54,7 +53,7 @@ export class KernelInitializer extends Initializer {
             })
         }
 
-        return await this.runner?.Execute(this.executable).then(() => {
+        return await this.runner?.Execute(this.sidecarName).then(() => {
             let retval: InitializerExecutionResult = {
                 timestamp: new Date(),
                 runs: this.runner?.runs !== undefined ? this.runner?.runs : []
@@ -63,7 +62,6 @@ export class KernelInitializer extends Initializer {
             // Clean up unused files post run
             this.runner?.runs.forEach(async (element) => {
                 try {
-                    await removeFile(element.path + "\\" + this.executable)
                     await removeDir(element.path + "\\utdefcontrol")
                     await removeDir(element.path + "\\utdefdat")
                 } catch (e) {

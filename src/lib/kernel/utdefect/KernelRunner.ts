@@ -79,7 +79,7 @@ export class KernelRunner extends Runner {
         kernelProgress.set(this.progress)
     }
     
-    public async Execute(): Promise<void> {
+    public async Execute(sidecar: string): Promise<void> {
         if (this.runs?.length == 0) {
             return Promise.reject("No run data is set in the this.runs variable")
         }
@@ -93,7 +93,7 @@ export class KernelRunner extends Runner {
 
         // Prepare commands & their handlers
         for(let i = 0; i < this.runs.length; i++) {
-            let cmd: Command = Command.sidecar("binaries/v6/UTDef6", [], { cwd: this.runs[i].path })
+            let cmd: Command = Command.sidecar(sidecar, [], { cwd: this.runs[i].path })
 
             cmd.on('close', data => {
                 this.runs[i].closed.code = data.code
@@ -122,6 +122,7 @@ export class KernelRunner extends Runner {
                     index += 1
                 }).catch((e) => {
                     this.loggingSingleton.Log(LoggingLevel.WARNING, "Run " + index + " failed to start, canceling simulation(s)" + e)
+                    this.runs.map((run) => run.closed.code = -1)
                     return Promise.reject()
                 })
             }
