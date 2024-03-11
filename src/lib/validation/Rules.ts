@@ -347,6 +347,80 @@ export default {
     
         return { isValid: true, isDisabled: false, message: null };
     },
+    MethodMeshSizeXIncrement: (value: string | number | boolean): IValidationResult => {
+        // If the increment is negative, then Method:Mesh:Size:XStart must be greater than Method:Mesh:Size:XEnd
+        // or if the increment is positive, then Method:Mesh:Size:XStart must be less than Method:Mesh:Size:XEnd
+        // increment can also not be zero
+        let start = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput
+        let end = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XEnd") as TreeInput
+
+        if (value as number < 0) {
+            if (start.value <= end.value) {
+                return {
+                    isValid: false,
+                    isDisabled: false,
+                    message: "Increment is negative, XStart must be greater than XEnd"
+                };
+            }
+        }
+
+        if (value as number > 0) {
+            if (start.value >= end.value) {
+                return {
+                    isValid: false,
+                    isDisabled: false,
+                    message: "Increment is positive, XStart must be less than XEnd"
+                };
+            }
+        }
+
+        if (value === 0) {
+            return {
+                isValid: false,
+                isDisabled: false,
+                message: "Increment cannot be zero"
+            };
+        }
+
+        return { isValid: true, isDisabled: false, message: null };
+    },
+    MethodMeshSizeYIncrement: (value: string | number | boolean): IValidationResult => {
+        // If the increment is negative, then Method:Mesh:Size:YStart must be greater than Method:Mesh:Size:YEnd
+        // or if the increment is positive, then Method:Mesh:Size:YStart must be less than Method:Mesh:Size:YEnd
+        // increment can also not be zero
+        let start = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YStart") as TreeInput
+        let end = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YEnd") as TreeInput
+
+        if (value as number < 0) {
+            if (start.value <= end.value) {
+                return {
+                    isValid: false,
+                    isDisabled: false,
+                    message: "Increment is negative, YStart must be greater than YEnd"
+                };
+            }
+        }
+
+        if (value as number > 0) {
+            if (start.value >= end.value) {
+                return {
+                    isValid: false,
+                    isDisabled: false,
+                    message: "Increment is positive, YStart must be less than YEnd"
+                };
+            }
+        }
+
+        if (value === 0) {
+            return {
+                isValid: false,
+                isDisabled: false,
+                message: "Increment cannot be zero"
+            };
+        }
+
+        return { isValid: true, isDisabled: false, message: null };
+    },
     MethodMeshWeldType: (value: string | number | boolean): IValidationResult => {
         return { isValid: true, isDisabled: false, message: null };
     },
@@ -809,13 +883,13 @@ export default {
         }
 
         // Get the size of the model and compared it to the diameter
-        let sizeXStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput
-        let sizeXEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XEnd") as TreeInput
-        let sizeYStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YStart") as TreeInput
-        let sizeYEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YEnd") as TreeInput
+        let XStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput
+        let XEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XEnd") as TreeInput
+        let YStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YStart") as TreeInput
+        let YEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YEnd") as TreeInput
 
-        let sizeX = Math.abs(sizeXEnd.value - sizeXStart.value)
-        let sizeY = Math.abs(sizeYEnd.value - sizeYStart.value)
+        let sizeX = Math.abs(XEnd.value - XStart.value)
+        let sizeY = Math.abs(YEnd.value - YStart.value)
 
         if (value as number > sizeX || value as number > sizeY) {
             return {
@@ -1172,8 +1246,11 @@ export default {
         let meshSizeXStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput
         let meshSizeXEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XEnd") as TreeInput
 
+        // Calculate size of the model
+        let size = Math.abs(meshSizeXEnd.value - meshSizeXStart.value)
+
         // Check whether the value is within the range of the model
-        if (value as number < meshSizeXStart.value || value as number > meshSizeXEnd.value) {
+        if (value as number > size / 2 || value as number < -size / 2) {
             return {
                 isValid: false,
                 isDisabled: false,
@@ -1188,8 +1265,11 @@ export default {
         let meshSizeYStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YStart") as TreeInput
         let meshSizeYEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YEnd") as TreeInput
 
+        // Calculate size of the model
+        let size = Math.abs(meshSizeYEnd.value - meshSizeYStart.value)
+
         // Check whether the value is within the range of the model
-        if (value as number < meshSizeYStart.value || value as number > meshSizeYEnd.value) {
+        if (value as number > size / 2 || value as number < -size / 2) {
             return {
                 isValid: false,
                 isDisabled: false,
@@ -1373,8 +1453,11 @@ export default {
         let meshSizeXStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput
         let meshSizeXEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XEnd") as TreeInput
 
+        // Calculate the size of the model
+        let size = Math.abs(meshSizeXEnd.value - meshSizeXStart.value)
+
         // Check whether the value is within the range of the model
-        if (value as number < meshSizeXStart.value || value as number > meshSizeXEnd.value) {
+        if (value as number > size / 2 || value as number < -size / 2) {
             return {
                 isValid: false,
                 isDisabled: false,
@@ -1389,8 +1472,11 @@ export default {
         let meshSizeYStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YStart") as TreeInput
         let meshSizeYEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YEnd") as TreeInput
 
+        // Calculate the size of the model
+        let size = Math.abs(meshSizeYEnd.value - meshSizeYStart.value)
+
         // Check whether the value is within the range of the model
-        if (value as number < meshSizeYStart.value || value as number > meshSizeYEnd.value) {
+        if (value as number > size / 2 || value as number < -size / 2) {
             return {
                 isValid: false,
                 isDisabled: false,
@@ -1503,8 +1589,11 @@ export default {
         // Position can't be outside of model
         let sizeXStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput
         let sizeXEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XEnd") as TreeInput
+
+        // Calculate size of the model
+        let size = Math.abs(sizeXEnd.value - sizeXStart.value)
         
-        if (value as number < sizeXStart.value || value as number > sizeXEnd.value) {
+        if (value as number > size / 2 || value as number < -size / 2) {
             return {
                 isValid: false,
                 isDisabled: false,
@@ -1519,7 +1608,10 @@ export default {
         let sizeYStart = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YStart") as TreeInput
         let sizeYEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YEnd") as TreeInput
 
-        if (value as number < sizeYStart.value || value as number > sizeYEnd.value) {
+        // Calculate size of the model
+        let size = Math.abs(sizeYEnd.value - sizeYStart.value)
+
+        if (value as number > size / 2 || value as number < -size / 2) {
             return {
                 isValid: false,
                 isDisabled: false,
@@ -1566,6 +1658,16 @@ export default {
         return { isValid: true, isDisabled: false, message: null };
     },
     DefectSpecificationMeasurementHeight: (value: string | number | boolean): IValidationResult => {
+        // If Defect:Specification:Variant is set to anything but Strip-like Crack or SBSL Crack, disable this input
+        let variant = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Defect:Specification:Variant") as TreeInput
+
+        if (variant.value !== 7 && variant.value !== 19) {
+            return { isValid: true, isDisabled: true, message: null };
+        }
+
+        return { isValid: true, isDisabled: false, message: null };
+    },
+    DefectSpecificationMeasurementLength: (value: string | number | boolean): IValidationResult => {
         // If Defect:Specification:Variant is set to anything but Rectangular Crack, disable this input
         let variant = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Defect:Specification:Variant") as TreeInput
 
@@ -1575,8 +1677,8 @@ export default {
 
         return { isValid: true, isDisabled: false, message: null };
     },
-    DefectSpecificationMeasurementLength: (value: string | number | boolean): IValidationResult => {
-        // If Defect:Specification:Variant is set to anything but Rectangular Crack, disable this input
+    DefectSpecificationMeasurementLengthParallel: (value: string | number | boolean): IValidationResult => {
+        // If Defect:Specification:Variant is set to anything but rectangular crack, disable this input
         let variant = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Defect:Specification:Variant") as TreeInput
 
         if (variant.value !== 5) {

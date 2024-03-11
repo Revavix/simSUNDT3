@@ -21,7 +21,6 @@ export class KernelInitializer extends Initializer {
         if (this.saver === null || !this.saver.rootNode) return Promise.reject("No valid saver found")
 
         let runs = this.mode === InitializerMode.PARAMETRIC ? GenerateParametricCombinations(this.saver.rootNode) : [this.saver?.rootNode]
-        console.log(runs)
         let validation: InitializerValidationResult = this.Validate(runs.length)
 
         if (validation.pass === false) return Promise.reject(validation.message)
@@ -39,8 +38,6 @@ export class KernelInitializer extends Initializer {
             })
 
             // Copy binary to the simulation folder
-            //await copyFile(await resourceDir() + this.binary, await documentDir() + "simSUNDT\\Simulations\\" + folder + "\\" + this.executable)
-
             this.runner?.runs.push({
                 path: await documentDir() + "simSUNDT\\Simulations\\" + folder,
                 started: false,

@@ -279,8 +279,8 @@ export default class KernelSaverData {
         }
 
         this.DB = (node.FindChildByPattern("Defect:Specification:Measurement:DiameterPerpendicular") as TreeInput)?.value
-        this.A = (node.FindChildByPattern("Defect:Specification:Measurement:Height") as TreeInput)?.value
-        this.B = (node.FindChildByPattern("Defect:Specification:Measurement:Length") as TreeInput)?.value
+        this.A = (node.FindChildByPattern("Defect:Specification:Measurement:Length") as TreeInput)?.value
+        this.B = (node.FindChildByPattern("Defect:Specification:Measurement:LengthParallel") as TreeInput)?.value
         this.DRR = (node.FindChildByPattern("Defect:Specification:InclusionProperties:RelativeDensity") as TreeInput)?.value
         this.CPI = (node.FindChildByPattern("Defect:Specification:InclusionProperties:LongitudinalWavespeed") as TreeInput)?.value / 1000
         this.CSI = (node.FindChildByPattern("Defect:Specification:InclusionProperties:TransversalWavespeed") as TreeInput)?.value / 1000
