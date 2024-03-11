@@ -3,12 +3,14 @@
     import Button from './Button.svelte';
 
     let progress = 0
+    let finished = false
     let minimized = false
 
     kernelProgress.subscribe(v => {
         if (v === undefined) return
 
         try {
+            finished = v[0].finished;
             progress = v[0].progress;
         } catch (e) {
             
@@ -38,6 +40,18 @@
         action: updateMinState,
         disabled: false
     }
+
+    // Watch the progress variable and reset to 0 after 5 seconds if it's 1, but cancel if the progress is already below 1
+    $: {
+        if (finished) {
+            setTimeout(() => {
+                if (finished) {
+                    progress = 0
+                }
+            }, 5000)
+        }
+    }
+    
 </script>
 
 <div class="flex flex-col bg-stone-300 rounded-lg shadow-lg w-full h-full" style="z-index: 4;">
