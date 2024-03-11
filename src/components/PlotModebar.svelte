@@ -142,7 +142,7 @@
     {#if metadata !== null}
     <div class="flex flex-col px-0.5 items-center" style="color:#4d4d4d; font-size: 12px; cursor: pointer">
         <TooltipMultiline labels={[
-            "Calibration level: " + metadata.max_output, 
+            "Calibration level: " + Math.round(metadata.max_output * 100) / 100, 
             "True angle: " + metadata.probe.true_angle
         ]}>
             <div class="flex flex-col" style="font-family:'Material Icons'; font-size:12px; color:#4d4d4d">
