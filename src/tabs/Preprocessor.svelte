@@ -64,8 +64,7 @@
             kernelRunner.runs = []
 
             // Configure the initializer
-            kernelInitializer.binary = projectSingleton.BinaryPath,
-            kernelInitializer.executable = "UTDef6.exe"
+            kernelInitializer.sidecarName = projectSingleton.BinaryPath
             kernelInitializer.mode = parametricEnabled ? InitializerMode.PARAMETRIC : InitializerMode.NON_PARAMETRIC
             kernelInitializer.runner = kernelRunner
             kernelInitializer.saver = saver
@@ -162,13 +161,6 @@
         icon: "close",
         action:  () => {showConfigureModal = false},
         disabled: false
-    }
-
-    const handleKernelVersionChange = () => {
-        if (projectSingleton.BinaryPath == "resources\\bin\\UTDef6.exe") {
-            kernelInitializer = new KernelInitializerV6()
-            kernelValidator = new Validator()
-        }
     }
 </script>
 
@@ -314,11 +306,9 @@
                     <div class="px-3 mt-2 space-y-2">
                         <div>
                             <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Kernel version</label>
-                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath} on:change={handleKernelVersionChange}>
-                                <option value="resources\bin\UTDef6.exe">UTDefect - Version 6</option>
-                                <!-- To be added
-                                <option value="resources\bin\UTDefectLightNoDLL.exe">UTDefect - Light</option>
-                                -->
+                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath}>
+                                <option value="binaries/v6/UTDef6">UTDefect - Version 6</option>
+                                <option value="binaries/light/UTDefectLight">UTDefect - Light</option>
                             </select>
                         </div>
                     </div>

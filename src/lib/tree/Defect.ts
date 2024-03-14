@@ -53,8 +53,9 @@ measurement.AddChild(new TreeInput("Diameter", "DA", 5, true))
 measurement.AddChild(new TreeInput("Centre Depth", "DZ", 30, true))
 measurement.AddChild(new TreeInput("Diameter Parallel", "DA", 10, true))
 measurement.AddChild(new TreeInput("Diameter Perpendicular", "DB", 10, true))
-measurement.AddChild(new TreeInput("Height", "A", 5, true))
-measurement.AddChild(new TreeInput("Length", "B", 5, true))
+measurement.AddChild(new TreeInput("Length", "A", 5, true))
+measurement.AddChild(new TreeInput("Length Parallel", "B", 5, true))
+measurement.AddChild(new TreeInput("Height", "DA", 5, true))
 
 // Defect:Specification:Angles
 const angles = specification.AddChild(new TreeNode("Angles", true, false))

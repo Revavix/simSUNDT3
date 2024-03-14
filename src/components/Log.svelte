@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy, tick } from 'svelte';
+    import { onDestroy, onMount, tick } from 'svelte';
     import { LoggingSingleton } from '../lib/data/LoggingSingleton';
     import type { LoggingEntry } from '../lib/models/Logging';
     import Button from './Button.svelte';
@@ -50,6 +50,12 @@
         action: updateMinState,
         disabled: false
     }
+
+    onMount(() => {
+        setTimeout(() => {
+            projectSingleton.ForceRefresh()
+        }, 50)
+    })
 
     let unsubscribeProject = projectSingleton.Subscribe(async (v: Project) => {
         if (kernelValidator === null) return

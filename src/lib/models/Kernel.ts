@@ -12,7 +12,6 @@ interface StatusMessage {
 }
 
 export interface Run {
-    executable: string,
     path: string
     started: boolean,
     handle: Child | null,
@@ -62,16 +61,14 @@ export abstract class Runner {
 export abstract class Initializer {
     saver: KernelSaverUTDef6 | null
     runner: Runner | null
-    executable: string
-    binary: string
+    sidecarName: string
     home: string
     mode: InitializerMode | null
 
     constructor() {
         this.saver = null
         this.runner = null
-        this.executable = "null"
-        this.binary = "null"
+        this.sidecarName = "null"
         this.home = "null"
         this.mode = null
     }

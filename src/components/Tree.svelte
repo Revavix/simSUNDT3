@@ -42,10 +42,15 @@
     })
 
     onMount(() => {
-        // Perform initial validation
-        if (kernelValidator && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
-            validationResult = kernelValidator.Validate((parentRef + node.name).replace(/\W/g, ""), node.value)
-        }
+        // Trigger a tree refresh before checking if the validator is present
+        ProjectSingleton.GetInstance().ForceRefresh()
+
+        // Artificial delay to allow the tree to be refreshed
+        setTimeout(() => {
+            if (kernelValidator && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
+                validationResult = kernelValidator.Validate((parentRef + node.name).replace(/\W/g, ""), node.value)
+            }
+        }, 50)
     })
 
     onDestroy(() => {

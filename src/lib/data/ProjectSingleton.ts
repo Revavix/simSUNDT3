@@ -20,7 +20,7 @@ export class ProjectSingleton {
                     tree: Object.assign(new TreeNode("Root", false, null), Root),
                     misc: {
                         accuracy: "3",
-                        binaryPath: "resources\\bin\\UTDef6.exe",
+                        binaryPath: "binaries/v6/UTDef6",
                         cloudEndpoint: "",
                         parametric: {
                             numProcesses: 4
@@ -60,7 +60,7 @@ export class ProjectSingleton {
                     tree: Object.assign(new TreeNode("Root", false, null), Root),
                     misc: {
                         accuracy: "3",
-                        binaryPath: "resources\\bin\\UTDef6.exe",
+                        binaryPath: "binaries/v6/UTDef6",
                         cloudEndpoint: "",
                         parametric: {
                             numProcesses: 4
