@@ -301,6 +301,32 @@
             <T.PlaneGeometry args={[pointEnd.y - pointStart.y, defectHeight]} />
             <T.MeshBasicMaterial color="#b22929" side={2}/>
         </T.Mesh>
+        {:else if defectType === 8}
+        <!-- Helper line which takes into account of the cylinder diameter -->
+        <T.Mesh>
+            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
+            <MeshLineMaterial
+            width={0.015}
+            color="#b22929"
+        />
+        </T.Mesh>
+        <!-- Cylinder tilted at 90 degrees parallel to the Y axis -->
+        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]} rotation={[-Math.PI / 2, 0, 0]}>
+            <T.CylinderGeometry args={[defectDiameter/2, defectDiameter/2, Math.abs(pointEnd.y - pointStart.y), 32]} />
+            <T.MeshStandardMaterial color="#b22929" side={2}/>
+        </T.Mesh>
+        {:else if defectType === 19}
+        <T.Mesh>
+            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth + defectHeight/2, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
+            <MeshLineMaterial
+            width={0.015}
+            color="#b22929"
+            />
+        </T.Mesh>
+        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]} rotation={[0, -Math.PI / 2, 0]}>
+            <T.PlaneGeometry args={[pointEnd.y - pointStart.y, defectHeight]} />
+            <T.MeshBasicMaterial color="#b22929" side={2}/>
+        </T.Mesh>
         {/if}
     {/if}
 </CSM>
