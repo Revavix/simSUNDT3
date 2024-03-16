@@ -19,6 +19,7 @@
     let largeDataSet: boolean = false
 
     onMount(() => {
+        selectedTest = projectSingleton.Postprocessor.length - 1
         handleSubtestChange()
     })
 
