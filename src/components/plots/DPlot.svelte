@@ -15,6 +15,7 @@
 
     export let rectification: Rectification
     export let interpolation: Interpolation
+    export let colorscale = UltraVision
 
     let loading: LoadingState = LoadingState.LOADING
     let calculationMode = CalculationMode.Time
@@ -65,7 +66,7 @@
                     z: signals.map(s => rectify(rectification, s.z / end.amplitude)),
                     zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
-                    colorscale: UltraVision
+                    colorscale: colorscale
                 }
             ]
         
@@ -83,7 +84,7 @@
         unsubscribe()
     })
 
-    $: calculationMode || distanceMode || rectification, selectedPosEnd.update(n => n)
+    $: calculationMode || distanceMode || rectification || colorscale, selectedPosEnd.update(n => n)
 </script>
 
 <div class="flex flex-row">
