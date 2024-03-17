@@ -88,10 +88,8 @@
                     })
 
                     // Write a preprocessor.sscache file to each of the runs folders
-                    writeTextFile(element.path + "/tree.sscache", JSON.stringify(Serialize(projectSingleton.Tree ?? {} as TreeNode))).then((v) => {
-                        loggingSingleton.Log(LoggingLevel.INFO, "Preprocessor.sscache file written to " + element.path)
-                    }).catch((e) => {
-                        loggingSingleton.Log(LoggingLevel.WARNING, "Failed to write preprocessor.sscache file to " + element.path)
+                    writeTextFile(element.path + "/tree.sscache", JSON.stringify(Serialize(projectSingleton.Tree ?? {} as TreeNode))).catch((e) => {
+                        loggingSingleton.Log(LoggingLevel.WARNING, "Failed to write preprocessor.sscache file to " + element.path + " importing back information from the run may not be possible.")
                     })
                 });
 
