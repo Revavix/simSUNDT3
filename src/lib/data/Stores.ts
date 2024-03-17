@@ -1,6 +1,5 @@
 import type { Writable } from "svelte/store"
 import { writable } from "svelte/store"
-import type { Position2D } from "../models/Positions"
 import type { End, Metadata, Point, Side } from "../models/Result"
 import type { Progress, Status } from "../models/Kernel"
 import type { FileCache } from "../models/FileCache"
@@ -24,3 +23,6 @@ export const selectedPosEnd: Writable<End> = writable()
 
 // Interpolation mode, smoothing of C scan
 export const interpolationMode: Writable<Array<string | boolean>> = writable([])
+
+// Active tab
+export const activeTab: Writable<string> = writable("File")

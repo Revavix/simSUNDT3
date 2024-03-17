@@ -12,11 +12,13 @@
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
     import { BaseDirectory } from "@tauri-apps/api/path";
-    import { createDir } from "@tauri-apps/api/fs";
+    import { createDir, writeTextFile } from "@tauri-apps/api/fs";
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
     import { Validator } from "../lib/validation/Validator";
     import { onMount } from "svelte";
     import type { IValidator } from "../lib/models/validation/Validator";
+    import { Serialize } from "../lib/tree/Utils";
+    import type TreeNode from "../lib/models/tree/TreeNode";
 
     export let unsaved
     export let kernelRunner: Runner
@@ -83,6 +85,13 @@
                 v?.runs?.forEach(element => {
                     groupedResult.runs.push({
                         path: element.path
+                    })
+
+                    // Write a preprocessor.sscache file to each of the runs folders
+                    writeTextFile(element.path + "/tree.sscache", JSON.stringify(Serialize(projectSingleton.Tree ?? {} as TreeNode))).then((v) => {
+                        loggingSingleton.Log(LoggingLevel.INFO, "Preprocessor.sscache file written to " + element.path)
+                    }).catch((e) => {
+                        loggingSingleton.Log(LoggingLevel.WARNING, "Failed to write preprocessor.sscache file to " + element.path)
                     })
                 });
 
