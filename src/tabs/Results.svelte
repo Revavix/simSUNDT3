@@ -62,6 +62,12 @@
         readTextFile(projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path + "\\tree.sscache").then((v) => {
             let treeInput = JSON.parse(v)
             projectSingleton.OverrideTree(Deserialize(treeInput))
+            LoggingSingleton.GetInstance().Log(LoggingLevel.INFO, "Imported to preprocessor from .sscache file, using the run " + 
+                projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].name + 
+                " ran at " + 
+                projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].timestamp + 
+                " as the base tree."
+            )
         }).catch((e) => {
             LoggingSingleton.GetInstance().Log(LoggingLevel.WARNING, "Failed to import to preprocessor, .sscache file not found, error (" + e + ")")
         }).finally(() => {
