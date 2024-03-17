@@ -7,8 +7,8 @@
     import { ProjectCacheSingleton } from '../lib/data/ProjectCacheSingleton';
     import { exists } from '@tauri-apps/api/fs';
     import ImportModal from '../components/modals/ImportModal.svelte';
+    import { activeTab } from '../lib/data/Stores';
 
-    export let currentTab
     export let unsaved
     export let activeAlerts: any
 
@@ -53,7 +53,7 @@
 
     async function handleLoadByName(project: any) {
         projectSingleton.Load(project.path).then(() => {
-            currentTab = "Preprocessor"
+            activeTab.set("Preprocessor")
             unsaved = false
         }).catch(() => {
             addNewAlert("Invalid project loaded, please try another project.", "#ef4444", "warning", 3000)
@@ -77,7 +77,7 @@
         }
 
         projectSingleton.Load(fileToLoad).then(() => {
-            currentTab = "Preprocessor"
+            activeTab.set("Preprocessor")
             unsaved = false
         }).catch(() => {
             addNewAlert("Invalid project loaded, please try another project.", "#ef4444", "warning", 3000)
@@ -98,7 +98,7 @@
             addNewAlert("Something went wrong when attempting to save, please try again.", "#ef4444", "warning", 6000)
         })
     }
-
+//
     async function handleOpenSaveModal() {
         const saveResult: string | null = await save({
             filters: [{
@@ -120,7 +120,7 @@
 
     async function createNewProject() {
         await projectSingleton.New().then(() => {
-            currentTab = "Preprocessor"
+            activeTab.set("Preprocessor")
             unsaved = true
         }).catch(() => {
             addNewAlert("Something went wrong when attempting to create new project, please try again.", "#ef4444", "warning", 6000)

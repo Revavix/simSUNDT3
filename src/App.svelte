@@ -23,9 +23,9 @@
     import { appWindow } from "@tauri-apps/api/window"
     import { exists, createDir, BaseDirectory } from '@tauri-apps/api/fs';
     import type { Runner } from "./lib/models/Kernel";
+    import { activeTab } from "./lib/data/Stores";
     
     let tabs = ["File", "Preprocessor", "Results", "Help"]
-    let activeTab = "File"
     let unsaved = true
     let activeAlerts: any[] = []
 
@@ -135,25 +135,25 @@
         <ul class="flex flex-row">
             {#each tabs as tab}
                 <li class="mr-2">
-                    {#if activeTab == tab}
+                    {#if $activeTab == tab}
                         <button class="inline-block text-gray-200 rounded-t-lg border-b-2 border-yellow-600 active">{tab}</button>
                     {:else}
-                        <button class="inline-block rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" on:click={() => activeTab = tab}>{tab}</button>
+                        <button class="inline-block rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" on:click={() => $activeTab = tab}>{tab}</button>
                     {/if}
                 </li>
             {/each}
         </ul>
     </div>
-    {#if activeTab == "File"}
-        <File bind:currentTab={activeTab} bind:unsaved={unsaved} bind:activeAlerts={activeAlerts}/>
-    {:else if activeTab == "Preprocessor"}
+    {#if $activeTab == "File"}
+        <File bind:unsaved={unsaved} bind:activeAlerts={activeAlerts}/>
+    {:else if $activeTab == "Preprocessor"}
         <Preprocessor bind:kernelRunner={kernelRunner} bind:unsaved={unsaved}/>
-    {:else if activeTab == "Results"}
+    {:else if $activeTab == "Results"}
         <Results/>
-    {:else if activeTab == "Help"}
+    {:else if $activeTab == "Help"}
         <Help/>
     {/if}
-    <div class="absolute-under" class:visible={activeTab === "Preprocessor" || activeTab === "Results"} class:invisible={activeTab === "File" || activeTab === "Help"}>
+    <div class="absolute-under" class:visible={$activeTab === "Preprocessor" || $activeTab === "Results"} class:invisible={$activeTab === "File" || $activeTab === "Help"}>
         <Canvas>
             <Viewport/>
         </Canvas>

@@ -127,6 +127,11 @@ export class ProjectSingleton {
         return Promise.resolve()
     }
 
+    public async OverrideTree(tree: TreeNode) {
+        this._active.data.preprocessor.tree = tree
+        this._store.set(this._active)
+    }
+
     public async PushPostprocessorData(data: any) {
         this._active.data.postprocessor.push(data)
         this._store.set(this._active)
