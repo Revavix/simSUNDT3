@@ -9,6 +9,7 @@
     import { Command } from '@tauri-apps/api/shell'
     import { invoke } from '@tauri-apps/api/tauri'
     import { Interpolation, Rectification, type Metadata } from '../lib/models/Result';
+    import { Grayscale, Magma, Parula, Rainbow, UltraVision } from '../lib/plotting/Colorscales';
     
     export let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
 
@@ -17,6 +18,7 @@
     let selectedTest: number = 0
     let selectedTestSubIndex: number = 0
     let largeDataSet: boolean = false
+    let selectedColorscale = UltraVision
 
     onMount(() => {
         selectedTest = projectSingleton.Postprocessor.length - 1
@@ -108,21 +110,50 @@
                 </div>
             </div>
         </div>
+        <div class="flex flex-col line-vert my-2 mx-4"/>
+        <div class="flex flex-col w-24 pt-2 -space-y-1">
+            <!-- Colorscale select -->
+            <div class="flex flex-col w-full">
+                <select bind:value={selectedColorscale} class="flex flex-col py-0.5 mb-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md">
+                    <option value={UltraVision}>Ultravision</option>
+                    <option value={Grayscale}>Grayscale</option>
+                    <option value={Rainbow}>Rainbow</option>
+                    <option value={Magma}>Magma</option>
+                    <option value={Parula}>Parula</option>
+                </select>
+            </div>
+            <!-- Colorscale footer -->
+            <div class="flex flex-col w-full h-full justify-end">
+                <div class="flex flex-row select-none justify-center" style="font-size:10px; color:#4d4d4d;">
+                    <div class="flex flex-row">
+                    Colorscale
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Interaction Panel -->
 
     <div class="w-full grid grid-cols-2 gap-2 mt-2" style="z-index: 99; height: calc(100vh - 190px);">
         <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99;">
-            <CPlot bind:interpolation={interpolation}/>
+            <CPlot bind:interpolation={interpolation} 
+                bind:colorscale={selectedColorscale}
+                />
         </div>
         <div class="rounded-md bg-stone-300 flex-col px-2" style="z-index: 99;">
             <APlot bind:rectification={rectification}/>
         </div>
         <div class="rounded-md bg-stone-300 flex-col px-2 pb-2" style="z-index: 99;">
-            <BPlot bind:rectification={rectification} bind:interpolation={interpolation}/>
+            <BPlot bind:rectification={rectification} 
+                bind:interpolation={interpolation} 
+                bind:colorscale={selectedColorscale}
+            />
         </div>
         <div class="rounded-md bg-stone-300 px-2" style="z-index: 99;">
-            <DPlot bind:rectification={rectification} bind:interpolation={interpolation}/>
+            <DPlot bind:rectification={rectification} 
+                bind:interpolation={interpolation} 
+                bind:colorscale={selectedColorscale}
+            />
         </div>
     </div>
 </div>

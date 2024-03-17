@@ -14,6 +14,7 @@
     import { clayout } from '../../lib/plotting/Layouts';
 
     export let interpolation: Interpolation
+    export let colorscale = UltraVision
 
     let mode = "A"
     let loading: LoadingState = LoadingState.LOADING
@@ -56,7 +57,7 @@
                     z: top.content.map(c => c.z),
                     zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
-                    colorscale: UltraVision
+                    colorscale: colorscale
                 }
             ]
 
@@ -158,7 +159,7 @@
         unsubscribe()
     })
 
-    $: interpolation, loadedMetadata.update(m => m)
+    $: interpolation || colorscale, loadedMetadata.update(m => m)
 </script>
 
 <div class="flex flex-row">
