@@ -52,3 +52,32 @@ export function Deserialize(dictionary: Record<string, string>): TreeNode {
 
     return rootNode;
 }
+
+export function New(): TreeNode {
+    const rootNode = Object.assign(new TreeNode("Root", false, null), Root);
+
+    // Traverse the tree and set the default values
+    function traverse(node: TreeNode | TreeInput | TreeCheckbox | TreeDropdown) {
+        const { children } = node;
+
+        if (children) {
+            for (const child of children) {
+                traverse(child);
+            }
+        } else {
+            if (node instanceof TreeInput) {
+                node.value = node.Default;
+                node.end = node.Default;
+                node.increment = 1;
+            } else if (node instanceof TreeDropdown) {
+                node.value = node.Default;
+            } else if (node instanceof TreeCheckbox) {
+                node.value = node.Default;
+            }
+        }
+    }
+
+    traverse(rootNode);
+
+    return rootNode
+}

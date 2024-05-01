@@ -63,9 +63,11 @@
             let treeInput = JSON.parse(v)
             projectSingleton.OverrideTree(Deserialize(treeInput))
             LoggingSingleton.GetInstance().Log(LoggingLevel.INFO, "Imported to preprocessor from .sscache file, using the run " + 
-                projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].name + 
-                " ran at " + 
-                projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].timestamp + 
+                projectSingleton.Postprocessor[selectedTest].name + 
+                " ran on " + 
+                new Date(projectSingleton.Postprocessor[selectedTest].timestamp).toLocaleDateString() + 
+                ", at " +
+                new Date(projectSingleton.Postprocessor[selectedTest].timestamp).toLocaleTimeString() +
                 " as the base tree."
             )
         }).catch((e) => {

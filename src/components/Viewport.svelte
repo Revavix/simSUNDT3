@@ -48,8 +48,6 @@
     let unsubscribeProjectSingleton = projectSingleton.Subscribe((project: Project) => {
         let rootNode: TreeNode | null = project.data.preprocessor.tree
 
-        console.log(rootNode)
-
         if (rootNode !== null) {
             defectType = (rootNode?.FindChildByPattern("Defect:Specification:Variant") as TreeDropdown)?.value
             pointStart.x = (rootNode?.FindChildByPattern("Method:Mesh:Size:XStart") as TreeInput)?.value / 10
