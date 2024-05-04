@@ -8,7 +8,7 @@ export function GenerateParametricCombinations(rootNode: TreeNode): Array<TreeNo
     function generateCombinations(node: TreeNode, pattern: string = "") {
         if (node.children && node.children.length > 0) {
             node.children.forEach(child => {
-                if (child instanceof TreeInput) {
+                if (child instanceof TreeInput && child.disabled === false) {
                     let totalCombinations = (child.end - child.value) / child.increment;
 
                     if (pattern !== rootNode.name) {
