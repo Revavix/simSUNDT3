@@ -397,4 +397,7 @@
     background: #4d4d4d;
     border-radius: 10px;
   }
+  ::-webkit-scrollbar-corner { 
+    background: rgba(0,0,0,0.0); 
+  }
 </style>
