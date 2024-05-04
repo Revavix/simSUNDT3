@@ -5,6 +5,7 @@ on:
     branches:
       - 'releases/**'
       - 'feature/**'
+      - 'bugfix/**'
       - main
 
 jobs:
