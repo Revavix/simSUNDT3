@@ -4,12 +4,18 @@
     import BPlot from '../components/plots/BPlot.svelte';
     import DPlot from '../components/plots/DPlot.svelte';
     import { onMount } from 'svelte';
-    import { loadedMetadata } from '../lib/data/Stores';
+    import { activeTab, loadedMetadata } from '../lib/data/Stores';
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
     import { Command } from '@tauri-apps/api/shell'
     import { invoke } from '@tauri-apps/api/tauri'
     import { Interpolation, Rectification, type Metadata } from '../lib/models/Result';
     import { Grayscale, Magma, Parula, Rainbow, UltraVision } from '../lib/plotting/Colorscales';
+    import type { TreeInput } from '../lib/models/tree/TreeInput';
+    import { LoggingSingleton } from '../lib/data/LoggingSingleton';
+    import { LoggingLevel } from '../lib/models/Logging';
+    import { readTextFile } from '@tauri-apps/api/fs';
+    import type TreeNode from '../lib/models/tree/TreeNode';
+    import { Deserialize } from '../lib/tree/Utils';
     
     export let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
 
@@ -50,6 +56,27 @@
         let cmd = new Command("notepad", folder + "/utIndefa")
         cmd.execute()
     }
+
+    const handleImportToPreprocessor = () => {
+        // Import to preprocessor using the .sscache file stored in the run folder, throw an error if the file is not found
+        readTextFile(projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path + "\\tree.sscache").then((v) => {
+            let treeInput = JSON.parse(v)
+            projectSingleton.OverrideTree(Deserialize(treeInput))
+            LoggingSingleton.GetInstance().Log(LoggingLevel.INFO, "Imported to preprocessor from .sscache file, using the run " + 
+                projectSingleton.Postprocessor[selectedTest].name + 
+                " ran on " + 
+                new Date(projectSingleton.Postprocessor[selectedTest].timestamp).toLocaleDateString() + 
+                ", at " +
+                new Date(projectSingleton.Postprocessor[selectedTest].timestamp).toLocaleTimeString() +
+                " as the base tree."
+            )
+        }).catch((e) => {
+            LoggingSingleton.GetInstance().Log(LoggingLevel.WARNING, "Failed to import to preprocessor, .sscache file not found, error (" + e + ")")
+        }).finally(() => {
+            // Change page to preprocessor
+            activeTab.set("Preprocessor")
+        })
+    }
 </script>
 
 <div id="postprocessor-tab">
@@ -74,6 +101,11 @@
                 </div>
                 <div class="flex flex-col pl-1">
                     <button type="button" class="text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-full text-sm px-2" style="font-size:10px" on:click={handleInspect}>Inspect</button>
+                </div>
+            </div>
+            <div class="flex flex-row w-full items-center pt-1">
+                <div class="flex flex-col w-full">
+                    <button type="button" class="text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-full text-sm px-2" style="font-size:10px" on:click={handleImportToPreprocessor}>Import to preprocessor</button>
                 </div>
             </div>
             <div class="flex flex-row w-full justify-center h-full">

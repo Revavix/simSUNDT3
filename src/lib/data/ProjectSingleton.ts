@@ -4,7 +4,7 @@ import { exists, readTextFile, writeFile } from "@tauri-apps/api/fs"
 import { writable, type Subscriber, type Writable } from "svelte/store"
 import Root from "../tree/Root"
 import TreeNode from "../models/tree/TreeNode"
-import { Deserialize, Serialize } from "../tree/Utils"
+import { Deserialize, New as NewTree, Serialize } from "../tree/Utils"
 
 export class ProjectSingleton {
     private _active: Project
@@ -17,7 +17,7 @@ export class ProjectSingleton {
             path: null,
             data: {
                 preprocessor: {
-                    tree: Object.assign(new TreeNode("Root", false, null), Root),
+                    tree: NewTree(),
                     misc: {
                         accuracy: "3",
                         binaryPath: "binaries/v6/UTDef6",
@@ -57,7 +57,7 @@ export class ProjectSingleton {
             path: null,
             data: {
                 preprocessor: {
-                    tree: Object.assign(new TreeNode("Root", false, null), Root),
+                    tree: NewTree(),
                     misc: {
                         accuracy: "3",
                         binaryPath: "binaries/v6/UTDef6",
@@ -125,6 +125,11 @@ export class ProjectSingleton {
         })
 
         return Promise.resolve()
+    }
+
+    public async OverrideTree(tree: TreeNode) {
+        this._active.data.preprocessor.tree = tree
+        this._store.set(this._active)
     }
 
     public async PushPostprocessorData(data: any) {
