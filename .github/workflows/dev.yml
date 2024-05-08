@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3 
+        uses: actions/checkout@v4 
       - name: Extract tauri config
         run: |
           chcp 65001 #set code page to utf-8
@@ -26,7 +26,7 @@ jobs:
           echo 'PACKAGE_VERSION=${{ fromJson(env.PACKAGE_JSON).package.version }}' >> $env:GITHUB_ENV
           echo 'PRODUCT_NAME=${{ fromJson(env.PACKAGE_JSON).package.productName }}' >> $env:GITHUB_ENV
       - name: Install node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
       - name: Install tauri-cli
         run: |
           cargo install tauri-cli
@@ -39,7 +39,7 @@ jobs:
           tar -zcvf ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz src-tauri/target/release
           cp ./src-tauri/target/release/bundle/msi/${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi ./${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_dev
           path: |
@@ -50,9 +50,9 @@ jobs:
     needs: build-windows
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
       - name: Install yarn
         run: |
           npm install yarn
