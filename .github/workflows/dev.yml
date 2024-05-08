@@ -45,3 +45,19 @@ jobs:
           path: |
             ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz
             ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Install node
+        uses: actions/setup-node@v3
+      - name: Install yarn
+        run: |
+          npm install yarn
+      - name: Install all packages
+        run: |
+          yarn install
+      - name: Run tests
+        run: |
+          yarn test

@@ -50,6 +50,8 @@ export class KernelInitializer extends Initializer {
             })
         }
 
+        console.log(this.runner?.runs)
+
         return await this.runner?.Execute(this.sidecarName).then(() => {
             let retval: InitializerExecutionResult = {
                 timestamp: new Date(),

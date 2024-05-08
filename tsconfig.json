@@ -19,6 +19,6 @@
     ],
     "moduleResolution": "Bundler"
   },
-  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src/index.cjs", "src/ipc.cjs", "src/preload.cjs"],
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src/index.cjs", "src/ipc.cjs", "src/preload.cjs", "test/lib/data/ProjectCacheSingleton.test.ts", "test/lib/data/LoggingSingleton.test.ts", "test/lib/data/ProjectSingleton.test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
