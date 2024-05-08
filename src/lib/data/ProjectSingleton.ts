@@ -127,7 +127,7 @@ export class ProjectSingleton {
         return Promise.resolve()
     }
 
-    public async OverrideTree(tree: TreeNode) {
+    public async ImportTree(tree: TreeNode) {
         this._active.data.preprocessor.tree = tree
         this._store.set(this._active)
     }

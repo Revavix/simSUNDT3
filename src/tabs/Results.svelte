@@ -61,7 +61,7 @@
         // Import to preprocessor using the .sscache file stored in the run folder, throw an error if the file is not found
         readTextFile(projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path + "\\tree.sscache").then((v) => {
             let treeInput = JSON.parse(v)
-            projectSingleton.OverrideTree(Deserialize(treeInput))
+            projectSingleton.ImportTree(Deserialize(treeInput))
             LoggingSingleton.GetInstance().Log(LoggingLevel.INFO, "Imported to preprocessor from .sscache file, using the run " + 
                 projectSingleton.Postprocessor[selectedTest].name + 
                 " ran on " + 
