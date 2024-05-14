@@ -51,6 +51,10 @@ export class ProjectSingleton {
         return this._store.subscribe(fnc)
     }
 
+    public IsValid(): boolean {
+        return this._active.path !== null
+    }
+
     public async New(): Promise<void> {
         this._active = {
             name: "Untitled Project",

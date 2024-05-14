@@ -8,12 +8,15 @@
     import { exists } from '@tauri-apps/api/fs';
     import ImportModal from '../components/modals/ImportModal.svelte';
     import { activeTab } from '../lib/data/Stores';
+    import NewProjectModal from '../components/modals/NewProjectModal.svelte';
+    import Tooltip from '../components/Tooltip.svelte';
 
     export let unsaved
     export let activeAlerts: any
 
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
     let cacheSingleton: ProjectCacheSingleton = ProjectCacheSingleton.GetInstance()
+    let isNewProjectModalOpen: boolean = false
     let isImportModalOpen: boolean = false
 
     onMount(async () => {
@@ -22,7 +25,7 @@
     })
 
     async function addNewAlert(text: any, color: any, icon: any, timeout: any) {
-        activeAlerts.push({t: text, c: color, i: icon})
+        activeAlerts.push({t: text, c: color, i: icon, duration: null })
 
         setTimeout(() => {
             let idx = -1
@@ -98,7 +101,7 @@
             addNewAlert("Something went wrong when attempting to save, please try again.", "#ef4444", "warning", 6000)
         })
     }
-//
+
     async function handleOpenSaveModal() {
         const saveResult: string | null = await save({
             filters: [{
@@ -119,12 +122,8 @@
     }
 
     async function createNewProject() {
-        await projectSingleton.New().then(() => {
-            activeTab.set("Preprocessor")
-            unsaved = true
-        }).catch(() => {
-            addNewAlert("Something went wrong when attempting to create new project, please try again.", "#ef4444", "warning", 6000)
-        })
+        // Open create project modal
+        isNewProjectModalOpen = true
     }
 
     projectSingleton.Subscribe((v) => {
@@ -202,14 +201,26 @@
                 </div>
                 <div class="flex flex-row border-2 rounded-lg w-full"/>
                 <div class="flex flex-col w-full latest-projects pr-1 mt-1"  style="overflow: auto">
-                    {#each cacheSingleton.projects as project}
+                    {#each cacheSingleton.projects.sort((a, b) => { return a.date > b.date ? -1 : 1 }).slice(0,6) as project}
                     <div class="flex flex-row rounded-md shadow-md w-full bg-stone-300 py-2 my-1 hover:bg-gray-100" transition:slide|local> 
-                        <a href="#" class="flex flex-row w-full" on:click={(e) => handleLoadByName(project)}>
+                        <a href="#" class="flex flex-row w-full items-center" on:click={(e) => handleLoadByName(project)}>
                             <div class="flex flex-col ml-2">
                                 <p class="font-lg text-simsundt-gray">{project.name}</p>
+                                <p class="font-lg text-sm text-simsundt-gray">{new Date(project.date).toLocaleString()}</p>
                             </div>
+                            <!-- Stylized badge indicator of how many simulations results are in the project -->
                             <div class="flex flex-col ml-auto mr-2">
-                                <p class="font-lg text-simsundt-gray">{project.date.toLocaleString()}</p>
+                                <div class="flex flex-col rounded-full bg-yellow-600 w-6 h-6 items-center justify-center">
+                                    <Tooltip label="Number of results in project" class="text-xs text-white"> 
+                                        <p class="text-xs">
+                                            {#if project.results !== undefined}
+                                                {project.results}
+                                            {:else}
+                                                ?
+                                            {/if}
+                                        </p>
+                                    </Tooltip>
+                                </div>
                             </div>
                         </a>
                     </div>
@@ -219,6 +230,7 @@
         </div>
     </div>
     <ImportModal bind:isOpen={isImportModalOpen}/>
+    <NewProjectModal bind:isOpen={isNewProjectModalOpen}/>
 </div>
 
 <style>
@@ -246,7 +258,7 @@
     }
     .latest-projects {
         min-height: 100px;
-        max-height: calc(100vh - 500px);
+        max-height: calc(100vh - 545px);
     }
     ::-webkit-scrollbar {
         width: 14px;

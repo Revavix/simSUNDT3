@@ -24,8 +24,35 @@
     import { exists, createDir, BaseDirectory } from '@tauri-apps/api/fs';
     import type { Runner } from "./lib/models/Kernel";
     import { activeTab } from "./lib/data/Stores";
+    import Tooltip from "./components/Tooltip.svelte";
+    import { getVersion } from "@tauri-apps/api/app";
     
-    let tabs = ["File", "Preprocessor", "Results", "Help"]
+    let tabs = [
+        {
+            name: "File",
+            disabled: () => {
+                return false
+            }
+        }, 
+        {
+            name: "Preprocessor",
+            disabled: () => {
+                return ProjectSingleton.GetInstance().IsValid() == false
+            }
+        }, 
+        {
+            name: "Results",
+            disabled: () => {
+                return ProjectSingleton.GetInstance().IsValid() == false
+            }
+        }, 
+        {
+            name: "Help",
+            disabled: () => {
+                return false
+            }
+        }, 
+    ]
     let unsaved = true
     let activeAlerts: any[] = []
 
@@ -43,6 +70,9 @@
         if (!folderExists) {
             await createDir('Projects', { dir: BaseDirectory.Document, recursive: true})
         }
+
+        // Update version to released version
+        version = await getVersion()
     })
 
     const minimizeButton = {
@@ -81,6 +111,8 @@
 
     ProjectSingleton.GetInstance().Subscribe((v) => {
         loadedProjectName = v.name
+        // Refresh hack to force re-render
+        tabs = [...tabs]
     })
 </script>
 
@@ -107,7 +139,7 @@
                     SimSUNDT {version}
                 </div>
             </div>
-            <div data-tauri-drag-region class="flex flex-row mt-2 text-xs cursor-default select-none">{loadedProjectName}</div>
+            <div data-tauri-drag-region class="flex flex-row mt-2 text-xs cursor-default select-none">{ProjectSingleton.GetInstance().IsValid() ? loadedProjectName : 'No active project'}</div>
             <div class="flex flex-row ml-auto -mr-3" style="z-index: 99">
                 <!-- Minimize -->
                 <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">
@@ -135,10 +167,16 @@
         <ul class="flex flex-row">
             {#each tabs as tab}
                 <li class="mr-2">
-                    {#if $activeTab == tab}
-                        <button class="inline-block text-gray-200 rounded-t-lg border-b-2 border-yellow-600 active">{tab}</button>
+                    {#if $activeTab == tab.name}
+                        <button class="inline-block text-gray-200 rounded-t-lg border-b-2 border-yellow-600 active">{tab.name}</button>
                     {:else}
-                        <button class="inline-block rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" on:click={() => $activeTab = tab}>{tab}</button>
+                        {#if tab.disabled() == true}
+                            <Tooltip label="Project must be loaded" class="text-xs text-white">
+                                <button class="inline-block rounded-t-lg border-b-2 border-transparent text-gray-400 dark:text-gray-300 opacity-75 text-sm">{tab.name}</button>
+                            </Tooltip>
+                        {:else}
+                            <button class="inline-block text-gray-200 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" on:click={() => $activeTab = tab.name}>{tab.name}</button>
+                        {/if}
                     {/if}
                 </li>
             {/each}
@@ -163,7 +201,7 @@
     <div class="mx-auto w-6/12 mt-12 cursor-default" style="position: absolute; left: 0; right: 0; top: 0; z-index: 999;">
         {#each activeAlerts as alert}
         <div class="mt-0.5" transition:slide>
-            <Alert text={alert.t} color={alert.c} icon={alert.i}/>
+            <Alert text={alert.t} color={alert.c} icon={alert.i} duration={alert.duration}/>
         </div>
         {/each}
     </div>
