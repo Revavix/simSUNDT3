@@ -7,6 +7,7 @@
     import type { Preset } from "../../lib/models/Preset";
     import { ProjectSingleton } from "../../lib/data/ProjectSingleton";
     import type { TreeInput } from "../../lib/models/tree/TreeInput";
+    import { open } from '@tauri-apps/api/shell';
 
     export let isOpen: boolean = false
     let width: number
@@ -20,7 +21,7 @@
         labelSize: 14, 
         action: () => {
             if (selectedPreset == null || selectedPreset.manufacturerHref == null) return
-            window.open(selectedPreset?.manufacturerHref, "_blank")
+            open(selectedPreset?.manufacturerHref);
         },
         disabled: true
     }
@@ -32,7 +33,7 @@
         labelSize: 14, 
         action: () => {
             if (selectedPreset == null || selectedPreset.datasheetHref == null) return
-            window.open(selectedPreset?.datasheetHref, "_blank")
+            open(selectedPreset?.datasheetHref);
         },
         disabled: true
     }
