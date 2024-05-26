@@ -19,6 +19,8 @@
     import type { IValidator } from "../lib/models/validation/Validator";
     import { Serialize } from "../lib/tree/Utils";
     import type TreeNode from "../lib/models/tree/TreeNode";
+    import PresetProbesModal from "../components/modals/PresetProbesModal.svelte";
+    import { bind } from "lodash";
 
     export let unsaved
     export let kernelRunner: Runner
@@ -32,6 +34,7 @@
     let treeMinimized = false
     let showConfigureModal = false
     let showParametricSettingsModal = false
+    let showPresetProbesModal = false
     let namingSchemeMethod = 1
     let namingSchemeName = ""
 
@@ -169,6 +172,26 @@
         action:  () => {showConfigureModal = false},
         disabled: false
     }
+
+    // Preset buttons
+    let materialPresetButton = {
+        label: "Materials",
+        color: "#4d4d4d",
+        icon: "inventory_2",
+        action: async () => {
+            
+        },
+        disabled: true
+    }
+    let probePresetButton = {
+        label: "Probes",
+        color: "#4d4d4d",
+        icon: "settings_remote",
+        action: () => {
+            showPresetProbesModal = true
+        },
+        disabled: false
+    }
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
@@ -250,6 +273,21 @@
             <div class="flex flex-row w-full justify-center pt-7">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
                 3D View
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col line-vert my-2 mx-2"/>
+        <!-- Presets -->
+        <div class="flex flex-col w-20 pt-1 h-full -space-y-1">
+            <div class="flex flex-col mb-auto">
+                <Button data={materialPresetButton}></Button>
+            </div>
+            <div class="flex flex-col mb-auto">
+                <Button data={probePresetButton}></Button>
+            </div>
+            <div class="flex flex-row w-full justify-center pt-7">
+                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                Presets
                 </div>
             </div>
         </div>
@@ -345,6 +383,7 @@
     {/if}
 
     <ParametricSettings bind:isModalOpen={showParametricSettingsModal} bind:numProcesses={projectSingleton.ProcessCount}/>
+    <PresetProbesModal bind:isOpen={showPresetProbesModal}/>
 </div>
 
 <style>

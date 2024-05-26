@@ -1,0 +1,249 @@
+[
+    {
+        "name": "AM2R-14X14-45",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": "https://www.olympus-ims.com/en/.downloads/download/?file=285213062&fl=en_US",
+        "frequency": "2",
+        "pb": "45",
+        "angle": "45",
+        "dimensions": {
+            "x": "14",
+            "y": "14"
+        }
+    },
+    {
+        "name": "AM2R-14X14-60",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": "https://www.olympus-ims.com/en/.downloads/download/?file=285213063&fl=en_US",
+        "frequency": "2",
+        "pb": "45",
+        "angle": "60",
+        "dimensions": {
+            "x": "14",
+            "y": "14"
+        }
+    },
+    {
+        "name": "AM2R-20X22-45",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": "https://www.olympus-ims.com/en/.downloads/download/?file=285213066&fl=en_US",
+        "frequency": "2",
+        "pb": "40",
+        "angle": "45",
+        "dimensions": {
+            "x": "20",
+            "y": "22"
+        }
+    },
+    {
+        "name": "AM4R-20X22-45",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": "https://www.olympus-ims.com/en/.downloads/download/?file=285213072&fl=en_US",
+        "frequency": "4",
+        "pb": "40",
+        "angle": "45",
+        "dimensions": {
+            "x": "20",
+            "y": "22"
+        }
+    },
+    {
+        "name": "AM4R-20X22-60",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": "https://www.olympus-ims.com/en/.downloads/download/?file=285213073&fl=en_US",
+        "frequency": "4",
+        "pb": "40",
+        "angle": "60",
+        "dimensions": {
+            "x": "20",
+            "y": "22"
+        }
+    },
+    {
+        "name": "AM2R-8X9-45",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": "https://www.olympus-ims.com/en/.downloads/download/?file=285213069&fl=en_US",
+        "frequency": "2",
+        "pb": "40",
+        "angle": "45",
+        "dimensions": {
+            "x": "8",
+            "y": "9"
+        }
+    },
+    {
+        "name": "AM2R-8X9-60",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": "https://www.olympus-ims.com/en/.downloads/download/?file=285213070&fl=en_US",
+        "frequency": "2",
+        "pb": "40",
+        "angle": "60",
+        "dimensions": {
+            "x": "8",
+            "y": "9"
+        }
+    },
+    {
+        "name": "CN2R-10",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": null,
+        "frequency": "2",
+        "pb": "85",
+        "angle": "0",
+        "dimensions": {
+            "x": "10",
+            "y": "0"
+        }
+    },
+    {
+        "name": "CN2R-24",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": null,
+        "frequency": "2",
+        "pb": "85",
+        "angle": "0",
+        "dimensions": {
+            "x": "24",
+            "y": "0"
+        }
+    },
+    {
+        "name": "CN4R-10",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": null,
+        "frequency": "4",
+        "pb": "85",
+        "angle": "0",
+        "dimensions": {
+            "x": "10",
+            "y": "0"
+        }
+    },
+    {
+        "name": "CN4R-24",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": null,
+        "frequency": "4",
+        "pb": "91",
+        "angle": "0",
+        "dimensions": {
+            "x": "24",
+            "y": "0"
+        }
+    },
+    {
+        "name": "CN5R-5",
+        "manufacturer": "Olympus",
+        "manufacturerHref": "https://www.olympus-ims.com/",
+        "datasheetHref": null,
+        "frequency": "5",
+        "pb": "60",
+        "angle": "0",
+        "dimensions": {
+            "x": "5",
+            "y": "0"
+        }
+    },
+    {
+        "name": "14692-1001",
+        "manufacturer": "IMASONIC",
+        "manufacturerHref": "https://www.imasonic.com/",
+        "datasheetHref": null,
+        "frequency": "10",
+        "pb": "90",
+        "angle": "0",
+        "dimensions": {
+            "x": "35",
+            "y": "0"
+        }
+    },
+    {
+        "name": "SONOSCAN WS 45-2 EN",
+        "manufacturer": "SONOTEC",
+        "manufacturerHref": "https://www.sonotec.eu/",
+        "datasheetHref": null,
+        "frequency": "2",
+        "pb": "35",
+        "angle": "45",
+        "dimensions": {
+            "x": "8",
+            "y": "9"
+        }
+    },
+    {
+        "name": "SONOSCAN WS 60-2 EN",
+        "manufacturer": "SONOTEC",
+        "manufacturerHref": "https://www.sonotec.eu/",
+        "datasheetHref": null,
+        "frequency": "2",
+        "pb": "35",
+        "angle": "60",
+        "dimensions": {
+            "x": "8",
+            "y": "9"
+        }
+    },
+    {
+        "name": "SONOSCAN WS 60-4 EN",
+        "manufacturer": "SONOTEC",
+        "manufacturerHref": "https://www.sonotec.eu/",
+        "datasheetHref": null,
+        "frequency": "4",
+        "pb": "35",
+        "angle": "60",
+        "dimensions": {
+            "x": "8",
+            "y": "9"
+        }
+    },
+    {
+        "name": "SONOSCAN WS 45-4 EN",
+        "manufacturer": "SONOTEC",
+        "manufacturerHref": "https://www.sonotec.eu/",
+        "datasheetHref": null,
+        "frequency": "4",
+        "pb": "35",
+        "angle": "45",
+        "dimensions": {
+            "x": "8",
+            "y": "9"
+        }
+    },
+    {
+        "name": "SONOSCAN WM 45-2 EN",
+        "manufacturer": "SONOTEC",
+        "manufacturerHref": "https://www.sonotec.eu/",
+        "datasheetHref": null,
+        "frequency": "2",
+        "pb": "35",
+        "angle": "45",
+        "dimensions": {
+            "x": "14",
+            "y": "14"
+        }
+    },
+    {
+        "name": "SONOSCAN WM 60-2 EN",
+        "manufacturer": "SONOTEC",
+        "manufacturerHref": "https://www.sonotec.eu/",
+        "datasheetHref": null,
+        "frequency": "2",
+        "pb": "35",
+        "angle": "60",
+        "dimensions": {
+            "x": "14",
+            "y": "14"
+        }
+    }
+]

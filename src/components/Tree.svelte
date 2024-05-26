@@ -39,6 +39,8 @@
         if (kernelValidator && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
             validationResult = kernelValidator.Validate((parentRef + node.name).replace(/\W/g, ""), node.value)
         }
+        // Trigger a re-render of node
+        node = node
     })
 
     onMount(() => {
