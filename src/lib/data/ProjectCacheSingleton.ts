@@ -34,6 +34,7 @@ export class ProjectCacheSingleton {
             if (element.path === project.path) {
                 element.name = project.name
                 element.date = new Date()
+                element.results = project.data.postprocessor?.length
                 hit = true
             }
         })
@@ -42,7 +43,8 @@ export class ProjectCacheSingleton {
             this.projects.push({
                 name: project.name,
                 path: project.path,
-                date: new Date()
+                date: new Date(),
+                results: project.data.postprocessor?.length
             })
         }
 

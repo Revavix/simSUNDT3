@@ -15,8 +15,6 @@
         if ((progress/maxValue) <= 1 && progress != 0) {
             progressColor = 'bg-yellow-600'
             progressSpring.set(progress/maxValue)
-        } else {
-            console.log("[HorizontalProgressbar] The progress value exceeds maxValue, forcing = 1")
         }
 
         if (progress/maxValue == 1) {

@@ -1084,7 +1084,7 @@ export default {
         }
 
         // .. otherwise standard frequency validation applies
-        if (value as number < 0 || value as number > 12) {
+        if (value as number < 1 || value as number > 12) {
             return {
                 isValid: false,
                 isDisabled: false,
@@ -1096,11 +1096,11 @@ export default {
     },
     TransmitterSpectrumBandwidth: (value: string | number | boolean): IValidationResult => {
         // If bandwidth is higher than 12 MHz send warning
-        if (value as number < 1 || value as number > 12) {
+        if (value as number < 0.5 || value as number > 12) {
             return {
                 isValid: false,
                 isDisabled: false,
-                message: "Bandwidth is restricted from 1 to 12 MHz"
+                message: "Bandwidth is restricted from 0.5 to 12 MHz"
             };
         }
 

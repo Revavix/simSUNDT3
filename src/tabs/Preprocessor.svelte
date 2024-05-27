@@ -12,11 +12,15 @@
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
     import { BaseDirectory } from "@tauri-apps/api/path";
-    import { createDir } from "@tauri-apps/api/fs";
+    import { createDir, writeTextFile } from "@tauri-apps/api/fs";
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
     import { Validator } from "../lib/validation/Validator";
     import { onMount } from "svelte";
     import type { IValidator } from "../lib/models/validation/Validator";
+    import { Serialize } from "../lib/tree/Utils";
+    import type TreeNode from "../lib/models/tree/TreeNode";
+    import PresetProbesModal from "../components/modals/PresetProbesModal.svelte";
+    import { bind } from "lodash";
 
     export let unsaved
     export let kernelRunner: Runner
@@ -30,6 +34,7 @@
     let treeMinimized = false
     let showConfigureModal = false
     let showParametricSettingsModal = false
+    let showPresetProbesModal = false
     let namingSchemeMethod = 1
     let namingSchemeName = ""
 
@@ -83,6 +88,11 @@
                 v?.runs?.forEach(element => {
                     groupedResult.runs.push({
                         path: element.path
+                    })
+
+                    // Write a preprocessor.sscache file to each of the runs folders
+                    writeTextFile(element.path + "/tree.sscache", JSON.stringify(Serialize(projectSingleton.Tree ?? {} as TreeNode))).catch((e) => {
+                        loggingSingleton.Log(LoggingLevel.WARNING, "Failed to write preprocessor.sscache file to " + element.path + " importing back information from the run may not be possible.")
                     })
                 });
 
@@ -160,6 +170,26 @@
         color: "#807a7a",
         icon: "close",
         action:  () => {showConfigureModal = false},
+        disabled: false
+    }
+    
+    // Preset buttons
+    let materialPresetButton = {
+        label: "Materials",
+        color: "#4d4d4d",
+        icon: "inventory_2",
+        action: async () => {
+            
+        },
+        disabled: true
+    }
+    let probePresetButton = {
+        label: "Probes",
+        color: "#4d4d4d",
+        icon: "settings_remote",
+        action: () => {
+            showPresetProbesModal = true
+        },
         disabled: false
     }
 </script>
@@ -243,6 +273,21 @@
             <div class="flex flex-row w-full justify-center pt-7">
                 <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
                 3D View
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col line-vert my-2 mx-2"/>
+        <!-- Presets -->
+        <div class="flex flex-col w-20 pt-1 h-full -space-y-1">
+            <div class="flex flex-col mb-auto">
+                <Button data={materialPresetButton}></Button>
+            </div>
+            <div class="flex flex-col mb-auto">
+                <Button data={probePresetButton}></Button>
+            </div>
+            <div class="flex flex-row w-full justify-center pt-7">
+                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                Presets
                 </div>
             </div>
         </div>
@@ -338,6 +383,7 @@
     {/if}
 
     <ParametricSettings bind:isModalOpen={showParametricSettingsModal} bind:numProcesses={projectSingleton.ProcessCount}/>
+    <PresetProbesModal bind:isOpen={showPresetProbesModal}/>
 </div>
 
 <style>
@@ -389,5 +435,8 @@
   ::-webkit-scrollbar-thumb {
     background: #4d4d4d;
     border-radius: 10px;
+  }
+  ::-webkit-scrollbar-corner { 
+    background: rgba(0,0,0,0.0); 
   }
 </style>
