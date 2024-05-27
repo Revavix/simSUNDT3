@@ -172,7 +172,7 @@
         action:  () => {showConfigureModal = false},
         disabled: false
     }
-
+    
     // Preset buttons
     let materialPresetButton = {
         label: "Materials",
