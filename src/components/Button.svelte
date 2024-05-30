@@ -16,7 +16,6 @@
     })
 
     $: data.disabled, data.disabled ? brightnessClass = 'lower-opacity' : brightnessClass = ''
-
 </script>
 
 <button class="flex flex-row w-full hover:{data.hoverColor} hover:rounded-sm {brightnessClass}" on:click={exec} disabled={data.disabled}>
