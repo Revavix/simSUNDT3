@@ -26,6 +26,8 @@
     import { activeTab } from "./lib/data/Stores";
     import Tooltip from "./components/Tooltip.svelte";
     import { getVersion } from "@tauri-apps/api/app";
+    import Spinner from "./components/Spinner.svelte";
+    import { open } from "@tauri-apps/api/shell";
     
     let tabs = [
         {
@@ -60,6 +62,8 @@
     let kernelRunner: Runner = new UTDefectV3Runner(4)
 
     let version = '3'
+    let remoteVersion = '3'
+    let remoteConnectionError = false
 
     let maximized = false
 
@@ -73,6 +77,11 @@
 
         // Update version to released version
         version = await getVersion()
+        await getRemoteVersion().then((v) => {
+            remoteVersion = v
+        }).catch((err) => {
+            remoteConnectionError = true
+        })
     })
 
     const minimizeButton = {
@@ -109,12 +118,21 @@
         disabled: false
     }
 
+    const getRemoteVersion = async () => {
+        let response = await fetch('https://api.github.com/repos/Revavix/simSUNDT3/releases/latest')
+        let data = await response.json()
+
+        return data.tag_name
+    }
+
     ProjectSingleton.GetInstance().Subscribe((v) => {
         loadedProjectName = v.name
         // Refresh hack to force re-render
         tabs = [...tabs]
     })
 </script>
+
+<svelte:window on:contextmenu={(e) => e.preventDefault()} />
 
 <main class="flex flex-col main-container rounded-xl ">
     <!-- Drag bar -->
@@ -128,19 +146,48 @@
             <p>SimSUNDT [{version}] - {loadedProjectName} {unsaved == false ? '' : '(Unsaved)'}</p>
         </div>
         {:else if os === 'win32'}
-        <div data-tauri-drag-region class="flex flex-row" style="z-index: 99;">
-            <div data-tauri-drag-region class="flex flex-row mr-auto mt-2 text-xs items-center">
-                <!-- Image -->
-                <div data-tauri-drag-region class="flex flex-col w-4 mr-1">
-                    <SimsundtIcon/>
-                </div>
-                <!-- App name -->
-                <div data-tauri-drag-region class="flex flex-col cursor-default select-none">
-                    SimSUNDT {version}
-                </div>
+        <div data-tauri-drag-region class="flex flex-row text-xs items-center mt-2" style="z-index: 99;">
+            <!-- Image -->
+            <div data-tauri-drag-region class="flex flex-col w-4 mr-1">
+                <SimsundtIcon/>
             </div>
-            <div data-tauri-drag-region class="flex flex-row mt-2 text-xs cursor-default select-none">{ProjectSingleton.GetInstance().IsValid() ? loadedProjectName : 'No active project'}</div>
-            <div class="flex flex-row ml-auto -mr-3" style="z-index: 99">
+            <!-- App name -->
+            <div data-tauri-drag-region class="flex flex-col cursor-default select-none whitespace-nowrap w-min">
+                SimSUNDT {version}
+            </div>
+            <!-- New version availability -->
+            <div data-tauri-drag-region class="flex flex-col ml-1 w-4">
+                {#if version !== remoteVersion && remoteConnectionError == false}
+                <Button data={{
+                    label: "",
+                    color: "rgb(74 222 128)",
+                    icon: "arrow_upward",
+                    action: () => { 
+                        // Open browser to latest release
+                        open(`https://github.com/Revavix/simSUNDT3/releases/tag/${remoteVersion}`)
+                    },
+                    disabled: false
+                }}/>
+                {:else if remoteConnectionError == true}
+                <Button data={{
+                    label: "",
+                    color: "#ff0000",
+                    icon: "warning",
+                    action: () => { 
+                        // Swap to help tab
+                    },
+                    disabled: false
+                }}/>
+                {/if}
+            </div>
+        </div>
+        <!-- Absolute positioned project title -->
+        <div data-tauri-drag-region class="text-xs cursor-default select-none mt-2" style="position: fixed; left: 50%; transform: translate(-50%, 0%)">
+            {ProjectSingleton.GetInstance().IsValid() ? loadedProjectName : 'No active project'}
+        </div>
+        <!-- Absolute positioned min/max/close bar -->
+        <div class="flex flex-col absolute" style="right: 0; z-index: 99;">
+            <div class="flex flex-row rounded-b">
                 <!-- Minimize -->
                 <div class="flex flex-col w-full px-1 rounded-b hover:bg-stone-400">
                     <Button data={minimizeButton}></Button>

@@ -2,32 +2,18 @@ name: Release
 
 on: 
   push:
-    branches:
-      - stable
+    tags:
+      - "*.*.*"
 
 jobs:
   build-windows:
     runs-on: windows-latest
-    outputs: 
-      product_version: ${{ steps.extracted_tauri_config.outputs.PRODUCT_VERSION }}
-      product_name: ${{ steps.extracted_tauri_config.outputs.PRODUCT_NAME }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3 
       - name: Extract tauri config
         run: |
-          chcp 65001 #set code page to utf-8
-          echo 'PACKAGE_JSON<<EOF' >> $env:GITHUB_ENV
-          cat ./src-tauri/tauri.conf.json >> $env:GITHUB_ENV
-          echo 'EOF' >> $env:GITHUB_ENV
-          echo $env:GITHUB_ENV
-      - name: Extract tauri config information
-        id: extracted_tauri_config
-        run: |
-          echo 'PRODUCT_VERSION=${{ fromJson(env.PACKAGE_JSON).package.version }}' >> $env:GITHUB_ENV
-          echo 'PRODUCT_VERSION=${{ fromJson(env.PACKAGE_JSON).package.version }}' >> $env:GITHUB_OUTPUT
-          echo 'PRODUCT_NAME=${{ fromJson(env.PACKAGE_JSON).package.productName }}' >> $env:GITHUB_ENV
-          echo 'PRODUCT_NAME=${{ fromJson(env.PACKAGE_JSON).package.productName }}' >> $env:GITHUB_OUTPUT
+          echo $(jq --arg version "${{ github.ref_name }}" '.package.version = ($version)' ./src-tauri/tauri.conf.json) > ./src-tauri/tauri.conf.json
       - name: Install node
         uses: actions/setup-node@v3
       - name: Install tauri-cli
@@ -39,15 +25,15 @@ jobs:
           cargo tauri build
       - name: Compress dist
         run: |
-          tar -zcvf ${{ env.PRODUCT_NAME }}_${{ env.PRODUCT_VERSION }}.tar.gz src-tauri/target/release
-          cp ./src-tauri/target/release/bundle/msi/${{ env.PRODUCT_NAME }}_${{ env.PRODUCT_VERSION }}_x64_en-US.msi ./${{ env.PRODUCT_NAME }}_${{ env.PRODUCT_VERSION }}_x64_en-US.msi
+          tar -zcvf SimSUNDT_${{ github.ref_name }}.tar.gz src-tauri/target/release
+          cp ./src-tauri/target/release/bundle/msi/SimSUNDT_${{ github.ref_name }}_x64_en-US.msi ./SimSUNDT_${{ github.ref_name }}_x64_en-US.msi
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PRODUCT_NAME }}_${{ env.PRODUCT_VERSION }}_release
+          name: SimSUNDT_${{ github.ref_name }}_release
           path: |
-            ${{ env.PRODUCT_NAME }}_${{ env.PRODUCT_VERSION }}.tar.gz
-            ${{ env.PRODUCT_NAME }}_${{ env.PRODUCT_VERSION }}_x64_en-US.msi
+            SimSUNDT_${{ github.ref_name }}.tar.gz
+            SimSUNDT_${{ github.ref_name }}_x64_en-US.msi
   publish:
     needs: build-windows
     runs-on: ubuntu-latest
@@ -55,11 +41,10 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: ${{ needs.build-windows.outputs.product_name }}_${{ needs.build-windows.outputs.product_version }}_release
+          name: SimSUNDT_${{ github.ref_name_name }}_release
       - name: Publish release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          name: ${{ needs.build-windows.outputs.product_version }}
-          tag_name: ${{ needs.build-windows.outputs.product_version }}
+          generate_release_notes: true
           files: |
-            ${{ needs.build-windows.outputs.product_name }}_${{ needs.build-windows.outputs.product_version }}_x64_en-US.msi
+            SimSUNDT_${{ github.ref_name }}_x64_en-US.msi
