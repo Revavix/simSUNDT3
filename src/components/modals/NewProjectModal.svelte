@@ -14,6 +14,7 @@
     let height: number
     let name: string = "New project"
     let directory: string = ""
+    let pathError: boolean = false
 
     onMount(() => {
         // Set initial directory to the user's documents folder
@@ -46,7 +47,7 @@
                 isOpen = false
                 activeTab.set("Preprocessor")
             }).catch((err) => {
-                console.error(err)
+                pathError = true
             })
         }
     }
@@ -59,6 +60,7 @@
         }).then((chosenPath) => {
             if (chosenPath === null || Array.isArray(chosenPath)) return
             directory = chosenPath
+            pathError = false
         }).catch((err) => {
             return
         })
@@ -81,8 +83,8 @@
             <label for="new_project_location" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Save location</label>
             <div class="flex flex-row w-full items-center justify-center">
                 <div class="flex flex-col w-full">
-                    <input id="new_project_location" class="w-full bg-gray-50 border-2 border-transparent text-gray-900 text-sm rounded-lg focus:outline-none focus:ring-0 disabled:opacity-75"
-                        bind:value={directory}/>
+                    <input id="new_project_location" class="w-full bg-gray-50 border-2 border-transparent text-gray-900 text-sm rounded-lg {pathError == true ? 'outline outline-red-400' : ''} focus:outline-none focus:ring-0 disabled:opacity-75"
+                        bind:value={directory} on:input={() => pathError = false}/>
                 </div>
                 <div class="flex flex-col pl-3">
                     <Button data={{ color: "#4d4d4d", icon: "folder_open", action: handleOpenSaveLocation }}/>
