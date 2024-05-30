@@ -164,7 +164,7 @@
                     icon: "arrow_upward",
                     action: () => { 
                         // Open browser to latest release
-                        open(`https://github.com/Revavix/simSUNDT3/releases`)
+                        open(`https://github.com/Revavix/simSUNDT3/releases/tag/${remoteVersion}`)
                     },
                     disabled: false
                 }}/>
