@@ -1,6 +1,6 @@
 import { basename, extname } from "@tauri-apps/api/path"
 import type { Project } from "../models/Project"
-import { exists, readTextFile, writeFile } from "@tauri-apps/api/fs"
+import { createDir, exists, readTextFile, writeFile } from "@tauri-apps/api/fs"
 import { writable, type Subscriber, type Writable } from "svelte/store"
 import Root from "../tree/Root"
 import TreeNode from "../models/tree/TreeNode"
@@ -86,26 +86,29 @@ export class ProjectSingleton {
     }
 
     public async Save(path: string): Promise<void> { 
-        try {
+        let saveData: any = {
+            name: await basename(path, ".ssproj"),
+            path: this._active.path,
+            data: {
+                preprocessor: {
+                    tree: Serialize(this._active.data.preprocessor.tree !== null ? this._active.data.preprocessor.tree : {} as TreeNode),
+                    misc: this._active.data.preprocessor.misc
+                },
+                postprocessor: this._active.data.postprocessor
+            }
+        }
+
+        let exist = await exists(path.split("\\").slice(0, -1).join("\\"))
+
+        if (!exist) {
+            await createDir(path.split("\\").slice(0, -1).join("\\"), { recursive: true })
+        }
+
+        return writeFile(path, JSON.stringify(saveData, null, 4)).then(async () => {
             this._active.path = path
             this._active.name = await basename(path, ".ssproj")
             this._store.set(this._active)
-            let saveData: any = {
-                name: this._active.name,
-                path: this._active.path,
-                data: {
-                    preprocessor: {
-                        tree: Serialize(this._active.data.preprocessor.tree !== null ? this._active.data.preprocessor.tree : {} as TreeNode),
-                        misc: this._active.data.preprocessor.misc
-                    },
-                    postprocessor: this._active.data.postprocessor
-                }
-            }
-            await writeFile(path, JSON.stringify(saveData, null, 4))
-            return Promise.resolve()
-        } catch (err) {
-            return Promise.reject()
-        }
+        })
     }
 
     public async Load(path: string): Promise<void> { 
