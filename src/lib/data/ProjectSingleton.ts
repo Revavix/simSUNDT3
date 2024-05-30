@@ -120,6 +120,11 @@ export class ProjectSingleton {
         }
 
         let saveData: any = JSON.parse(await readTextFile(path))
+
+        if (saveData.path === null) {
+            return Promise.reject()
+        }
+
         this._active.name = saveData.name
         this._active.path = saveData.path
         this._active.data.preprocessor.misc = saveData.data.preprocessor.misc

@@ -14,7 +14,7 @@
     let height: number
     let name: string = "New project"
     let directory: string = ""
-    let pathError: boolean = true
+    let pathError: boolean = false
 
     onMount(() => {
         // Set initial directory to the user's documents folder
@@ -47,7 +47,7 @@
                 isOpen = false
                 activeTab.set("Preprocessor")
             }).catch((err) => {
-                console.error(err)
+                pathError = true
             })
         }
     }
@@ -60,6 +60,7 @@
         }).then((chosenPath) => {
             if (chosenPath === null || Array.isArray(chosenPath)) return
             directory = chosenPath
+            pathError = false
         }).catch((err) => {
             return
         })
