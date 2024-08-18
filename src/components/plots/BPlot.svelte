@@ -40,7 +40,6 @@
         return (metadata.timegate.start + (y * metadata.timegate.increment)) * Math.pow(10, -6)
     }
 
-
     let unsubscribe = selectedPosSide.subscribe(side => {
         if (side === undefined || div === undefined) return
 
@@ -71,7 +70,7 @@
                     type: 'heatmap',
                     colorscale: colorscale
                 }
-            ] // (metadata.timegate.start + (s.x * metadata.timegate.increment)) * Math.pow(10, -6))
+            ]
         
             blayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'mm'
             blayout.margin.l = calculationMode === CalculationMode.Time ? 40 : 60
