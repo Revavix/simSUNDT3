@@ -142,7 +142,6 @@ export class Validator implements IValidator {
         'DefectSpecificationMeasurementDiameterPerpendicular': rules.default.DefectSpecificationMeasurementDiameterPerpendicular,
         'DefectSpecificationMeasurementHeight': rules.default.DefectSpecificationMeasurementHeight,
         'DefectSpecificationMeasurementLength': rules.default.DefectSpecificationMeasurementLength,
-        'DefectSpecificationMeasurementLengthParallel': rules.default.DefectSpecificationMeasurementLengthParallel,
         'DefectSpecificationAnglesTilt': rules.default.DefectSpecificationAnglesTilt,
         'DefectSpecificationAnglesSkew': rules.default.DefectSpecificationAnglesSkew,
         'DefectSpecificationAnglesTiltCrack': rules.default.DefectSpecificationAnglesTiltCrack,

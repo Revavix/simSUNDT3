@@ -2,6 +2,7 @@ import type IValidationResult from "../models/validation/ValidationResult";
 import { ProjectSingleton } from "../data/ProjectSingleton";
 import type { TreeCheckbox } from "../models/tree/TreeCheckbox";
 import type { TreeInput } from "../models/tree/TreeInput";
+import type { TreeDropdown } from "../models/tree/TreeDropdown";
 
 export default {
     MethodMaterialMetalPropertiesLongitudinalVelocity: (value: string | number | boolean): IValidationResult => {
@@ -1591,9 +1592,9 @@ export default {
         let sizeXEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:XEnd") as TreeInput
 
         // Calculate size of the model
-        let size = Math.abs(sizeXEnd.value - sizeXStart.value)
+        let isOutside = sizeXStart.value > sizeXEnd.value ? (value as number > sizeXStart.value || value as number < sizeXEnd.value) : (value as number > sizeXEnd.value || value as number < sizeXStart.value)
         
-        if (value as number > size / 2 || value as number < -size / 2) {
+        if (isOutside) {
             return {
                 isValid: false,
                 isDisabled: false,
@@ -1609,14 +1610,21 @@ export default {
         let sizeYEnd = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Method:Mesh:Size:YEnd") as TreeInput
 
         // Calculate size of the model
-        let size = Math.abs(sizeYEnd.value - sizeYStart.value)
+        let isOutside = sizeYStart.value > sizeYEnd.value ? (value as number > sizeYStart.value || value as number < sizeYStart.value) : (value as number > sizeYEnd.value || value as number < sizeYStart.value)
 
-        if (value as number > size / 2 || value as number < -size / 2) {
+        if (isOutside) {
             return {
                 isValid: false,
                 isDisabled: false,
                 message: "Position is restricted to the model size " + sizeYStart.value + " to " + sizeYEnd.value + " mm"
             };
+        }
+
+        // If we are in SDH we should disable this input
+        let variant = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Defect:Specification:Variant") as TreeDropdown
+
+        if (variant.value === 8) {
+            return { isValid: true, isDisabled: true, message: null };
         }
 
         return { isValid: true, isDisabled: false, message: null };
@@ -1635,6 +1643,13 @@ export default {
         return { isValid: true, isDisabled: false, message: null };
     },
     DefectSpecificationMeasurementCentreDepth: (value: string | number | boolean): IValidationResult => {
+        // If Defect:Specification:Variant is set to surface breaking strip like crack, disable this input
+        let variant = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Defect:Specification:Variant") as TreeInput
+
+        if (variant.value === 19) {
+            return { isValid: true, isDisabled: true, message: null };
+        }
+
         return { isValid: true, isDisabled: false, message: null };
     },
     DefectSpecificationMeasurementDiameterParallel: (value: string | number | boolean): IValidationResult => {
@@ -1661,7 +1676,7 @@ export default {
         // If Defect:Specification:Variant is set to anything but Strip-like Crack or SBSL Crack, disable this input
         let variant = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Defect:Specification:Variant") as TreeInput
 
-        if (variant.value !== 7 && variant.value !== 19) {
+        if (variant.value !== 7 && variant.value !== 19 && variant.value !== 5) {
             return { isValid: true, isDisabled: true, message: null };
         }
 
@@ -1669,16 +1684,6 @@ export default {
     },
     DefectSpecificationMeasurementLength: (value: string | number | boolean): IValidationResult => {
         // If Defect:Specification:Variant is set to anything but Rectangular Crack, disable this input
-        let variant = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Defect:Specification:Variant") as TreeInput
-
-        if (variant.value !== 5) {
-            return { isValid: true, isDisabled: true, message: null };
-        }
-
-        return { isValid: true, isDisabled: false, message: null };
-    },
-    DefectSpecificationMeasurementLengthParallel: (value: string | number | boolean): IValidationResult => {
-        // If Defect:Specification:Variant is set to anything but rectangular crack, disable this input
         let variant = ProjectSingleton.GetInstance().Tree?.FindChildByPattern("Defect:Specification:Variant") as TreeInput
 
         if (variant.value !== 5) {

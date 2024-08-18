@@ -11,12 +11,28 @@
     import type { TreeInput } from '../lib/models/tree/TreeInput';
     import type TreeNode from '../lib/models/tree/TreeNode';
     import type { TreeDropdown } from '../lib/models/tree/TreeDropdown';
+    import YAxisIndicator from './viewport/meshes/YAxisIndicator.svelte';
+    import XAxisIndicator from './viewport/meshes/XAxisIndicator.svelte';
+    import Sdh from './viewport/meshes/defects/SDH.svelte';
+    import ZAxisIndicator from './viewport/meshes/ZAxisIndicator.svelte';
+    import Rectangular from './viewport/meshes/defects/Rectangular.svelte';
+    import Slc from './viewport/meshes/defects/SLC.svelte';
+    import type { TreeCheckbox } from '../lib/models/tree/TreeCheckbox';
+    import Spheroidal from './viewport/meshes/defects/Spheroidal.svelte';
+    import Circular from './viewport/meshes/defects/Circular.svelte';
+    import Spherical from './viewport/meshes/defects/Spherical.svelte';
+    import Esi from './viewport/meshes/defects/ESI.svelte';
+    import Sbslc from './viewport/meshes/defects/SBSLC.svelte';
+    import Camera from './viewport/Camera.svelte';
+    import Subject from './viewport/Subject.svelte';
 
     let defectType: number | null = null
     let pointStart: Vector2 = new Vector2(0, 0)
     let pointEnd: Vector2 = new Vector2(0, 0)
     let transmitterPos: Vector2 = new Vector2(3, 3)
     let transmitterOffset: Vector2 = new Vector2(0, 0)
+    let transmitterAngle: number = 0
+    let transmitterSkew: number = 0
     let receiverSep: Vector2 = new Vector2(3, 0)
     let increment: Vector2 = new Vector2(6, 6)
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
@@ -27,13 +43,14 @@
     let defectDiameterParallel: number = 0
     let defectDiameterPerpendicular: number = 0
     let defectLength: number = 0
-    let defectLengthParallel: number = 0
     let defectHeight: number = 0
+    let defectTiltOfCrack: number = 0
+    let backwallEnabled: boolean = false
+    let backwallDepth: number = 0
     
     // Settings stored in project misc
     let showOrigin: boolean = true
     let showAxes: boolean = true
-    let showGrid: boolean = true
 
     interactivity()
 
@@ -63,6 +80,8 @@
             */
             transmitterPos.x = pointStart.x
             transmitterPos.y = pointStart.y
+            transmitterAngle = (rootNode?.FindChildByPattern("Transmitter:BeamAngles:Angle") as TreeInput)?.value
+            transmitterSkew = (rootNode?.FindChildByPattern("Transmitter:BeamAngles:SkewAngle") as TreeInput)?.value
             receiverSep.x = (rootNode?.FindChildByPattern("Transmitter:Position:X") as TreeInput)?.value + 
                 (rootNode?.FindChildByPattern("Receiver:Separation:X") as TreeInput)?.value  / 10
             receiverSep.y = (rootNode?.FindChildByPattern("Transmitter:Position:Y") as TreeInput)?.value + 
@@ -75,13 +94,14 @@
             defectDiameterParallel = (rootNode?.FindChildByPattern("Defect:Specification:Measurement:DiameterParallel") as TreeInput)?.value / 10
             defectDiameterPerpendicular = (rootNode?.FindChildByPattern("Defect:Specification:Measurement:DiameterPerpendicular") as TreeInput)?.value / 10
             defectLength = (rootNode?.FindChildByPattern("Defect:Specification:Measurement:Length") as TreeInput)?.value / 10
-            defectLengthParallel = (rootNode?.FindChildByPattern("Defect:Specification:Measurement:LengthParallel") as TreeInput)?.value / 10
             defectHeight = (rootNode?.FindChildByPattern("Defect:Specification:Measurement:Height") as TreeInput)?.value / 10
+            defectTiltOfCrack = (rootNode?.FindChildByPattern("Defect:Specification:Angles:TiltCrack") as TreeInput)?.value
+            backwallEnabled = (rootNode?.FindChildByPattern("Defect:Surfaces:Backwall:Enabled") as TreeCheckbox)?.value
+            backwallDepth = (rootNode?.FindChildByPattern("Defect:Surfaces:Backwall:Depth") as TreeInput)?.value / 10
         }
 
         showOrigin = project.data.preprocessor.misc.viewport.showOrigin
         showAxes = project.data.preprocessor.misc.viewport.showAxes
-        showGrid = project.data.preprocessor.misc.viewport.showGrid
     })
 
     let unsubscribeKernelProgress = kernelProgress.subscribe((value: Progress[]) => {
@@ -122,12 +142,7 @@
     }}
     lightIntensity={0.1}
     >
-    <T.PerspectiveCamera
-    makeDefault
-    position={[12, 12, 12]}
-    >
-        <OrbitControls minPolarAngle={0} maxPolarAngle={Math.PI * 0.5}/>
-    </T.PerspectiveCamera>
+    <Camera renderer={renderer}/>
     <Sky 
         turbidity={20}
         rayleigh={0.57}
@@ -145,68 +160,39 @@
     </T.Mesh>
 
     {#if showAxes}
-        <!-- Origin marker Z -->
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(0, 0, 0), new Vector3(0, 0, 5 + 0.5)]} />
-            <MeshLineMaterial
-                width={0.025}
-                color="blue"
-            />
-        </T.Mesh>
-        <Text text={"Y"} position={[0, 0.1, 5.7]} fontSize={0.2} textAlign={"center"} anchorX="center"/>
+        <!-- Origin marker Y/X -->
+        <YAxisIndicator Start={pointStart} End={pointEnd}/>
+        <XAxisIndicator Start={pointStart} End={pointEnd}/>
 
-        <!-- Origin marker Y -->
+        <!-- Center marker -->
         {#if showOrigin}
-            <T.Mesh>
-                <MeshLineGeometry points={[new Vector3(0, 0, 0), new Vector3(0, defectDepth + 2.5, 0)]} />
-                <MeshLineMaterial
-                width={0.025}
-                color="green"
-                />
-            </T.Mesh>
-            <Text text={"Origin [0, 0]"} position={[0, defectDepth + 2.7, 0]} fontSize={0.2} textAlign={"center"} anchorX="center"/>
+            <ZAxisIndicator defectDepth={defectDepth} Start={pointStart} End={pointEnd}/>
         {/if}
-
-        <!--  Origin marker X -->
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(0, 0, 0), new Vector3(5 + 0.5, 0, 0)]} />
-            <MeshLineMaterial
-            width={0.025}
-            color="red"
-            />
-        </T.Mesh>
-        <Text text={"X"} position={[5 + 0.7, 0.1, 0]} fontSize={0.2} textAlign={"center"} anchorX="center"/>
     {/if}
-
-    <!-- Grid -->
-    {#if showGrid}
-    <Grid 
-        position={[pointStart.x + (pointEnd.x - pointStart.x) / 2, ((defectDepth + 1) / 2) * 2 + 0.01, pointStart.y + (pointEnd.y - pointStart.y) / 2]} 
-        sectionThickness={0} 
-        cellSize={Math.abs(increment.x)} 
-        gridSize={[Math.abs(pointStart.x - pointEnd.x), Math.abs(pointStart.y - pointEnd.y)]} 
-        axis="x" 
-        type="lines"
-    />
-    <Grid position={[pointStart.x + (pointEnd.x - pointStart.x) / 2, ((defectDepth + 1) / 2) * 2 + 0.01, pointStart.y + (pointEnd.y - pointStart.y) / 2]} 
-        sectionThickness={0} 
-        cellSize={Math.abs(increment.y)} 
-        gridSize={[Math.abs(pointStart.x - pointEnd.x), Math.abs(pointStart.y - pointEnd.y)]} 
-        axis="z" 
-        type="lines"
-    />
-    {/if}
-
 
     <!-- Test subject --> 
-    <T.Mesh receiveShadow castShadow position={[pointStart.x + (pointEnd.x - pointStart.x) / 2, (defectDepth + 1) / 2, pointStart.y + (pointEnd.y - pointStart.y) / 2]} bind:mesh on:click={() => {
-            
-        }}>
-        <T.BoxGeometry args={[Math.abs(pointStart.x - pointEnd.x) + Math.abs(increment.x), defectDepth + 1, Math.abs(pointStart.y - pointEnd.y) + Math.abs(increment.y), 100, 100]}/>
-        <T.MeshStandardMaterial color="gray" roughness={0.1} metalness={0.5} transparent opacity={0.5}/>
-    </T.Mesh>
+    <Subject bind:mesh/>
 
     <!-- Transmitter -->
+    <T.Mesh>
+        <MeshLineGeometry points={[
+                new Vector3(
+                    transmitterPos.x, 
+                    ((defectDepth + 1) / 2) * 2, 
+                    transmitterPos.y
+                ), 
+                new Vector3(
+                    transmitterPos.x - (5 * Math.cos(transmitterAngle * DEG2RAD) * Math.cos(transmitterSkew * DEG2RAD)), 
+                    (((defectDepth + 1) / 2) * 2) - (5 * Math.sin(transmitterAngle * DEG2RAD)), 
+                    transmitterPos.y - (5 * Math.sin(transmitterSkew * DEG2RAD) * Math.cos(transmitterAngle * DEG2RAD))
+                )
+            ]}  
+        />
+        <MeshLineMaterial
+          width={0.015}
+          color="lightgreen"
+        />
+    </T.Mesh>
     <T.Mesh>
         <MeshLineGeometry points={[new Vector3(transmitterPos.x, ((defectDepth + 1) / 2) * 2, transmitterPos.y), 
             new Vector3(transmitterPos.x, ((defectDepth + 1) / 2) * 2 + 0.5, transmitterPos.y)]} 
@@ -216,7 +202,7 @@
           color="#fe3d00"
         />
     </T.Mesh>
-    <Text text={"T"} position={[transmitterPos.x, ((defectDepth + 1) / 2) * 2 + 0.5 + 0.2, transmitterPos.y]} fontSize={0.2} textAlign={"center"} anchorX="center"/>
+    <Text text={"Transmitter"} position={[transmitterPos.x, ((defectDepth + 1) / 2) * 2 + 0.5 + 0.2, transmitterPos.y]} fontSize={0.2} textAlign={"center"} anchorX="center"/>
 
     <!-- Receiver -->
     {#if isReceiverActive}
@@ -233,99 +219,30 @@
     {/if}
     <!-- Defect -->
     {#if defectType !== null}
-        {#if defectType === 1 || defectType === 2}
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
-            <MeshLineMaterial
-            width={0.015}
-            color="#b22929"
-            />
-        </T.Mesh>
-        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]}>
-            <T.SphereGeometry args={[defectDiameter/2]} />
-            <MeshLineMaterial
-                width={0.0025}
-                color="#b22929"
-            />
-        </T.Mesh>
+        {#if defectType === 1}
+        <Spherical defectPos={defectPos} defectDepth={defectDepth} defectDiameter={defectDiameter}/>
+        {:else if defectType === 2}
+        <Esi defectPos={defectPos} defectDepth={defectDepth} defectDiameter={defectDiameter}/>
         {:else if defectType === 3}
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
-            <MeshLineMaterial
-            width={0.015}
-            color="#b22929"
-            />
-        </T.Mesh>
-        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]} rotation={[-Math.PI / 2, 0, 0]}>
-            <T.CircleGeometry args={[defectDiameter/2, 32]} />
-            <T.MeshBasicMaterial color="#b22929" side={2}/>
-        </T.Mesh>
+        <Circular defectPos={defectPos} defectDepth={defectDepth} defectDiameter={defectDiameter}/>
         {:else if defectType === 4}
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
-            <MeshLineMaterial
-            width={0.015}
-            color="#b22929"
-            />
-        </T.Mesh>
-        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]} scale={[defectDiameterParallel / 10, defectDiameterPerpendicular / 10, defectDiameterParallel / 10]}>
-            <T.SphereGeometry args={[5]}/>
-            <MeshLineMaterial
-                width={0.0025}
-                color="#b22929"
-            />
-        </T.Mesh>
+        <Spheroidal defectPos={defectPos} defectDepth={defectDepth} defectDiameterParallel={defectDiameterParallel} defectDiameterPerpendicular={defectDiameterPerpendicular}/>
         {:else if defectType === 5}
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
-            <MeshLineMaterial
-            width={0.015}
-            color="#b22929"
-            />
-        </T.Mesh>
-        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]} rotation={[-Math.PI / 2, 0, 0]}>
-            <T.PlaneGeometry args={[defectLength, defectLengthParallel]} />
-            <T.MeshBasicMaterial color="#b22929" side={2}/>
-        </T.Mesh>
+        <Rectangular defectPos={defectPos} defectDepth={defectDepth} defectLength={defectLength} defectHeight={defectHeight} defectTilt={defectTiltOfCrack}/>
         {:else if defectType === 7}
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth + defectHeight/2, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
-            <MeshLineMaterial
-            width={0.015}
-            color="#b22929"
-            />
-        </T.Mesh>
-        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]} rotation={[0, -Math.PI / 2, 0]}>
-            <T.PlaneGeometry args={[pointEnd.y - pointStart.y, defectHeight]} />
-            <T.MeshBasicMaterial color="#b22929" side={2}/>
-        </T.Mesh>
+        <Slc defectPos={defectPos} defectDepth={defectDepth} defectHeight={defectHeight} pointStart={pointStart} pointEnd={pointEnd} tilt={defectTiltOfCrack}/>
         {:else if defectType === 8}
-        <!-- Helper line which takes into account of the cylinder diameter -->
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
-            <MeshLineMaterial
-            width={0.015}
-            color="#b22929"
-        />
-        </T.Mesh>
-        <!-- Cylinder tilted at 90 degrees parallel to the Y axis -->
-        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]} rotation={[-Math.PI / 2, 0, 0]}>
-            <T.CylinderGeometry args={[defectDiameter/2, defectDiameter/2, Math.abs(pointEnd.y - pointStart.y), 32]} />
-            <T.MeshStandardMaterial color="#b22929" side={2}/>
-        </T.Mesh>
+        <Sdh defectPos={defectPos} defectDepth={defectDepth} defectDiameter={defectDiameter} pointStart={pointStart} pointEnd={pointEnd}/>
         {:else if defectType === 19}
-        <T.Mesh>
-            <MeshLineGeometry points={[new Vector3(defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth + defectHeight/2, defectPos.y), new Vector3(defectPos.x, ((defectDepth + 1) / 2) * 2, defectPos.y)]} />
-            <MeshLineMaterial
-            width={0.015}
-            color="#b22929"
-            />
-        </T.Mesh>
-        <T.Mesh position={[defectPos.x, (((defectDepth + 1) / 2) * 2) - defectDepth, defectPos.y]} rotation={[0, -Math.PI / 2, 0]}>
-            <T.PlaneGeometry args={[pointEnd.y - pointStart.y, defectHeight]} />
-            <T.MeshBasicMaterial color="#b22929" side={2}/>
-        </T.Mesh>
+        <Sbslc/>
         {/if}
+    {/if}
+    {#if backwallEnabled}
+    <!-- Backwall -->
+    <T.Mesh position={[pointStart.x + (pointEnd.x - pointStart.x) / 2, 0.001, pointStart.y + (pointEnd.y - pointStart.y) / 2]} rotation={[90 * DEG2RAD, 0, 0]}>
+        <T.PlaneGeometry args={[pointEnd.x - pointStart.x, pointEnd.y - pointStart.y]} />
+        <T.MeshBasicMaterial color="lightgreen" side={2}/>
+    </T.Mesh>
     {/if}
 </CSM>
 

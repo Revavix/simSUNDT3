@@ -211,7 +211,7 @@ export class KernelSaver extends Saver {
         }
 
         if (data.LDTY == 5 || data.LDTY == 25) {
-            writeArray.push(" " + data.A + " , " + data.B + " , " + data.PS + "   " + "Defect Length, Defect Parallel Length, Tilt of Crack (A, B, PS)");
+            writeArray.push(" " + data.A + " , " + data.B + " , " + data.PS + "   " + "Defect Length, Defect Height, Tilt of Crack (A, B, PS)");
         }
 
         if (data.LDTY == 7 || data.LDTY == 27) {
@@ -224,7 +224,7 @@ export class KernelSaver extends Saver {
 
         if (data.LDTY == 15 || data.LDTY == 35) {
             writeArray.push(" " + data.A + " , " + data.B + " , " + data.PS + " , " + data.ET + "   " + 
-            "Defect Length, Defect Parallel Length, Tilt of Crack, Tilt from Horizontal (A, B, PS, ET)");
+            "Defect Length, Defect Height, Tilt of Crack, Tilt from Horizontal (A, B, PS, ET)");
         }
 
         if (data.LDTY == 17 || data.LDTY == 19 || data.LDTY == 37) {
