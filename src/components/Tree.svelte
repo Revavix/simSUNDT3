@@ -8,10 +8,12 @@
     import { TreeCheckbox } from "../lib/models/tree/TreeCheckbox";
     import type { IValidator } from "../lib/models/validation/Validator";
     import type IValidationResult from "../lib/models/validation/ValidationResult";
+    import type { IEnforcer } from "../lib/models/validation/Enforcer";
 
     export let node: TreeNode | TreeInput | TreeDropdown | TreeCheckbox
     export let parentRef: string = ""
     export let kernelValidator: IValidator | null = null
+    export let kernelEnforcer: IEnforcer | null = null
     export let parametricEnabled: boolean
 
     let validationResult: IValidationResult | null = { isValid: true, isDisabled: false, message: null }
@@ -39,6 +41,12 @@
         if (kernelValidator && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
             validationResult = kernelValidator.Validate((parentRef + node.name).replace(/\W/g, ""), node.value)
         }
+
+        // Perform enforcement
+        if (kernelEnforcer && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
+            kernelEnforcer?.Enforce((parentRef + node.name).replace(/\W/g, ""), node.value)
+        }
+
         // Trigger a re-render of node
         node = node
     })
@@ -51,6 +59,11 @@
         setTimeout(() => {
             if (kernelValidator && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
                 validationResult = kernelValidator.Validate((parentRef + node.name).replace(/\W/g, ""), node.value)
+            }
+
+            // Perform enforcement
+            if (kernelEnforcer && (node instanceof TreeInput || node instanceof TreeCheckbox || node instanceof TreeDropdown)) {
+                kernelEnforcer?.Enforce((parentRef + node.name).replace(/\W/g, ""), node.value)
             }
         }, 50)
     })
@@ -76,7 +89,13 @@
             {/if}
 			{#if (node.expanded || node.expanded === null) && node.children}
 				{#each Object.entries(node.children) as [k, v]}
-					<svelte:self node={v} parentRef={(parentRef !== 'Root:' ? parentRef : '') + node.name + ":"} bind:kernelValidator={kernelValidator} bind:parametricEnabled={parametricEnabled}/> <!-- data = {} -> data.method -->
+					<svelte:self 
+                        node={v} 
+                        parentRef={(parentRef !== 'Root:' ? parentRef : '') + node.name + ":"} 
+                        bind:kernelValidator={kernelValidator} 
+                        bind:kernelEnforcer={kernelEnforcer} 
+                        bind:parametricEnabled={parametricEnabled}
+                    /> <!-- data = {} -> data.method -->
 				{/each}
 			{/if}
         {:else if node instanceof TreeInput && node.parametric == true && parametricEnabled}

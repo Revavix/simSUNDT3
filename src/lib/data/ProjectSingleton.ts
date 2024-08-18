@@ -88,7 +88,7 @@ export class ProjectSingleton {
     public async Save(path: string): Promise<void> { 
         let saveData: any = {
             name: await basename(path, ".ssproj"),
-            path: this._active.path,
+            path: path,
             data: {
                 preprocessor: {
                     tree: Serialize(this._active.data.preprocessor.tree !== null ? this._active.data.preprocessor.tree : {} as TreeNode),

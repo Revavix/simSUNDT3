@@ -3,6 +3,7 @@ import { writable } from "svelte/store"
 import type { End, Metadata, Point, Side } from "../models/Result"
 import type { Progress, Status } from "../models/Kernel"
 import type { FileCache } from "../models/FileCache"
+import { Euler } from "three"
 
 // Previously fileCache
 export const cache: Writable<Array<FileCache>> = writable()
@@ -26,3 +27,7 @@ export const interpolationMode: Writable<Array<string | boolean>> = writable([])
 
 // Active tab
 export const activeTab: Writable<string> = writable("File")
+
+// 3D related stores
+export const cameraPosition: Writable<[x: number, y: number, z: number]> = writable([12, 12, 12])
+export const cameraRotation: Writable<Euler> = writable(new Euler(0, 0, 0, "XYZ"))

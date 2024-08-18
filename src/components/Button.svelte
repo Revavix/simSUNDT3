@@ -3,6 +3,7 @@
     import type { Button } from "../lib/models/Button";
 
     export let data: Button
+    let isHoveringButton: boolean = false
 
     function exec()
     {
@@ -18,8 +19,8 @@
     $: data.disabled, data.disabled ? brightnessClass = 'lower-opacity' : brightnessClass = ''
 </script>
 
-<button class="flex flex-row w-full hover:{data.hoverColor} hover:rounded-sm {brightnessClass}" on:click={exec} disabled={data.disabled}>
-    <div class="flex flex-col" style="font-family:'Material Icons'; font-size:{data.size}px; color:{data.color}">
+<button class="flex flex-row w-full hover:rounded-sm {brightnessClass}" on:click={exec} disabled={data.disabled} on:mouseenter={() => isHoveringButton = true} on:mouseleave={() => isHoveringButton = false}>
+    <div class="flex flex-col" style="font-family:'Material Icons'; font-size:{data.size}px; color:{isHoveringButton && data.hoverColor ? data.hoverColor : data.color}">
         {data.icon}
     </div>
     {#if data.label !== undefined}

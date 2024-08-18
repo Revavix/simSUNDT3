@@ -182,7 +182,7 @@
             </div>
         </div>
         <!-- Absolute positioned project title -->
-        <div data-tauri-drag-region class="text-xs cursor-default select-none mt-2" style="position: fixed; left: 50%; transform: translate(-50%, 0%)">
+        <div data-tauri-drag-region class="text-xs cursor-default select-none mt-2" style="position: fixed; left: 50%; transform: translate(-50%, 0%); z-index: 50;">
             {ProjectSingleton.GetInstance().IsValid() ? loadedProjectName : 'No active project'}
         </div>
         <!-- Absolute positioned min/max/close bar -->

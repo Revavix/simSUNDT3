@@ -21,6 +21,9 @@
     import type TreeNode from "../lib/models/tree/TreeNode";
     import PresetProbesModal from "../components/modals/PresetProbesModal.svelte";
     import { bind } from "lodash";
+    import type { IEnforcer } from "../lib/models/validation/Enforcer";
+    import { Enforcer } from "../lib/validation/Enforcer";
+    import Quickbar from "../components/panels/3d/Quickbar.svelte";
 
     export let unsaved
     export let kernelRunner: Runner
@@ -29,6 +32,7 @@
     let loggingSingleton: LoggingSingleton = LoggingSingleton.GetInstance()
     let kernelInitializer: Initializer | null = null
     let kernelValidator: IValidator | null = null
+    let kernelEnforcer: IEnforcer | null = null
 
     let parametricEnabled = false
     let treeMinimized = false
@@ -41,6 +45,7 @@
     onMount(() => {
         kernelInitializer = new KernelInitializerV6()
         kernelValidator = new Validator()
+        kernelEnforcer = new Enforcer()
     })
 
     // Simulate section buttons
@@ -292,28 +297,34 @@
             </div>
         </div>
     </div>
-    <div class="flex flex-col tree-view">
-        <div class="flex flex-col shadow-lg rounded-lg px-2 mt-2 bg-stone-300 min-w-96 min-w-sm w-full sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg mb-4 opacity-90 hover:opacity-100" style="z-index: 4; position:relative; overflow: auto;">
-            <div class="flex flex-row">
-                <div class="flex flex-col">
-                    <p class="pt-1" style="color:#4d4d4d">Parameterisation {parametricEnabled == true ? "(Parametric)" : "(Non-parametric)"}</p>
+    <div class="flex flex-row">
+        <!-- Tree view -->
+        <div 
+            class="flex flex-col tree-view w-10/12 sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg shadow-lg rounded-lg px-2 mt-2 bg-stone-300 min-w-96 min-w-sm mb-4 opacity-90 hover:opacity-100" 
+            style="z-index: 4; overflow: auto;"
+        >
+                <div class="flex flex-row">
+                    <div class="flex flex-col">
+                        <p class="pt-1" style="color:#4d4d4d">Parameterisation {parametricEnabled == true ? "(Parametric)" : "(Non-parametric)"}</p>
+                    </div>
+                    <div class="flex flex-col ml-auto">
+                        {#if treeMinimized}
+                        <Button data={treeMinButton}/>
+                        {:else}
+                        <Button data={treeMaxButton}/>
+                        {/if}
+                    </div>
                 </div>
-                <div class="flex flex-col ml-auto">
-                    {#if treeMinimized}
-                    <Button data={treeMinButton}/>
-                    {:else}
-                    <Button data={treeMaxButton}/>
+                {#if !treeMinimized}
+                <div class="h-full rounded-md my-1 mb-2 w-full px-2" style="overflow: auto;">
+                    {#if projectSingleton.Tree !== null}
+                    <TreeComponent node={projectSingleton.Tree} bind:kernelValidator={kernelValidator} bind:kernelEnforcer={kernelEnforcer} bind:parametricEnabled={parametricEnabled}></TreeComponent>
                     {/if}
                 </div>
-            </div>
-            {#if !treeMinimized}
-            <div class="h-full rounded-md my-1 mb-2 w-full px-2" style="overflow: auto;">
-                {#if projectSingleton.Tree !== null}
-                <TreeComponent node={projectSingleton.Tree} bind:kernelValidator={kernelValidator} bind:parametricEnabled={parametricEnabled}></TreeComponent>
                 {/if}
-            </div>
-            {/if}
         </div>
+        <!-- Quickbar -->
+        <Quickbar class="ml-auto h-min quickbar"/>
     </div>
     <div class="absolute-bottom-above pb-4 px-4 w-full opacity-90 hover:opacity-100">
         <div class="flex flex-row w-full items-end">
@@ -382,6 +393,7 @@
         </div>
     {/if}
 
+    <!-- Modals -->
     <ParametricSettings bind:isModalOpen={showParametricSettingsModal} bind:numProcesses={projectSingleton.ProcessCount}/>
     <PresetProbesModal bind:isOpen={showPresetProbesModal}/>
 </div>
@@ -419,6 +431,9 @@
   }
   .tree-view
   {
+    max-height: calc(100vh - 410px);
+  }
+  .quickbar {
     max-height: calc(100vh - 410px);
   }
   .line-vert {
