@@ -31,12 +31,15 @@
         dragmode: 'zoom'
     }
 
-    function getYMultiplier(metadata: Metadata) {
-        return calculationMode === CalculationMode.Distance ? 
-            (distanceMode === DistanceMode.Compressional ? 
-            metadata.wavespeeds.compressional : metadata.wavespeeds.shear) 
-            : (1.0 * Math.pow(10, -6))
+    function calculateDistance(metadata: Metadata, y: number) {
+        return (metadata.timegate.start + (y * metadata.timegate.increment)) * (distanceMode === DistanceMode.Compressional ? 
+            metadata.wavespeeds.compressional : metadata.wavespeeds.shear)
     }
+
+    function calculateTime(metadata: Metadata, y: number) {
+        return (metadata.timegate.start + (y * metadata.timegate.increment)) * Math.pow(10, -6)
+    }
+
 
     let unsubscribe = selectedPosSide.subscribe(side => {
         if (side === undefined || div === undefined) return
@@ -62,13 +65,13 @@
             let data: Data[] = [
                 {
                     x: signals.map(s => metadata.coordinates.x.start + (s.x * metadata.coordinates.x.increment)),
-                    y: signals.map(s => s.y * getYMultiplier(metadata) * ((metadata.timegate.end - metadata.timegate.start ) / side.ref.samples)),
+                    y: signals.map(s => calculationMode === CalculationMode.Time ? calculateTime(metadata, s.y) : calculateDistance(metadata, s.y)),
                     z: signals.map(s => rectify(rectification, s.z / side.amplitude)),
                     zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
                     colorscale: colorscale
                 }
-            ]
+            ] // (metadata.timegate.start + (s.x * metadata.timegate.increment)) * Math.pow(10, -6))
         
             blayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'mm'
             blayout.margin.l = calculationMode === CalculationMode.Time ? 40 : 60
