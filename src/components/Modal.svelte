@@ -13,13 +13,13 @@
 
 <div class="main-container-div w-{width}/12 h-{height}/12">
     <div class="relative w-full h-full md:h-auto">
-        <div class="relative rounded-lg shadow bg-stone-200">
+        <div class="relative rounded-lg shadow bg-base-100">
             <div class="flex items-start justify-between p-3 rounded-t">
                 <div class="flex flex-col items-start">
-                    <h3 class="flex flex-row text-md font-semibold text-gray-600">
+                    <h3 class="flex flex-row text-md font-semibold text-base-content">
                         {label}
                     </h3>
-                    <h1 class="flex flex-row text-xs text-gray-600">
+                    <h1 class="flex flex-row text-xs text-base-content">
                         {description}
                     </h1>
                 </div>

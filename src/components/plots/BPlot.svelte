@@ -2,16 +2,16 @@
     import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "../PlotModebar.svelte";
     import { UltraVision } from '../../lib/plotting/Colorscales';
-    import { CalculationMode, DistanceMode } from '../../lib/models/SoundYAxisMode';
+    import { CalculationMode, DistanceMode, DistancePath } from '../../lib/models/SoundYAxisMode';
     import { onDestroy, onMount } from 'svelte';
     import { blayout } from '../../lib/plotting/Layouts';
-    import { loadedMetadata, selectedPosSide } from '../../lib/data/Stores';
+    import { loadedMetadata, selectedPosSide, theme } from '../../lib/data/Stores';
     import { invoke } from '@tauri-apps/api/tauri';
     import { LoadingState, Rectification, type Metadata, Interpolation } from '../../lib/models/Result';
     import { get } from 'svelte/store';
     import type { Position3D } from '../../lib/models/Positions';
     import Spinner from '../Spinner.svelte';
-    import { interpolationToZsmooth, rectify } from '../../lib/plotting/Utils';
+    import { calculateDistance, calculateTime, interpolationToZsmooth, rectify } from '../../lib/plotting/Utils';
 
     export let rectification: Rectification
     export let interpolation: Interpolation
@@ -20,6 +20,7 @@
     let loading: LoadingState = LoadingState.LOADING
     let calculationMode = CalculationMode.Time
     let distanceMode = DistanceMode.Compressional
+    let pathMode = DistancePath.Soundpath
 
     // Bound variables
     let plot: any
@@ -31,16 +32,7 @@
         dragmode: 'zoom'
     }
 
-    function calculateDistance(metadata: Metadata, y: number) {
-        return (metadata.timegate.start + (y * metadata.timegate.increment)) * (distanceMode === DistanceMode.Compressional ? 
-            metadata.wavespeeds.compressional : metadata.wavespeeds.shear)
-    }
-
-    function calculateTime(metadata: Metadata, y: number) {
-        return (metadata.timegate.start + (y * metadata.timegate.increment)) * Math.pow(10, -6)
-    }
-
-    let unsubscribe = selectedPosSide.subscribe(side => {
+    let unsubscribeData = selectedPosSide.subscribe(side => {
         if (side === undefined || div === undefined) return
 
         // Activate load status again
@@ -64,7 +56,7 @@
             let data: Data[] = [
                 {
                     x: signals.map(s => metadata.coordinates.x.start + (s.x * metadata.coordinates.x.increment)),
-                    y: signals.map(s => calculationMode === CalculationMode.Time ? calculateTime(metadata, s.y) : calculateDistance(metadata, s.y)),
+                    y: signals.map(s => calculationMode === CalculationMode.Time ? calculateTime(metadata, s.y) : calculateDistance(metadata, distanceMode, pathMode, s.y)),
                     z: signals.map(s => rectify(rectification, s.z / side.amplitude)),
                     zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
@@ -74,6 +66,7 @@
         
             blayout.yaxis.ticksuffix = calculationMode === CalculationMode.Time ? 's' : 'mm'
             blayout.margin.l = calculationMode === CalculationMode.Time ? 40 : 60
+            blayout.font.color = get(theme) === 'business' ? '#fff' : '#000'
 
             loading = LoadingState.OK
             plot = Plotly.react(div, data, blayout, cfg)
@@ -83,20 +76,31 @@
         })
     })
 
-    onDestroy(() => {
-        unsubscribe()
+    let unsubscribeTheme = theme.subscribe(theme => {
+        if (div === undefined) return
+
+        Plotly.relayout(div, {
+            font: {
+                color: theme === 'business' ? '#fff' : '#000'
+            },
+        })
     })
 
-    $: calculationMode || distanceMode || rectification || colorscale, selectedPosSide.update(n => n)
+    onDestroy(() => {
+        unsubscribeTheme()
+        unsubscribeData()
+    })
+
+    $: calculationMode || distanceMode || pathMode || rectification || colorscale, selectedPosSide.update(n => n)
 </script>
 
 
 <div class="flex flex-row">
     <div class="flex flex-col">
-        <p class="pt-1 px-2" style="color:#4d4d4d">Side View (B)</p>
+        <p class="pt-1 px-2 text-base-content">Side View (B)</p>
     </div>
     <div class="flex flex-col ml-auto mr-2">
-        <PlotModebar bind:plot={plot} bind:calculationMode={calculationMode} bind:distanceMode={distanceMode}/>
+        <PlotModebar bind:plot={plot} bind:calculationMode={calculationMode} bind:distanceMode={distanceMode} bind:pathMode={pathMode}/>
     </div>
 </div>
 <div class="flex flex-row w-full h-full" style="max-height: calc(100% - 28px);">

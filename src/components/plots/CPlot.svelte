@@ -4,7 +4,7 @@
     import PlotModebar from "../PlotModebar.svelte"
     import { dot, horizontalLine, verticalLine } from '../../lib/plotting/Annotations'
     import { UltraVision } from '../../lib/plotting/Colorscales';
-    import { interpolationMode, loadedMetadata, selectedPosEnd, selectedPosSide, selectedPosSignal } from '../../lib/data/Stores';
+    import { interpolationMode, loadedMetadata, selectedPosEnd, selectedPosSide, selectedPosSignal, theme } from '../../lib/data/Stores';
     import { invoke } from '@tauri-apps/api/tauri';
     import { Interpolation, LoadingState, Rectification, type Metadata, type Top } from '../../lib/models/Result';
     import Spinner from '../Spinner.svelte';
@@ -12,6 +12,7 @@
     import { fade } from 'svelte/transition';
     import { interpolationToZsmooth } from '../../lib/plotting/Utils';
     import { clayout } from '../../lib/plotting/Layouts';
+    import { get } from 'svelte/store';
 
     export let interpolation: Interpolation
     export let colorscale = UltraVision
@@ -27,7 +28,7 @@
         dragmode: 'zoom'
     }
 
-    let unsubscribe = loadedMetadata.subscribe((metadata) => {
+    let unsubscribeData = loadedMetadata.subscribe((metadata) => {
         if (metadata === undefined || div === undefined) return
 
         // Active load status again
@@ -60,6 +61,8 @@
                     colorscale: colorscale
                 }
             ]
+
+            clayout.font.color = get(theme) === 'business' ? '#fff' : '#000'
 
             loading = LoadingState.OK
             setTimeout(() => {
@@ -155,8 +158,19 @@
         })
     })
 
+    let unsubscribeTheme = theme.subscribe(theme => {
+        if (div === undefined) return
+
+        Plotly.relayout(div, {
+            font: {
+                color: theme === 'business' ? '#fff' : '#000'
+            },
+        })
+    })
+
     onDestroy(() => {
-        unsubscribe()
+        unsubscribeTheme()
+        unsubscribeData()
     })
 
     $: interpolation || colorscale, loadedMetadata.update(m => m)
@@ -164,7 +178,7 @@
 
 <div class="flex flex-row">
     <div class="flex flex-col">
-        <p class="pt-1 px-2" style="color:#4d4d4d">Top View (C)</p>
+        <p class="pt-1 px-2 text-base-content">Top View (C)</p>
     </div>
     <div class="flex flex-row pt-1">
         <button class="flex flex-col pr-1.5 {mode == "A" ? "opacity-100" : "opacity-40"}" style="font-size:12px; color:#4d4d4d;" on:click={() => mode = "A"}>

@@ -73,7 +73,7 @@
     })
 </script>
 
-<ul class={ulCssPadding}>
+<ul class="{ulCssPadding}">
 	<li>
 		{#if node instanceof TreeNode && 
         !(node instanceof TreeInput) && 
@@ -82,7 +82,7 @@
             {#if node.expanded !== null}
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<!-- svelte-ignore a11y-no-static-element-interactions -->
-			<span class="whitespace-nowrap" style="font-size:16px;" on:click={toggleExpansion}>
+			<span class="whitespace-nowrap text-base-content" style="font-size:16px;" on:click={toggleExpansion}>
 				<span class="arrow whitespace-nowrap" class:arrowDown>&#x25b6</span>
 				{node.name}
 			</span>
@@ -99,34 +99,34 @@
 				{/each}
 			{/if}
         {:else if node instanceof TreeInput && node.parametric == true && parametricEnabled}
-            <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
-                <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
-                <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{node.name}</span>
-                <input bind:value={node.value} type="number" step="any" class="pl-1 ml-auto w-16 bg-gray-50 border text-gray-900 text-sm rounded-lg disabled:opacity-75 
+            <div class="flex flex-row disabled:opacity-75 w-full mt-0.5 pl-4"> <!-- disabled={treeDisabled} -->
+                <span class="text-base-content" style="font-family:'Material Icons'; font-size:20px;">tag</span>
+                <span class="pl-1 whitespace-nowrap text-base-content" style="font-size:16px;">{node.name}</span>
+                <input bind:value={node.value} type="number" step="any" class="input input-xs pl-1 ml-auto w-16 h-5 bg-secondary border text-sm rounded-xl
                 {!validationResult?.isValid ? 'ring-2 ring-red-300' : ''}" disabled={validationResult?.isDisabled} placeholder="0" required on:change={handleChangedValue}>
-                <input bind:value={node.end} type="number" step="any" class="pl-1 w-16 bg-gray-50 border text-gray-900 text-sm rounded-lg disabled:opacity-75 
+                <input bind:value={node.end} type="number" step="any" class="input input-xs ml-1 pl-1 w-16 h-5 bg-secondary border text-sm rounded-xl
                 {!validationResult?.isValid ? 'ring-2 ring-red-300' : ''}" disabled={validationResult?.isDisabled} placeholder="0" required on:change={handleChangedValue}>
-                <input bind:value={node.increment} type="number" step="any" class="pl-1 w-12 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={validationResult?.isDisabled} placeholder="0" required on:change={handleChangedValue}>
+                <input bind:value={node.increment} type="number" step="any" class="input input-xs ml-1 pl-1 w-12 h-5 bg-secondary border text-sm rounded-xl" disabled={validationResult?.isDisabled} placeholder="0" required on:change={handleChangedValue}>
             </div>
         {:else if node instanceof TreeInput && (node.parametric == false || !parametricEnabled) }
-            <div class="flex flex-row disabled:opacity-75 w-full"> <!-- disabled={treeDisabled} -->
-                <span style="font-family:'Material Icons'; font-size:20px;">tag</span>
-                <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{node.name}</span>
-                <input bind:value={node.value} type="number" step="any" class="pl-1 my-0.5 ml-auto w-16 bg-gray-50  text-gray-900 text-sm rounded-lg disabled:opacity-75 focus:outline-none
+            <div class="flex flex-row disabled:opacity-75 w-full mt-0.5 pl-4"> <!-- disabled={treeDisabled} -->
+                <span class="text-base-content" style="font-family:'Material Icons'; font-size:20px;">tag</span>
+                <span class="pl-1 whitespace-nowrap text-base-content" style="font-size:16px;">{node.name}</span>
+                <input bind:value={node.value} type="number" step="any" class="input input-xs bg-secondary text-neutral pl-1 ml-auto w-16 text-sm rounded-lg focus:outline-none
                 {!validationResult?.isValid ? 'ring-2 ring-red-300' : ''}" 
                 disabled={validationResult?.isDisabled} placeholder="0" required on:change={handleChangedValue}>
             </div>
         {:else if node instanceof TreeCheckbox}
-        <div class="flex flex-row">
-            <span style="font-family:'Material Icons'; font-size:20px;">check_box</span>
-            <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{node.name}</span>
-            <input bind:checked={node.value} type="checkbox" class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={validationResult?.isDisabled} required on:change={handleChangedValue}>
+        <div class="flex flex-row mt-0.5 pl-4">
+            <span class="text-base-content" style="font-family:'Material Icons'; font-size:20px;">check_box</span>
+            <span class="pl-1 whitespace-nowrap text-base-content" style="font-size:16px;">{node.name}</span>
+            <input bind:checked={node.value} type="checkbox" class="checkbox checkbox-sm pl-1 ml-auto bg-secondary text-neutral text-sm rounded-lg" disabled={validationResult?.isDisabled} required on:change={handleChangedValue}>
         </div>
         {:else if node instanceof TreeDropdown}
-        <div class="flex flex-row">
-            <span style="font-family:'Material Icons'; font-size:20px;">list</span>
-            <span class="pl-1 whitespace-nowrap" style="font-size:16px;">{node.name}</span>
-            <select bind:value={node.value} class="pl-1 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75" disabled={validationResult?.isDisabled} required on:change={handleChangedValue}> 
+        <div class="flex flex-row mt-0.5 pl-4">
+            <span class="text-base-content" style="font-family:'Material Icons'; font-size:20px;">list</span>
+            <span class="pl-1 whitespace-nowrap text-base-content" style="font-size:16px;">{node.name}</span>
+            <select bind:value={node.value} class="select select-xs select-secondary pl-1 ml-auto bg-secondary text-neutral text-sm rounded-xl focus:outline-none" disabled={validationResult?.isDisabled} required on:change={handleChangedValue}> 
                 {#each node.options as opt}
                 <option value={opt.value}>{opt.text}</option>
                 {/each}
@@ -141,14 +141,12 @@
 		margin: 0;
 		list-style: none;
 		user-select: none;
-        color: #4d4d4d;
     }
 	.ul-with-padding {
 		margin: 0;
 		list-style: none;
 		padding-left: 1.2rem; 
 		user-select: none;
-        color: #4d4d4d;
 	}
     .no-arrow { padding-left: 0.6rem; }
 	.arrow {

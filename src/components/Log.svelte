@@ -97,12 +97,12 @@
     };
 </script>
 
-<div class="flex flex-col bg-stone-300 rounded-lg shadow-lg" style="z-index: 4;">
+<div class="flex flex-col bg-base-100 rounded-lg shadow-lg" style="z-index: 4;">
     <div class="flex flex-row px-2 pt-1 items-center">
-        <button class="flex flex-col bg-stone-600 rounded-lg text-xs py-0.5 px-2 {activePage === "output" ? 'opacity-100' : 'opacity-70'}" on:click={() => {activePage = "output"}}>
+        <button class="flex flex-col bg-primary rounded-lg text-xs py-0.5 px-2 {activePage === "output" ? 'opacity-100' : 'opacity-70'}" on:click={() => {activePage = "output"}}>
             Output ({logs.length})
         </button>
-        <button class="flex flex-col bg-stone-600 rounded-lg text-xs py-0.5 px-2 ml-1 {activePage === "errors" ? 'opacity-100' : 'opacity-70'}" on:click={() => {activePage = "errors"}}>
+        <button class="flex flex-col bg-primary rounded-lg text-xs py-0.5 px-2 ml-1 {activePage === "errors" ? 'opacity-100' : 'opacity-70'}" on:click={() => {activePage = "errors"}}>
             Errors ({errors.length})
         </button>
         <div class="flex flex-col ml-auto">
@@ -125,10 +125,10 @@
                         <div class="inline item-icon align-middle " style="color:{item.color}">
                             {item.icon}
                         </div>
-                        <div class="inline item-text pl-1 font-bold whitespace-nowrap">
+                        <div class="inline text-sm text-base-content pl-1 font-bold whitespace-nowrap">
                             [{new Date().toLocaleString()}]:
                         </div>
-                        <div class="inline item-text">
+                        <div class="inline text-sm text-base-content">
                             {item.message}
                         </div>
                     </div>
@@ -141,7 +141,7 @@
                     <div class="inline item-icon align-middle " style="color:{item.type === "ERROR" ? "red" : "orange"}">
                         {item.type === "ERROR" ? "error" : "warning"}
                     </div>
-                    <div class="inline item-text">
+                    <div class="inline text-base-content">
                         {item.message}
                     </div>
                 </div>
@@ -156,22 +156,5 @@
     {
         font-family:'Material Icons'; 
         font-size:16px;
-    }
-    .item-text
-    {
-        font-size: 14px;
-        color:#4d4d4d
-    }
-    ::-webkit-scrollbar {
-        width: 14px;
-        height: 14px;
-    }
-  ::-webkit-scrollbar-track {
-        background: rgb(168, 162, 158);
-        border-radius: 10px;
-    }
-  ::-webkit-scrollbar-thumb {
-        background: #4d4d4d;
-        border-radius: 10px;
     }
 </style>

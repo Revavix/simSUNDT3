@@ -7,3 +7,8 @@ export enum DistanceMode {
     Shear = 1,
     Compressional = 2
 }
+
+export enum DistancePath {
+    Soundpath = 1,
+    True = 2
+}

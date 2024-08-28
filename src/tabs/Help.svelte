@@ -45,17 +45,17 @@
 
 <div class="flex flex-row w-full h-full mt-12 mb-4">
     <div class="flex flex-col w-full md:w-4/12 xl:w-3/12">
-        <button class="block p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 0}>
+        <button class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 0}>
             Knowledgebase
         </button>
-        <button class="block mt-2 p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 1}>
+        <button class="block mt-2 p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 1}>
             Feedback
         </button>
-        <button class="block mt-2 p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 2}>
+        <button class="block mt-2 p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" style="color: #4d4d4d; cursor: pointer" on:click={() => selectedTab = 2}>
             Notebook
         </button>
     </div>
-    <div class="flex flex-col w-full h-full md:w-8/12 xl:w-9/12 bg-stone-300 border border-gray-500 rounded-lg shadow-md ml-4">
+    <div class="flex flex-col w-full h-full md:w-8/12 xl:w-9/12 bg-base-100 border border-gray-500 rounded-lg shadow-md ml-4">
         {#if selectedTab === 0}
         <div class="flex flex-row w-full mt-4 mx-4" style="font-size: 16px; color: #4d4d4d;">
             Articles
@@ -125,16 +125,5 @@
         font-family:'Material Icons'; 
         font-size:48px; 
         color:#4d4d4d
-    }
-    ::-webkit-scrollbar {
-        width: 14px;
-    }
-    ::-webkit-scrollbar-track {
-        background: #4d4d4d;
-        border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: rgb(231 229 228); 
-        border-radius: 10px;
     }
 </style>

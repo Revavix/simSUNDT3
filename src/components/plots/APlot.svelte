@@ -1,7 +1,7 @@
 <script lang="ts">
     import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "../PlotModebar.svelte";
-    import { loadedMetadata, selectedPosSignal } from '../../lib/data/Stores';
+    import { loadedMetadata, selectedPosSignal, theme } from '../../lib/data/Stores';
     import { onDestroy, onMount } from 'svelte';
     import { get } from 'svelte/store';
     import { LoadingState, type Metadata } from '../../lib/models/Result';
@@ -31,7 +31,10 @@
             l: 40,
             r: 20,
             b: 40
-        }
+        },
+        font: {
+            color: get(theme) === 'business' ? '#fff' : '#000'
+        },
     }
     let cfg = {
         responsive: true,
@@ -39,7 +42,7 @@
         dragmode: 'zoom'
     }
 
-    let unsubscribe = selectedPosSignal.subscribe(point => {
+    let unsubscribeData = selectedPosSignal.subscribe(point => {
         if (div == undefined || point === undefined) return
 
         // Active load status again
@@ -72,8 +75,19 @@
         })
     })
 
+    let unsubscribeTheme = theme.subscribe(theme => {
+        if (div === undefined) return
+
+        Plotly.relayout(div, {
+            font: {
+                color: theme === 'business' ? '#fff' : '#000'
+            },
+        })
+    })
+
     onDestroy(() => {
-        unsubscribe()
+        unsubscribeTheme()
+        unsubscribeData()
     })
 
     $: rectification, selectedPosSignal.update(s => s)
@@ -81,7 +95,7 @@
 
 <div class="flex flex-row">
     <div class="flex flex-col">
-        <p class="pt-1 px-2" style="color:#4d4d4d">Pulse Amplitude (A)</p>
+        <p class="pt-1 px-2 text-base-content">Pulse Amplitude (A)</p>
     </div>
     <div class="flex flex-col ml-auto mr-2">
         <PlotModebar bind:plot={plot}/>

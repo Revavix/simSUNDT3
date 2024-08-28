@@ -10,11 +10,9 @@
     import { invoke } from '@tauri-apps/api/tauri'
     import { Interpolation, Rectification, type Metadata } from '../lib/models/Result';
     import { Grayscale, Magma, Parula, Rainbow, UltraVision } from '../lib/plotting/Colorscales';
-    import type { TreeInput } from '../lib/models/tree/TreeInput';
     import { LoggingSingleton } from '../lib/data/LoggingSingleton';
     import { LoggingLevel } from '../lib/models/Logging';
     import { readTextFile } from '@tauri-apps/api/fs';
-    import type TreeNode from '../lib/models/tree/TreeNode';
     import { Deserialize } from '../lib/tree/Utils';
     
     export let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
@@ -80,18 +78,18 @@
 </script>
 
 <div id="postprocessor-tab">
-    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 99; position: relative">
+    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-base-100 w-full h-24" style="z-index: 50; position: relative">
         <div class="flex flex-col w-60 pt-2">
             <div class="flex flex-row w-full items-center">
                 <div class="flex flex-col w-full">
-                    <select bind:value={selectedTest} on:change={handleSubtestChange} class="flex flex-row mb-auto py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                    <select bind:value={selectedTest} on:change={handleSubtestChange} class="select select-secondary select-xs w-full max-w-xs focus:outline-none rounded-lg">
                         {#each projectSingleton.Postprocessor as data, i}
                             <option value="{i}">{data.name} ({data.timestamp?.toLocaleString()})</option>
                         {/each}
                     </select>
                 </div>
-                <div class="flex flex-col w-4/12">
-                    <select bind:value={selectedTestSubIndex} on:change={handleSubtestChange} class="flex flex-row mb-auto py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md w-full">
+                <div class="flex flex-col w-5/12 ml-1">
+                    <select bind:value={selectedTestSubIndex} on:change={handleSubtestChange} class="select select-secondary select-xs w-full max-w-xs focus:outline-none rounded-lg">
                         {#if projectSingleton.Postprocessor.length > 0}
                             {#each projectSingleton.Postprocessor[selectedTest].runs as data, i}
                                 <option value="{i}">{i}</option>
@@ -100,16 +98,16 @@
                     </select>
                 </div>
                 <div class="flex flex-col pl-1">
-                    <button type="button" class="text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-full text-sm px-2" style="font-size:10px" on:click={handleInspect}>Inspect</button>
+                    <button type="button" class="btn btn-primary btn-xs font-normal rounded-full" style="font-size:10px" on:click={handleInspect}>Inspect</button>
                 </div>
             </div>
             <div class="flex flex-row w-full items-center pt-1">
                 <div class="flex flex-col w-full">
-                    <button type="button" class="text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-full text-sm px-2" style="font-size:10px" on:click={handleImportToPreprocessor}>Import to preprocessor</button>
+                    <button type="button" class="btn btn-primary btn-xs font-normal rounded-full" style="font-size:10px" on:click={handleImportToPreprocessor}>Import to preprocessor</button>
                 </div>
             </div>
             <div class="flex flex-row w-full justify-center h-full">
-                <div class="flex flex-row select-none mt-auto" style="font-size:10px; color:#4d4d4d;">
+                <div class="flex flex-row select-none mt-auto text-base-content" style="font-size:10px;">
                 Data
                 </div>
             </div>
@@ -117,20 +115,20 @@
         <div class="flex flex-col line-vert my-2 mx-4"/>
         <div class="flex flex-col w-40 pt-2 -space-y-1">
             <div class="flex flex-col w-full">
-                <select bind:value={rectification} class="flex flex-col py-0.5 mb-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md">
+                <select bind:value={rectification} class="select select-secondary select-xs w-full max-w-xs focus:outline-none rounded-lg">
                     <option value={Rectification.UNRECTIFIED}>Unrectified</option>
                     <option value={Rectification.FULLWAVE}>Fullwave</option>
                     <option value={Rectification.HALFWAVE_POS}>Halfwave Positive</option>
                     <option value={Rectification.HALFWAVE_NEG}>Halfwave Negative</option>
                 </select>
-                <select bind:value={interpolation} class="flex flex-col py-0.5 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md">
+                <select bind:value={interpolation} class="select select-secondary select-xs w-full max-w-xs focus:outline-none mt-0.5 rounded-lg">
                     <option value={Interpolation.OFF}>No interpolation</option>
                     <option value={Interpolation.FAST}>Fast interpolation</option>
                     <option value={Interpolation.BEST}>Best interpolation</option>
                 </select>
             </div>
             <div class="flex flex-col w-full h-full justify-end">
-                <div class="flex flex-row select-none justify-center" style="font-size:10px; color:#4d4d4d;">
+                <div class="flex flex-row select-none justify-center text-base-content" style="font-size:10px;">
                     <div class="flex flex-row">
                     Post-processing
                     </div>
@@ -143,10 +141,10 @@
             </div>
         </div>
         <div class="flex flex-col line-vert my-2 mx-4"/>
-        <div class="flex flex-col w-24 pt-2 -space-y-1">
+        <div class="flex flex-col w-28 pt-2 -space-y-1">
             <!-- Colorscale select -->
             <div class="flex flex-col w-full">
-                <select bind:value={selectedColorscale} class="flex flex-col py-0.5 mb-1 rounded bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-md">
+                <select bind:value={selectedColorscale} class="select select-secondary select-xs w-full max-w-xs focus:outline-none rounded-lg">
                     <option value={UltraVision}>Ultravision</option>
                     <option value={Grayscale}>Grayscale</option>
                     <option value={Rainbow}>Rainbow</option>
@@ -156,7 +154,7 @@
             </div>
             <!-- Colorscale footer -->
             <div class="flex flex-col w-full h-full justify-end">
-                <div class="flex flex-row select-none justify-center" style="font-size:10px; color:#4d4d4d;">
+                <div class="flex flex-row select-none justify-center text-base-content" style="font-size:10px;">
                     <div class="flex flex-row">
                     Colorscale
                     </div>
@@ -166,22 +164,22 @@
     </div>
     <!-- Interaction Panel -->
 
-    <div class="w-full grid grid-cols-2 gap-2 mt-2" style="z-index: 99; height: calc(100vh - 190px);">
-        <div class="rounded-md bg-stone-300 flex-col" style="z-index: 99;">
+    <div class="w-full grid grid-cols-2 gap-2 mt-2" style="z-index: 50; height: calc(100vh - 190px);">
+        <div class="rounded-md bg-base-100 flex-col" style="z-index: 50;">
             <CPlot bind:interpolation={interpolation} 
                 bind:colorscale={selectedColorscale}
                 />
         </div>
-        <div class="rounded-md bg-stone-300 flex-col px-2" style="z-index: 99;">
+        <div class="rounded-md bg-base-100 flex-col px-2" style="z-index: 50;">
             <APlot bind:rectification={rectification}/>
         </div>
-        <div class="rounded-md bg-stone-300 flex-col px-2 pb-2" style="z-index: 99;">
+        <div class="rounded-md bg-base-100 flex-col px-2 pb-2" style="z-index: 50;">
             <BPlot bind:rectification={rectification} 
                 bind:interpolation={interpolation} 
                 bind:colorscale={selectedColorscale}
             />
         </div>
-        <div class="rounded-md bg-stone-300 px-2" style="z-index: 99;">
+        <div class="rounded-md bg-base-100 px-2" style="z-index: 50;">
             <DPlot bind:rectification={rectification} 
                 bind:interpolation={interpolation} 
                 bind:colorscale={selectedColorscale}
