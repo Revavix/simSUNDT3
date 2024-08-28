@@ -8,7 +8,7 @@
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
     import { kernelProgress } from "../lib/data/Stores";
-    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult, type Progress } from "../lib/models/Kernel";
+    import { Initializer, InitializerMode, Runner } from "../lib/models/Kernel";
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
     import { BaseDirectory } from "@tauri-apps/api/path";
@@ -20,7 +20,6 @@
     import { Serialize } from "../lib/tree/Utils";
     import type TreeNode from "../lib/models/tree/TreeNode";
     import PresetProbesModal from "../components/modals/PresetProbesModal.svelte";
-    import { bind } from "lodash";
     import type { IEnforcer } from "../lib/models/validation/Enforcer";
     import { Enforcer } from "../lib/validation/Enforcer";
     import Quickbar from "../components/panels/3d/Quickbar.svelte";
@@ -120,26 +119,6 @@
         kernelRunner.Stop()
     }
 
-    let configureButton = {
-        label: "Configure",
-        color: "#807a7a",
-        icon: "settings",
-        action: async () => {
-            showConfigureModal == false ? showConfigureModal = true : showConfigureModal = false
-        },
-        disabled: false
-    }
-
-    let parametricSettingsButton = {
-        label: "Settings",
-        color: "#807a7a",
-        icon: "tune",
-        action: async () => {
-            showParametricSettingsModal = true
-        },
-        disabled: false
-    }
-
     // Tree buttons
     let treeMinButton = {
         label: "",
@@ -163,26 +142,6 @@
         color: "#807a7a",
         icon: "close",
         action:  () => {showConfigureModal = false},
-        disabled: false
-    }
-
-    // Preset buttons
-    let materialPresetButton = {
-        label: "Materials",
-        color: "#4d4d4d",
-        icon: "inventory_2",
-        action: async () => {
-            
-        },
-        disabled: true
-    }
-    let probePresetButton = {
-        label: "Probes",
-        color: "#4d4d4d",
-        icon: "settings_remote",
-        action: () => {
-            showPresetProbesModal = true
-        },
         disabled: false
     }
 </script>

@@ -3,7 +3,7 @@
     import PlotModebar from "../PlotModebar.svelte";
     import { UltraVision } from '../../lib/plotting/Colorscales';
     import { CalculationMode, DistanceMode, DistancePath } from '../../lib/models/SoundYAxisMode';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy } from 'svelte';
     import { dlayout } from '../../lib/plotting/Layouts';
     import { loadedMetadata, selectedPosEnd, theme } from '../../lib/data/Stores';
     import { Interpolation, LoadingState, Rectification, type Metadata } from '../../lib/models/Result';

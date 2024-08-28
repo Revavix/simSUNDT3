@@ -2,7 +2,7 @@
     import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "../PlotModebar.svelte";
     import { loadedMetadata, selectedPosSignal, theme } from '../../lib/data/Stores';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy } from 'svelte';
     import { get } from 'svelte/store';
     import { LoadingState, type Metadata } from '../../lib/models/Result';
     import { invoke } from '@tauri-apps/api/tauri';

@@ -3,9 +3,6 @@
     import Plotly, { type Datum } from 'plotly.js-dist-min'
     import Button from '../components/Button.svelte'
     import { CalculationMode, DistanceMode, DistancePath } from '../lib/models/SoundYAxisMode'
-    import CompressionalWave from './icons/CompressionalWave.svelte';
-    import ShearWave from './icons/ShearWave.svelte';
-    import Tooltip from './Tooltip.svelte';
     import type { Metadata } from "../lib/models/Result";
     import TooltipMultiline from "./TooltipMultiline.svelte";
     

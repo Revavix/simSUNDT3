@@ -1,15 +1,14 @@
 <script lang="ts">
     import Plotly from 'plotly.js-dist-min'
-    import type { Data, Layout } from "plotly.js-dist-min"
+    import type { Data } from "plotly.js-dist-min"
     import PlotModebar from "../PlotModebar.svelte"
     import { dot, horizontalLine, verticalLine } from '../../lib/plotting/Annotations'
     import { UltraVision } from '../../lib/plotting/Colorscales';
-    import { interpolationMode, loadedMetadata, selectedPosEnd, selectedPosSide, selectedPosSignal, theme } from '../../lib/data/Stores';
+    import { loadedMetadata, selectedPosEnd, selectedPosSide, selectedPosSignal, theme } from '../../lib/data/Stores';
     import { invoke } from '@tauri-apps/api/tauri';
-    import { Interpolation, LoadingState, Rectification, type Metadata, type Top } from '../../lib/models/Result';
+    import { Interpolation, LoadingState, type Metadata, type Top } from '../../lib/models/Result';
     import Spinner from '../Spinner.svelte';
-    import { onDestroy, onMount } from 'svelte';
-    import { fade } from 'svelte/transition';
+    import { onDestroy } from 'svelte';
     import { interpolationToZsmooth } from '../../lib/plotting/Utils';
     import { clayout } from '../../lib/plotting/Layouts';
     import { get } from 'svelte/store';

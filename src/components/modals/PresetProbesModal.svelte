@@ -1,7 +1,5 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import type { Button as IButton } from "../../lib/models/Button";
-    import Button from "../Button.svelte";
     import Modal from "../Modal.svelte";
     import { PresetsSingleton } from "../../lib/data/PresetsSingleton";
     import type { Preset } from "../../lib/models/Preset";

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createEventDispatcher, onDestroy } from "svelte";
+    import { onDestroy } from "svelte";
     import { onMount } from 'svelte';
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
     import TreeNode from "../lib/models/tree/TreeNode";

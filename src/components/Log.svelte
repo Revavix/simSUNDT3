@@ -6,7 +6,6 @@
     import type IValidationError from '../lib/models/validation/ValidationError';
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
     import type { Project } from '../lib/models/Project';
-    import { TreeInput } from '../lib/models/tree/TreeInput';
     import type { IValidator } from '../lib/models/validation/Validator';
 
     export let kernelValidator: IValidator | null = null
