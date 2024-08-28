@@ -1,10 +1,10 @@
 <script lang="ts">
     import { T, useThrelte } from '@threlte/core'
-    import { CSM, Grid, MeshLineGeometry, MeshLineMaterial, OrbitControls, Sky, interactivity, Text } from '@threlte/extras'
+    import { CSM, MeshLineGeometry, MeshLineMaterial, Sky, interactivity, Text } from '@threlte/extras'
     import { Color, Mesh, Vector2, Vector3 } from 'three';
     import { DEG2RAD } from 'three/src/math/MathUtils.js';
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
-    import { afterUpdate, onDestroy } from 'svelte';
+    import { onDestroy } from 'svelte';
     import { kernelProgress } from '../lib/data/Stores';
     import type { Progress } from '../lib/models/Kernel';
     import type { Project } from '../lib/models/Project';

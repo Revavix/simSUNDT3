@@ -1,6 +1,5 @@
 <script lang="ts">
     import { spring } from 'svelte/motion';
-    import { cubicOut } from 'svelte/easing'
 
     export let progress: number = 0;
     export let maxValue: number = 100;

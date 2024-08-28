@@ -36,66 +36,66 @@
     })
 </script>
 
-<div class="flex flex-col bg-stone-300 {$$restProps.class || ''} mt-2 rounded" style="z-index: 50;">
+<div class="flex flex-col bg-base-100 {$$restProps.class || ''} mt-2 rounded" style="z-index: 50;">
     <!-- Quickbar slot: scene information expand menu -->
     <ExpandLeftButton 
         icon="analytics"
     >
-        <p class="flex flex-row w-80 text-gray-800 text-md mt-2 mx-2">
+        <p class="flex flex-row w-80 text-base-content text-md mt-2 mx-2">
             Scene information
         </p>
-        <div class="flex flex-row w-80 text-gray-800 my-1 mx-2 border-t border-stone-600 rounded-lg"/>
-        <p class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+        <div class="flex flex-row w-80 text-base-content my-1 mx-2 border-t border-stone-600 rounded-lg"/>
+        <p class="flex flex-row w-80 text-base-content text-sm mx-2">
             Subject
         </p>
-        <div class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+        <div class="flex flex-row w-80 text-base-content text-sm mx-2">
             <div class="flex flex-col text-center" style="font-size:14px; color:#ff0000">
                 X
             </div>
             <sub class="flex flex-col self-end mb-2">size</sub>
-            <p class="flex flex-row w-80 text-gray-800 text-sm ml-2">
+            <p class="flex flex-row w-80 text-base-content text-sm ml-2">
                 {size.width} mm
             </p>
         </div>
-        <div class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+        <div class="flex flex-row w-80 text-base-content text-sm mx-2">
             <div class="flex flex-col text-center whitespace-nowrap" style="font-size:14px; color:#0000ff">
                 Y
             </div>
             <sub class="flex flex-col self-end mb-2">size</sub>
-            <p class="flex flex-row w-80 text-gray-800 text-sm ml-2">
+            <p class="flex flex-row w-80 text-base-content text-sm ml-2">
                 {size.length} mm
             </p>
         </div>
-        <div class="flex flex-row w-80 text-gray-800 my-1 mx-2 border-t border-stone-600 rounded-lg"/>
-        <p class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+        <div class="flex flex-row w-80 text-base-content my-1 mx-2 border-t border-stone-600 rounded-lg"/>
+        <p class="flex flex-row w-80 text-base-content text-sm mx-2">
             Defect
         </p>
-        <p class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+        <p class="flex flex-row w-80 text-base-content text-sm mx-2">
             {defectType}
         </p>
         {#if defectType === "Surface Breaking Strip-like Crack"}
-        <div class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+        <div class="flex flex-row w-80 text-base-content text-sm mx-2">
             <div class="flex flex-col" style="font-family:'Material Icons'; font-size:24px; color:#ff0000">
                 horizontal_rule
             </div>
             {#if defectTilt !== undefined && defectHeight !== undefined}
-            <p class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+            <p class="flex flex-row w-80 text-base-content text-sm mx-2">
                 {Math.round(Math.sin(defectTilt * DEG2RAD) * defectHeight * 100) / 100} mm
             </p>
             {/if}
         </div>
-        <div class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+        <div class="flex flex-row w-80 text-base-content text-sm mx-2">
             <div class="flex flex-col" style="font-family:'Material Icons'; font-size:24px; color:#429645; transform: rotate(-90deg)">
                 horizontal_rule
             </div>
             {#if defectTilt !== undefined && defectHeight !== undefined}
-            <p class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+            <p class="flex flex-row w-80 text-base-content text-sm mx-2">
                 {Math.round(Math.cos(defectTilt * DEG2RAD) * defectHeight * 100) / 100} mm
             </p>
             {/if}
         </div>
         {/if}
-        <p class="flex flex-row w-80 text-gray-800 text-sm mx-2">
+        <p class="flex flex-row w-80 text-base-content text-sm mx-2">
             Backwall is {backwallEnabled ? "enabled" : "disabled"}
         </p>
     </ExpandLeftButton>

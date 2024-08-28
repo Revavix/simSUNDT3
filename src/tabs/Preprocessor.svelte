@@ -8,7 +8,7 @@
     import ParametricSettings from "../components/ParametricSettings.svelte";
     import NonParametricProgressOverview from "../components/NonParametricProgressOverview.svelte";
     import { kernelProgress } from "../lib/data/Stores";
-    import { Initializer, InitializerMode, Runner, type InitializerExecutionResult, type Progress } from "../lib/models/Kernel";
+    import { Initializer, InitializerMode, Runner } from "../lib/models/Kernel";
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
     import { BaseDirectory } from "@tauri-apps/api/path";
@@ -20,7 +20,6 @@
     import { Serialize } from "../lib/tree/Utils";
     import type TreeNode from "../lib/models/tree/TreeNode";
     import PresetProbesModal from "../components/modals/PresetProbesModal.svelte";
-    import { bind } from "lodash";
     import type { IEnforcer } from "../lib/models/validation/Enforcer";
     import { Enforcer } from "../lib/validation/Enforcer";
     import Quickbar from "../components/panels/3d/Quickbar.svelte";
@@ -49,12 +48,8 @@
     })
 
     // Simulate section buttons
-    let runButton = {
-        label: "Run",
-        color: "#55b13c",
-        icon: "play_arrow",
-        action: async () => {
-            if (kernelInitializer === null) {
+    async function runSimulation() {
+        if (kernelInitializer === null) {
                 loggingSingleton.Log(LoggingLevel.WARNING, "Kernel initializer is null, cannot run simulation.")
                 return
             }
@@ -118,38 +113,10 @@
             }).catch(v => {
                 loggingSingleton.Log(LoggingLevel.WARNING, v)
             })
-        },
-        disabled: false
     }
 
-    let stopButton = {
-        label: "Stop",
-        color: "#ba3822",
-        icon: "stop",
-        action: async () => {
-            kernelRunner.Stop()
-        },
-        disabled: false
-    }
-
-    let configureButton = {
-        label: "Configure",
-        color: "#807a7a",
-        icon: "settings",
-        action: async () => {
-            showConfigureModal == false ? showConfigureModal = true : showConfigureModal = false
-        },
-        disabled: false
-    }
-
-    let parametricSettingsButton = {
-        label: "Settings",
-        color: "#807a7a",
-        icon: "tune",
-        action: async () => {
-            showParametricSettingsModal = true
-        },
-        disabled: false
+    async function stopSimulation() {
+        kernelRunner.Stop()
     }
 
     // Tree buttons
@@ -177,73 +144,73 @@
         action:  () => {showConfigureModal = false},
         disabled: false
     }
-
-    // Preset buttons
-    let materialPresetButton = {
-        label: "Materials",
-        color: "#4d4d4d",
-        icon: "inventory_2",
-        action: async () => {
-            
-        },
-        disabled: true
-    }
-    let probePresetButton = {
-        label: "Probes",
-        color: "#4d4d4d",
-        icon: "settings_remote",
-        action: () => {
-            showPresetProbesModal = true
-        },
-        disabled: false
-    }
 </script>
 
 <div id="preprocessor-tab" class="flex flex-col w-full h-full">
-    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-stone-300 w-full h-24" style="z-index: 4; overflow-x: auto; overflow-y: hidden;">
-        <div class="flex flex-col w-20 pt-1 -space-y-1">
+    <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-base-100 w-full h-24" style="z-index: 4; overflow-x: auto; overflow-y: hidden;">
+        <div class="flex flex-col w-26 pt-1 -space-y-1">
             <div class="flex flex-col mb-auto">
                 {#if $kernelProgress?.find((v) => !v?.finished) === undefined || $kernelProgress === undefined}
-                <Button data={runButton}></Button>
+                <button class="btn btn-xs btn-primary font-normal justify-start rounded-full" on:click={runSimulation}>
+                    <div class="flex flex-col text-green-300" style="font-family:'Material Icons'; font-size:16px">
+                        play_arrow
+                    </div>
+                    <span>Simulate</span>
+                </button>
                 {:else}
-                <Button data={stopButton}></Button>
+                <button class="btn btn-xs btn-primary font-normal justify-start rounded-full" on:click={stopSimulation}>
+                    <div class="flex flex-col text-red-600" style="font-family:'Material Icons'; font-size:16px">
+                        stop
+                    </div>
+                    <span>Stop</span>
+                </button>
                 {/if}
-                <Button data={configureButton}></Button>
+                <button class="btn btn-xs btn-primary font-normal mt-0.5 justify-start rounded-full" on:click={() => showConfigureModal == false ? showConfigureModal = true : showConfigureModal = false}>
+                    <div class="flex flex-col text-secondary" style="font-family:'Material Icons'; font-size:16px">
+                        settings
+                    </div>
+                    <span>Configure</span>
+                </button>
             </div>
             <div class="flex flex-row w-full justify-center mt-auto pt-2">
-                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                <div class="flex flex-row select-none text-base-content" style="font-size:10px;">
                 Simulate
                 </div>
             </div>
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
-        <div class="flex flex-col w-20 pt-1 -space-y-1">
-            <select bind:value={projectSingleton.Accuracy} class="pl-1 mb-auto bg-gray-50 border-2 border-transparent text-gray-900 text-xs rounded-md focus:border-amber-500 focus:outline-none focus:ring-0 disabled:opacity-75" required on:change={() => unsaved = true}> 
+        <div class="flex flex-col w-24 pt-1 -space-y-1">
+            <select bind:value={projectSingleton.Accuracy} class="select select-secondary select-xs w-full max-w-xs disabled:opacity-75 rounded-lg" required on:change={() => unsaved = true}> 
                 <option value=5>Highest</option>
                 <option value=4>High</option>
                 <option value=3>Medium</option>
                 <option value=2>Low</option>
                 <option value=1>Lowest</option>
             </select>
-            <div class="flex flex-row w-full justify-center mt-auto pt-4">
-                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+            <div class="flex flex-row w-full justify-center mt-auto pt-12">
+                <div class="flex flex-row select-none text-base-content" style="font-size:10px;">
                 Accuracy
                 </div>
             </div>
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
-        <div class="flex flex-col w-20 pt-1 -space-y-1">
+        <div class="flex flex-col w-24 pt-1 -space-y-1 items-center">
             <div class="flex flex-col mb-auto">
                 <div class="flex flex-row items-center">
-                    <input bind:checked={parametricEnabled} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0">
-                    <div class="px-2" style="font-size:12px; color:#4d4d4d;">Enabled</div>
+                    <input bind:checked={parametricEnabled} type="checkbox" class="checkbox checkbox-xs checkbox-primary ml-2">
+                    <div class="px-2 text-base-content" style="font-size:12px;">Enabled</div>
                 </div>
-                <div class="flex flex-row">
-                    <Button data={parametricSettingsButton}/>
+                <div class="flex flex-row mt-0.5">
+                    <button class="btn btn-xs btn-primary font-normal rounded-full" on:click={() => showParametricSettingsModal = !showParametricSettingsModal}>
+                        <div class="flex flex-col text-secondary" style="font-family:'Material Icons'; font-size:16px">
+                            tune
+                        </div>
+                        <span>Settings</span>
+                    </button>
                 </div>
             </div>
             <div class="flex flex-row w-full justify-center mt-auto">
-                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                <div class="flex flex-row select-none text-base-content" style="font-size:10px;">
                 Parametric
                 </div>
             </div>
@@ -255,43 +222,49 @@
                 <!-- Checkbox to show axes -->
                 <div class="flex flex-col">
                     <div class="flex flex-row items-center">
-                        <input bind:checked={projectSingleton.Misc.viewport.showAxes} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
-                        <div class="px-2" style="font-size:12px; color:#4d4d4d;">Axes</div>
+                        <input bind:checked={projectSingleton.Misc.viewport.showAxes} type="checkbox" class="checkbox checkbox-xs checkbox-primary" on:change={() => projectSingleton.ForceRefresh()}>
+                        <div class="px-2 text-base-content" style="font-size:12px;">Axes</div>
                     </div>
                 </div>
                 <!-- Checkbox to show origin -->
                 <div class="flex flex-col">
                     <div class="flex flex-row items-center">
-                        <input bind:checked={projectSingleton.Misc.viewport.showOrigin} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
-                        <div class="px-2" style="font-size:12px; color:#4d4d4d;">Origin</div>
+                        <input bind:checked={projectSingleton.Misc.viewport.showOrigin} type="checkbox" class="checkbox checkbox-xs checkbox-primary" on:change={() => projectSingleton.ForceRefresh()}>
+                        <div class="px-2 text-base-content" style="font-size:12px;">Origin</div>
                     </div>
                 </div>
             </div>
             <!-- Checkbox to show grid -->
             <div class="flex flex-row w-full">
                 <div class="flex flex-row items-center">
-                    <input bind:checked={projectSingleton.Misc.viewport.showGrid} type="checkbox" class="w-3 h-3 text-amber-500 bg-gray-100 border-2 border-transparent rounded focus:border-amber-500 focus:outline-none focus:ring-0" on:change={() => projectSingleton.ForceRefresh()}>
-                    <div class="px-2" style="font-size:12px; color:#4d4d4d;">Grid</div>
+                    <input bind:checked={projectSingleton.Misc.viewport.showGrid} type="checkbox" class="checkbox checkbox-xs checkbox-primary" on:change={() => projectSingleton.ForceRefresh()}>
+                    <div class="px-2 text-base-content" style="font-size:12px;">Grid</div>
                 </div>
             </div>
             <!-- 3D View Footer -->
             <div class="flex flex-row w-full justify-center pt-7">
-                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+                <div class="flex flex-row select-none text-base-content" style="font-size:10px">
                 3D View
                 </div>
             </div>
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
         <!-- Presets -->
-        <div class="flex flex-col w-20 pt-1 h-full -space-y-1">
-            <div class="flex flex-col mb-auto">
-                <Button data={materialPresetButton}></Button>
-            </div>
-            <div class="flex flex-col mb-auto">
-                <Button data={probePresetButton}></Button>
-            </div>
-            <div class="flex flex-row w-full justify-center pt-7">
-                <div class="flex flex-row select-none" style="font-size:10px; color:#4d4d4d;">
+        <div class="flex flex-col w-24 pt-1 h-full -space-y-1">
+            <button class="btn btn-xs btn-primary font-normal justify-start mb-1.5 rounded-full" on:click={() => {}} disabled={true}>
+                <div class="flex flex-col text-secondary" style="font-family:'Material Icons'; font-size:16px">
+                    inventory_2
+                </div>
+                <span>Materials</span>
+            </button>
+            <button class="btn btn-xs btn-primary font-normal justify-start rounded-full" on:click={() => showPresetProbesModal = !showPresetProbesModal}>
+                <div class="flex flex-col text-secondary" style="font-family:'Material Icons'; font-size:16px">
+                    settings_remote
+                </div>
+                <span>Probes</span>
+            </button>
+            <div class="flex flex-row w-full justify-center pt-[22px]">
+                <div class="flex flex-row select-none text-base-content" style="font-size:10px;">
                 Presets
                 </div>
             </div>
@@ -300,12 +273,12 @@
     <div class="flex flex-row">
         <!-- Tree view -->
         <div 
-            class="flex flex-col tree-view w-10/12 sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg shadow-lg rounded-lg px-2 mt-2 bg-stone-300 min-w-96 min-w-sm mb-4 opacity-90 hover:opacity-100" 
+            class="flex flex-col tree-view w-10/12 sm:w-9/12 md:w-6/12 xl:w-4/12 2xl:w-3/12 2xl:max-w-lg shadow-lg rounded-lg px-2 mt-2 bg-base-100 min-w-96 min-w-sm mb-4 opacity-90 hover:opacity-100" 
             style="z-index: 4; overflow: auto;"
         >
                 <div class="flex flex-row">
                     <div class="flex flex-col">
-                        <p class="pt-1" style="color:#4d4d4d">Parameterisation {parametricEnabled == true ? "(Parametric)" : "(Non-parametric)"}</p>
+                        <p class="pt-1 text-base-content">Parameterisation {parametricEnabled == true ? "(Parametric)" : "(Non-parametric)"}</p>
                     </div>
                     <div class="flex flex-col ml-auto">
                         {#if treeMinimized}
@@ -345,13 +318,13 @@
     <div class="absolute-bg bg-stone-600 opacity-75"/>
         <div class="absolute-above-center w-6/12 h-6/12">
             <div class="relative w-full h-full md:h-auto">
-                <div class="relative rounded-lg shadow bg-stone-200">
+                <div class="relative rounded-lg shadow bg-base-100">
                     <div class="flex items-start justify-between p-3 rounded-t">
                         <div class="flex flex-col items-start">
-                            <h3 class="flex flex-row text-md font-semibold text-gray-600">
+                            <h3 class="flex flex-row text-md font-semibold text-base-content">
                                 Configuration
                             </h3>
-                            <h1 class="flex flex-row text-xs text-gray-600">
+                            <h1 class="flex flex-row text-xs text-base-content">
                                 Simulation options
                             </h1>
                         </div>
@@ -361,8 +334,8 @@
                     </div>
                     <div class="px-3 mt-2 space-y-2">
                         <div>
-                            <label for="runner_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Kernel version</label>
-                            <select class="bg-gray-50 text-gray-900 text-sm rounded-lg p-2 w-full focus:outline-none focus:ring-0" bind:value={projectSingleton.BinaryPath}>
+                            <label for="runner_path" class="block mb-2 text-sm font-medium text-base-content">Kernel version</label>
+                            <select class="select select-secondary bg-secondary text-neutral select-xs w-full max-w-xs focus:outline-none rounded-lg" bind:value={projectSingleton.BinaryPath}>
                                 <option value="binaries/v6/UTDef6">UTDefect - Version 6</option>
                                 <option value="binaries/light/UTDefectLight">UTDefect - Light</option>
                             </select>
@@ -371,22 +344,36 @@
                     <div class="px-3 py-2 space-y-2">
                         <div class="flex flex-col">
                             <div class="flex flex-col">
-                                <div class="flex flex-row mb-1 text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Run naming scheme</div>
+                                <div class="flex flex-row mb-1 text-sm font-medium text-base-content cursor-default">Run naming scheme</div>
                                 <div class="flex flex-col w-full" id="naming_scheme_group">
                                     <div class="flex flex-row w-full items-center">
-                                        <input id="algo_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={1}>
-                                        <label for="algo_naming" class="ml-2 text-sm font-medium text-gray-900">Algorithmic naming</label>
+                                        <input id="algo_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="radio radio-sm" value={1}>
+                                        <label for="algo_naming" class="ml-2 text-sm font-medium text-base-content">Algorithmic naming</label>
                                     </div>
-                                    <div class="flex flex-row w-full items-center">
-                                        <input id="custom_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" value={2}>
-                                        <label for="custom_naming" class="ml-2 text-sm font-medium text-gray-900">Specified naming</label>
+                                    <div class="flex flex-row w-full items-center pt-0.5">
+                                        <input id="custom_naming" type="radio" bind:group={namingSchemeMethod} name="naming_scheme" class="radio radio-sm" value={2}>
+                                        <label for="custom_naming" class="ml-2 text-sm font-medium text-base-content">Specified naming</label>
                                     </div>
                                     <div class="flex flex-row w-full items-center mt-1">
-                                        <input bind:value={namingSchemeName} disabled={namingSchemeMethod == 2 ? false : true} type="text" id="custom_run_name_textbox" class="bg-stone-300 border-2 text-gray-900 text-sm rounded-lg 0 block w-full p-2.5 focus:border-amber-500 focus:outline-none focus:ring-0" placeholder="My_Custom_Run" required>
+                                        <input bind:value={namingSchemeName} disabled={namingSchemeMethod == 2 ? false : true} type="text" id="custom_run_name_textbox" class="input input-sm bg-secondary focus:outline-none text-neutral" required>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="flex flex-row px-3 pt-6 pb-3">
+                        <button class="btn btn-primary btn-sm font-normal rounded-lg" on:click={() => {showConfigureModal = !showConfigureModal}}>
+                            <div class="flex flex-col text-secondary" style="font-family:'Material Icons'; font-size:16px">
+                                cancel
+                            </div>
+                            <span class="flex flex-col text-base-content">Cancel</span>
+                        </button>
+                        <button class="btn btn-primary btn-sm font-normal rounded-lg ml-auto" on:click={() => {showConfigureModal = !showConfigureModal}}>
+                            <div class="flex flex-col text-secondary" style="font-family:'Material Icons'; font-size:16px">
+                                save
+                            </div>
+                            <span class="flex flex-col text-base-content">Save</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -431,27 +418,12 @@
   }
   .tree-view
   {
-    max-height: calc(100vh - 410px);
+    max-height: calc(100vh - 425px);
   }
   .quickbar {
     max-height: calc(100vh - 410px);
   }
   .line-vert {
     border-left: 1px solid #7f7f7f;
-  }
-  ::-webkit-scrollbar {
-    width: 14px;
-    height: 14px;
-  }
-  ::-webkit-scrollbar-track {
-      background: rgb(168, 162, 158);
-      border-radius: 10px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #4d4d4d;
-    border-radius: 10px;
-  }
-  ::-webkit-scrollbar-corner { 
-    background: rgba(0,0,0,0.0); 
   }
 </style>

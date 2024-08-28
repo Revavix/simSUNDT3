@@ -2,15 +2,13 @@
     import "@fontsource/fira-mono/500.css";
     import Plotly, { type Datum } from 'plotly.js-dist-min'
     import Button from '../components/Button.svelte'
-    import { CalculationMode, DistanceMode } from '../lib/models/SoundYAxisMode'
-    import CompressionalWave from './icons/CompressionalWave.svelte';
-    import ShearWave from './icons/ShearWave.svelte';
-    import Tooltip from './Tooltip.svelte';
+    import { CalculationMode, DistanceMode, DistancePath } from '../lib/models/SoundYAxisMode'
     import type { Metadata } from "../lib/models/Result";
     import TooltipMultiline from "./TooltipMultiline.svelte";
     
     export let calculationMode: CalculationMode | undefined = undefined
     export let distanceMode: DistanceMode | undefined = undefined
+    export let pathMode: DistancePath | undefined = undefined
     export let plot: Promise<object>
     export let metadata: Metadata | null = null
 
@@ -138,7 +136,53 @@
     }
 </script>
 
-<div class="flex flex-row w-full">
+<div class="flex flex-row w-full items-center">
+    {#if calculationMode !== undefined || distanceMode !== undefined}
+    <details class="dropdown dropdown-end">
+        <summary class="btn btn-xs text-xs rounded-full w-20 btn-primary">
+            <div class="flex flex-col font-normal">
+                Wave
+            </div>
+            <div class="flex flex-col font-normal" style="font-family:'Material Icons'; font-size:20px;">
+                arrow_drop_down
+            </div>
+        </summary>
+        <ul class="menu dropdown-content bg-secondary rounded-box w-60 p-2 mt-1 shadow z-[99]">
+            <li>
+                <div class="form-control flex">
+                    <label class="label cursor-pointer flex flex-row w-full text-xs">
+                        <span class="mr-auto text-neutral">Calculate using distance</span>
+                        <input type="checkbox" class="toggle toggle-primary self-center rounded-full" checked={calculationMode === CalculationMode.Distance} 
+                            on:change={(event) => calculationMode = event.currentTarget.checked ? CalculationMode.Distance : CalculationMode.Time}
+                        />
+                    </label>
+                </div>
+            </li>
+            <li>
+                <div class="form-control flex">
+                    <label class="label {calculationMode !== CalculationMode.Distance ? 'cursor-not-allowed' : 'cursor-pointer'} flex flex-row w-full text-xs">
+                        <span class="mr-auto {calculationMode !== CalculationMode.Distance ? 'opacity-70' : 'opacity-100'} text-neutral">Calculate distance using shear wave</span>
+                        <input type="checkbox" class="toggle toggle-primary self-center rounded-full" checked={distanceMode === DistanceMode.Shear} 
+                            disabled={calculationMode !== CalculationMode.Distance}
+                            on:change={(event) => distanceMode = event.currentTarget.checked ? DistanceMode.Shear : DistanceMode.Compressional}
+                        />
+                    </label>
+                </div>
+            </li>
+            <li>
+                <div class="form-control flex">
+                    <label class="label {calculationMode !== CalculationMode.Distance ? 'cursor-not-allowed' : 'cursor-pointer'} flex flex-row w-full text-xs">
+                        <span class="mr-auto {calculationMode !== CalculationMode.Distance ? 'opacity-70' : 'opacity-100'} text-neutral">Measure true depth</span>
+                        <input type="checkbox" class="toggle toggle-primary self-center rounded-full" checked={pathMode === DistancePath.True} 
+                            disabled={calculationMode !== CalculationMode.Distance}
+                            on:change={(event) => pathMode = event.currentTarget.checked ? DistancePath.True : DistancePath.Soundpath}
+                        />
+                    </label>
+                </div>
+            </li>
+          </ul>
+    </details>
+    {/if}
     {#if metadata !== null}
     <div class="flex flex-col px-0.5 items-center" style="color:#4d4d4d; font-size: 12px; cursor: pointer">
         <TooltipMultiline labels={[
@@ -150,38 +194,6 @@
             </div>
         </TooltipMultiline>
     </div>
-    {/if}
-    {#if calculationMode !== undefined && distanceMode !== undefined}
-        {#if distanceMode === DistanceMode.Shear}
-        <div class="flex flex-col w-full mx-0.5">
-            <button style="color:#4d4d4d; font-size: 12px" on:click={() => { distanceMode = DistanceMode.Compressional}} disabled={calculationMode === CalculationMode.Time}>
-                <Tooltip label="Calculating distance using shear wave" disabled={calculationMode === CalculationMode.Time}>
-                    <ShearWave opacity={calculationMode === CalculationMode.Time ? 0.5 : 1.0}/>
-                </Tooltip>
-            </button>
-        </div>
-        {:else if distanceMode === DistanceMode.Compressional}
-        <div class="flex flex-col w-full mx-0.5">
-            <button style="color:#4d4d4d; font-size: 12px" on:click={() => { distanceMode = DistanceMode.Shear}} disabled={calculationMode === CalculationMode.Time}>
-                <Tooltip label="Calculating distance using compressional wave" disabled={calculationMode === CalculationMode.Time}>
-                    <CompressionalWave opacity={calculationMode === CalculationMode.Time ? 0.5 : 1.0}/>
-                </Tooltip>
-            </button>
-        </div>
-        {/if}
-        {#if calculationMode === CalculationMode.Distance}
-        <div class="flex flex-col w-full mx-0.5">
-            <button style="color:#4d4d4d; font-size: 14px; font-family: Fira Mono; font-weight: 500" on:click={() => { calculationMode = CalculationMode.Time}}>
-                mm
-            </button>
-        </div>
-        {:else if calculationMode === CalculationMode.Time}
-        <div class="flex flex-col w-full mx-0.5">
-            <button style="color:#4d4d4d; font-size: 14px; font-family: Fira Mono; font-weight: 500" on:click={() => { calculationMode = CalculationMode.Distance}}>
-                μs
-            </button>
-        </div>
-        {/if}
     {/if}
     {#if plotDiv?._fullLayout?.dragmode == "zoom"}
     <div class="flex flex-col w-full mx-0.5">

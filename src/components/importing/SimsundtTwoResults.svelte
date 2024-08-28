@@ -3,10 +3,9 @@
     import { DOCUMENT_DIR, SIMSUNDT_SIMULATION_FOLDER } from "../../lib/models/PresetPaths";
     import type { Button as IButton } from "../../lib/models/Button";
     import Button from "../Button.svelte";
-    import { copyFile, createDir, readBinaryFile } from "@tauri-apps/api/fs";
+    import { copyFile, createDir } from "@tauri-apps/api/fs";
     import { ProjectSingleton } from "../../lib/data/ProjectSingleton";
     import { invoke } from "@tauri-apps/api/tauri";
-    import { Path } from "three";
     import { onMount } from "svelte";
 
     export let parentModalIsOpen: boolean

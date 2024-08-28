@@ -146,73 +146,73 @@
     <div class="flex flex-col w-full h-full mt-24 items-center">
         <div class="grid grid-cols-2 md:grid-cols-3 w-9/12 md:w-8/12 lg:w-6/12 gap-1 auto-cols-max">
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" on:click={(e) => createNewProject()}>
-                    <div class="flex flex-col icon-simsundt-file">
+                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => createNewProject()}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         add
                     </div>
-                    <h5 class="text-xl font-bold tracking-tight text-simsundt-gray mt-5">New</h5>
+                    <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">New</h5>
                 </a>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" on:click={(e) => handleOpenLoadModal()}>
-                    <div class="flex flex-col icon-simsundt-file">
+                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenLoadModal()}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         refresh
                     </div>
-                    <h5 class="text-xl font-bold tracking-tight text-simsundt-gray mt-5">Load</h5>
+                    <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Load</h5>
                 </a>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" on:click={(e) => handleOpenImportModal()}>
-                    <div class="flex flex-col icon-simsundt-file">
+                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenImportModal()}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         download
                     </div>
-                    <h5 class="text-xl font-bold tracking-tight text-simsundt-gray mt-5">Import</h5>
+                    <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Import</h5>
                 </a>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" on:click={(e) => handleOpenExportModal()}>
-                    <div class="flex flex-col icon-simsundt-file">
+                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenExportModal()}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         upload
                     </div>
-                    <h5 class="text-xl font-bold tracking-tight text-simsundt-gray mt-5">Export</h5>
+                    <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Export</h5>
                 </a>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" on:click={(e) => handleSave()}>
-                    <div class="flex flex-col icon-simsundt-file">
+                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleSave()}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         save
                     </div>
-                    <h5 class="text-xl font-bold tracking-tight text-simsundt-gray mt-5">Save</h5>
+                    <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Save</h5>
                 </a>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-stone-300 border border-gray-500 rounded-lg shadow-md hover:bg-gray-100 text-center" on:click={(e) => handleOpenSaveModal()}>
-                    <div class="flex flex-col icon-simsundt-file">
+                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenSaveModal()}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         save_as
                     </div>
-                    <h5 class="text-xl font-bold tracking-tight text-simsundt-gray mt-5">Save As</h5>
+                    <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Save As</h5>
                 </a>
             </div>
         </div>
         <div class="flex flex-row w-9/12 md:w-8/12 lg:w-6/12 mx-auto mt-4">
             <div class="flex flex-col w-full">
-                <div class="flex flex-row">
+                <div class="flex flex-row text-gray-300">
                     Latest projects
                 </div>
                 <div class="flex flex-row border-2 rounded-lg w-full"/>
                 <div class="flex flex-col w-full latest-projects pr-1 mt-1"  style="overflow: auto">
                     {#each cacheSingleton.projects.sort((a, b) => { return a.date > b.date ? -1 : 1 }).slice(0,6) as project}
-                    <div class="flex flex-row rounded-md shadow-md w-full bg-stone-300 py-2 my-1 hover:bg-gray-100" transition:slide|local> 
+                    <div class="flex flex-row rounded-md shadow-md w-full bg-base-100 py-2 my-1 hover:bg-primary" transition:slide|local> 
                         <a href="#" class="flex flex-row w-full items-center" on:click={(e) => handleLoadByName(project)}>
                             <div class="flex flex-col ml-2">
-                                <p class="font-lg text-simsundt-gray">{project.name}</p>
-                                <p class="font-lg text-sm text-simsundt-gray">{new Date(project.date).toLocaleString()}</p>
+                                <p class="font-lg text-base-content">{project.name}</p>
+                                <p class="font-lg text-sm text-base-content">{new Date(project.date).toLocaleString()}</p>
                             </div>
                             <!-- Stylized badge indicator of how many simulations results are in the project -->
                             <div class="flex flex-col ml-auto mr-2">
-                                <div class="flex flex-col rounded-full bg-yellow-600 w-6 h-6 items-center justify-center">
+                                <div class="flex flex-col badge bg-accent rounded-xl outline-none">
                                     <Tooltip label="Number of results in project" class="text-xs text-white"> 
-                                        <p class="text-xs">
+                                        <p class="text-xs text-base-content">
                                             {#if project.results !== undefined}
                                                 {project.results}
                                             {:else}
@@ -248,27 +248,8 @@
         background-position: center;
         z-index: -2;
     }
-    .icon-simsundt-file {
-        font-family:'Material Icons'; 
-        font-size:48px; 
-        color:#4d4d4d
-    }
-    .text-simsundt-gray {
-        color:#4d4d4d;
-    }
     .latest-projects {
         min-height: 100px;
         max-height: calc(100vh - 545px);
-    }
-    ::-webkit-scrollbar {
-        width: 14px;
-    }
-    ::-webkit-scrollbar-track {
-        background: #4d4d4d;
-        border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: rgb(214, 211, 209); 
-        border-radius: 10px;
     }
 </style>

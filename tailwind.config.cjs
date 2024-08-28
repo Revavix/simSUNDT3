@@ -4,5 +4,26 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('daisyui'),
+  ],
+  daisyui: {
+    themes: [
+      {
+        simsundt: {
+          "primary": "#f59e0b",
+          "secondary": "#44403c", // d6d3d1 #292524
+          "accent": "#0891b2", 
+          "neutral": "#d6d3d1", 
+          "base-100": "#d6d3d1",
+          "info": "#0000ff",
+          "success": "#22c55e",
+          "warning": "#ef4444",
+          "error": "#ef4444",
+        },
+      },
+      "corporate",
+      "business"
+    ]
+  },
 }

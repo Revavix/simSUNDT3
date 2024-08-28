@@ -31,3 +31,6 @@ export const activeTab: Writable<string> = writable("File")
 // 3D related stores
 export const cameraPosition: Writable<[x: number, y: number, z: number]> = writable([12, 12, 12])
 export const cameraRotation: Writable<Euler> = writable(new Euler(0, 0, 0, "XYZ"))
+
+// Theme store
+export const theme: Writable<string> = writable("light")
