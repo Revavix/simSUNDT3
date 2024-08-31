@@ -19,9 +19,11 @@
                     <h3 class="flex flex-row text-md font-semibold text-base-content">
                         {label}
                     </h3>
+                    {#if description}
                     <h1 class="flex flex-row text-xs text-base-content">
                         {description}
                     </h1>
+                    {/if}
                 </div>
                 <div class="bg-transparent rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
                     <Button data={{icon: "close", color: "#807a7a", action:  () => {isOpen = false}}}/>

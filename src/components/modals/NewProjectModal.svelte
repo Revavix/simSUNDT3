@@ -71,35 +71,48 @@
 <Modal bind:isOpen={isOpen} label="New project" description={"Creates a new project"} width={width < 1340 ? 6 : 4 } height={height < 900 ? 6 : 4}>
     <!-- Project name -->
     <div class="flex flex-row w-full">
-        <div class="flex flex-col ml-3 pb-3 w-full">
-            <label for="new_project_name" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Project name</label>
-            <input id="new_project_name" class="w-full bg-gray-50 border-2 border-transparent text-gray-900 text-sm rounded-lg focus:outline-none focus:ring-0 disabled:opacity-75"
-                bind:value={name}/>
+        <div class="flex flex-col ml-3 mr-3 pb-3 w-full">
+            <label for="new_project_name" class="block text-sm font-medium text-base-color">Project name</label>
+            <input id="new_project_name" class="input input-secondary input-sm rounded-lg" bind:value={name}/>
         </div>
     </div>
     <!-- Save location -->
     <div class="flex flex-row w-full pb-1">
         <div class="flex flex-col w-full mx-3">
-            <label for="new_project_location" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Save location</label>
+            <label for="new_project_location" class="block text-sm font-medium text-base-color">Save location</label>
             <div class="flex flex-row w-full items-center justify-center">
                 <div class="flex flex-col w-full">
-                    <input id="new_project_location" class="w-full bg-gray-50 border-2 border-transparent text-gray-900 text-sm rounded-lg {pathError == true ? 'outline outline-red-400' : ''} focus:outline-none focus:ring-0 disabled:opacity-75"
+                    <input id="new_project_location" class="input input-secondary input-sm rounded-lg {pathError == true ? 'outline outline-red-400' : ''}"
                         bind:value={directory} on:input={() => pathError = false}/>
                 </div>
                 <div class="flex flex-col pl-3">
-                    <Button data={{ color: "#4d4d4d", icon: "folder_open", action: handleOpenSaveLocation }}/>
+                    <button class="btn btn-sm btn-primary w-8 rounded-lg" on:click={handleOpenSaveLocation}>
+                        <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
+                            folder_open
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Cancel/create -->
-    <div class="flex flex-row w-full p-3">
-        <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 mr-auto">
-            <Button data={cancelButton}/>
+    <div class="flex flex-row w-full pt-2 px-2 pb-1">
+        <div class="flex flex-col rounded py-1 mr-auto">
+            <button class="btn btn-sm btn-secondary rounded-lg" on:click={cancelButton.action}>
+                <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
+                    close
+                </div>
+                <span class="flex flex-col text-xs">Cancel</span>
+            </button>
         </div>
-        <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 ml-auto">
-            <Button data={createButton}/>
+        <div class="flex flex-col rounded ml-auto">
+            <button class="btn btn-sm btn-primary rounded-lg" on:click={createButton.action}>
+                <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
+                    input
+                </div>
+                <span class="flex flex-col text-xs">Create</span>
+            </button>
         </div>
     </div>
 </Modal>

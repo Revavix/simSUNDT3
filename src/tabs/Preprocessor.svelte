@@ -180,7 +180,7 @@
         </div>
         <div class="flex flex-col line-vert my-2 mx-2"/>
         <div class="flex flex-col w-24 pt-1 -space-y-1">
-            <select bind:value={projectSingleton.Accuracy} class="select select-secondary select-xs w-full max-w-xs disabled:opacity-75 rounded-lg" required on:change={() => unsaved = true}> 
+            <select bind:value={projectSingleton.Accuracy} class="select select-secondary select-xs w-full max-w-xs disabled:opacity-75 rounded-lg" required on:change={() => projectSingleton.ForceRefresh()}> 
                 <option value=5>Highest</option>
                 <option value=4>High</option>
                 <option value=3>Medium</option>
@@ -335,7 +335,7 @@
                     <div class="px-3 mt-2 space-y-2">
                         <div>
                             <label for="runner_path" class="block mb-2 text-sm font-medium text-base-content">Kernel version</label>
-                            <select class="select select-secondary bg-secondary text-neutral select-xs w-full max-w-xs focus:outline-none rounded-lg" bind:value={projectSingleton.BinaryPath}>
+                            <select class="select select-secondary bg-secondary text-neutral select-xs w-full max-w-xs focus:outline-none rounded-lg" bind:value={projectSingleton.BinaryPath} on:change={() => projectSingleton.ForceRefresh()}>
                                 <option value="binaries/v6/UTDef6">UTDefect - Version 6</option>
                                 <option value="binaries/light/UTDefectLight">UTDefect - Light</option>
                             </select>
@@ -381,7 +381,7 @@
     {/if}
 
     <!-- Modals -->
-    <ParametricSettings bind:isModalOpen={showParametricSettingsModal} bind:numProcesses={projectSingleton.ProcessCount}/>
+    <ParametricSettings bind:isModalOpen={showParametricSettingsModal}/>
     <PresetProbesModal bind:isOpen={showPresetProbesModal}/>
 </div>
 
