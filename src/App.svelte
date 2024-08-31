@@ -27,11 +27,9 @@
     import { activeTab, theme } from "./lib/data/Stores";
     import Tooltip from "./components/Tooltip.svelte";
     import { getVersion } from "@tauri-apps/api/app";
-    import Spinner from "./components/Spinner.svelte";
     import { open } from "@tauri-apps/api/shell";
     import Modal from "./components/Modal.svelte";
     import { SIMSUNDT_PROJECT_FOLDER } from "./lib/models/PresetPaths";
-    import app from "./main";
     
     let tabs = [
         {
