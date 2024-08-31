@@ -1,8 +1,14 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+    import { ProjectSingleton } from "../lib/data/ProjectSingleton";
     import Button from "./Button.svelte";
 
-    export let numProcesses: any
     export let isModalOpen: boolean
+    let projectSingleton: ProjectSingleton
+
+    onMount(() => {
+        projectSingleton = ProjectSingleton.GetInstance()
+    })
     
     let closeButton = {
         label: "",
@@ -38,10 +44,10 @@
                     </div>
                     <div class="flex flex-row w-full" id="num_processes">
                         <div class="flex flex-col w-11">
-                            <input bind:value={numProcesses} type="text" class="input input-sm text-sm bg-secondary rounded-xl text-center text-neutral" required/>
+                            <input bind:value={projectSingleton.ProcessCount} type="text" class="input input-sm text-sm bg-secondary rounded-xl text-center text-neutral" required on:change={() => ProjectSingleton.GetInstance().ForceRefresh()}/>
                         </div>
                         <div class="flex flex-col w-11/12 px-2">
-                            <input bind:value={numProcesses} min=1 max=16 type="range" class="range range-sm rounded-lg" required/>
+                            <input bind:value={projectSingleton.ProcessCount} min=1 max=16 type="range" class="range range-sm rounded-lg" required on:change={() => ProjectSingleton.GetInstance().ForceRefresh()}/>
                             <div class="flex flex-row w-full justify-between pt-1 px-2 text-xs text-base-content">
                                 {#each Array.from({length: 16}, (_, i) => i + 1) as n}
                                 <span>|</span>

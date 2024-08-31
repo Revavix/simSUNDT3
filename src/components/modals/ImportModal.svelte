@@ -34,14 +34,14 @@
 <Modal bind:isOpen={isOpen} label="Import" description={"Import projects, results or preprocessor data"} width={width < 1340 ? 6 : 4 } height={height < 900 ? 6 : 4}>
     <div class="flex flex-row w-full">
         <div class="flex flex-col ml-3 pb-3 w-8/12">
-            <label for="import_version" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Software origin</label>
-            <select id="import_version" class="bg-gray-50 border-2 border-transparent text-gray-900 text-sm rounded-md focus:border-amber-500 focus:outline-none focus:ring-0 disabled:opacity-75" bind:value={importVariant}>
+            <label for="import_version" class="block text-sm font-medium text-base-color">Software origin</label>
+            <select id="import_version" class="select select-sm select-secondary rounded-lg" bind:value={importVariant}>
                 <option value={ImportVariant.SIMSUNDT_V2}>SimSUNDT - Version 2</option>
             </select>
         </div>
         <div class="flex flex-col pl-3 mr-3 pb-3 w-4/12">
-            <label for="import_type" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Type</label>
-            <select id="import_type" class="bg-gray-50 border-2 border-transparent text-gray-900 text-sm rounded-md focus:border-amber-500 focus:outline-none focus:ring-0 disabled:opacity-75" bind:value={importType}>
+            <label for="import_type" class="block text-sm font-medium text-base-color">Type</label>
+            <select id="import_type" class="select select-sm select-secondary rounded-lg" bind:value={importType}>
                 <option value={ImportType.RESULTS}>Result</option>
             </select>
         </div>
@@ -50,11 +50,21 @@
     <SimsundtTwoResults bind:parentModalIsOpen={isOpen} bind:parentCancelButton={cancelButton} bind:parentSubmitButton={submitButton}/>
     {/if}
     <div class="flex flex-row w-full p-3">
-        <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 mr-auto">
-            <Button data={cancelButton}/>
+        <div class="flex flex-col rounded px-2 py-1 mr-auto">
+            <button class="btn btn-sm btn-secondary rounded-lg" on:click={cancelButton.action}>
+                <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
+                    close
+                </div>
+                <span class="flex flex-col text-xs">Cancel</span>
+            </button>
         </div>
         <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 ml-auto">
-            <Button data={submitButton}/>
+            <button class="btn btn-sm btn-primary rounded-lg" on:click={submitButton.action}>
+                <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
+                    input
+                </div>
+                <span class="flex flex-col text-xs">Submit</span>
+            </button>
         </div>
     </div>
 </Modal>

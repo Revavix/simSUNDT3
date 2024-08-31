@@ -185,14 +185,17 @@
 
 <div class="flex flex-row w-full pb-1">
     <div class="flex flex-col w-full mx-3">
-        <label for="s2results_metadata_file" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Metadata file (utIndefa.txt)</label>
+        <label for="s2results_metadata_file" class="block text-sm font-medium text-base-color">Metadata file (utIndefa.txt)</label>
         <div class="flex flex-row w-full items-center justify-center">
             <div class="flex flex-col w-full">
-                <input bind:value={metadataPath} id="s2results_metadata_file" class="w-full bg-gray-50 border-2 {getBorderStyle(metadataHasError, metadataPath)}
-                    text-gray-900 text-sm rounded-lg focus:outline-none focus:ring-0 disabled:opacity-75" on:input={handleMetadataChange}/>
+                <input bind:value={metadataPath} id="s2results_metadata_file" class="input input-sm input-secondary rounded-lg {getBorderStyle(metadataHasError, metadataPath)}" on:input={handleMetadataChange}/>
             </div>
             <div class="flex flex-col pl-3">
-                <Button data={{ color: "#4d4d4d", icon: "folder_open", action: handleOpenMetadata }}/>
+                <button class="btn btn-sm btn-primary w-8 rounded-lg" on:click={handleOpenMetadata}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
+                        folder_open
+                    </div>
+                </button>
             </div>
         </div>
         {#if metadataHasError} 
@@ -202,14 +205,17 @@
 </div>
 <div class="flex flex-row w-full pb-1">
     <div class="flex flex-col w-full mx-3">
-        <label for="s2results_cscan_file" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">C data file (utIndefa-C.dat)</label>
+        <label for="s2results_cscan_file" class="block text-sm font-medium text-base-color">C data file (utIndefa-C.dat)</label>
         <div class="flex flex-row w-full items-center justify-center">
             <div class="flex flex-col w-full">
-                <input bind:value={cpath} id="s2results_cscan_file" class="w-full bg-gray-50 border-2 {getBorderStyle(topviewHasError, cpath)}
-                text-gray-900 text-sm rounded-lg focus:outline-none focus:ring-0 disabled:opacity-75" on:input={handleTopviewDataChange}/>
+                <input bind:value={cpath} id="s2results_cscan_file" class="input input-sm input-secondary rounded-lg {getBorderStyle(topviewHasError, cpath)}" on:input={handleTopviewDataChange}/>
             </div>
             <div class="flex flex-col pl-3">
-                <Button data={{ color: "#4d4d4d", icon: "folder_open", action: handleOpenCData }}/>
+                <button class="btn btn-sm btn-primary w-8 rounded-lg" on:click={handleOpenCData}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
+                        folder_open
+                    </div>
+                </button>
             </div>
         </div>
         {#if topviewHasError} 
@@ -219,14 +225,17 @@
 </div>
 <div class="flex flex-row w-full pb-3">
     <div class="flex flex-col w-full mx-3">
-        <label for="s2results_ascan_file" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">A data file (utIndefa-A.dat)</label>
+        <label for="s2results_ascan_file" class="block text-sm font-medium text-base-color">A data file (utIndefa-A.dat)</label>
         <div class="flex flex-row w-full items-center justify-center">
             <div class="flex flex-col w-full">
-                <input bind:value={apath} id="s2results_ascan_file" class="w-full bg-gray-50 border-2 {getBorderStyle(pointviewHasError, apath)}
-                text-gray-900 text-sm rounded-lg focus:outline-none focus:ring-0 disabled:opacity-75" on:input={handlePointDataChange}/>
+                <input bind:value={apath} id="s2results_ascan_file" class="input input-sm input-secondary rounded-lg {getBorderStyle(pointviewHasError, apath)}" on:input={handlePointDataChange}/>
             </div>
             <div class="flex flex-col pl-3">
-                <Button data={{ color: "#4d4d4d", icon: "folder_open", action: handleOpenAData }}/>
+                <button class="btn btn-sm btn-primary w-8 rounded-lg" on:click={handleOpenAData}>
+                    <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
+                        folder_open
+                    </div>
+                </button>
             </div>
         </div>
         {#if pointviewHasError} 
@@ -236,7 +245,7 @@
 </div>
 <div class="flex flex-row w-full pb-3">
     <div class="flex flex-col w-full mx-3">
-        <label for="s2results_import_name" class="block text-sm font-medium text-gray-900 dark:text-white" style="color:#4d4d4d;">Import name</label>
-        <input bind:value={name} id="s2results_import_name" class="w-full bg-gray-50 border-2 border-transparent text-gray-900 text-sm rounded-lg focus:border-amber-500 focus:outline-none focus:ring-0 disabled:opacity-75"/>
+        <label for="s2results_import_name" class="block text-sm font-medium text-base-color">Import name</label>
+        <input bind:value={name} id="s2results_import_name" class="input input-sm input-secondary rounded-lg"/>
     </div>
 </div>

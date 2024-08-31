@@ -21,13 +21,15 @@
     // Tauri Interactions
     import { platform } from '@tauri-apps/api/os';
     import { appWindow } from "@tauri-apps/api/window"
+    import { save } from '@tauri-apps/api/dialog';
     import { exists, createDir, BaseDirectory } from '@tauri-apps/api/fs';
     import type { Runner } from "./lib/models/Kernel";
     import { activeTab, theme } from "./lib/data/Stores";
     import Tooltip from "./components/Tooltip.svelte";
     import { getVersion } from "@tauri-apps/api/app";
-    import Spinner from "./components/Spinner.svelte";
     import { open } from "@tauri-apps/api/shell";
+    import Modal from "./components/Modal.svelte";
+    import { SIMSUNDT_PROJECT_FOLDER } from "./lib/models/PresetPaths";
     
     let tabs = [
         {
@@ -60,6 +62,8 @@
 
     let loadedProjectName: string = ""
     let kernelRunner: Runner = new UTDefectV3Runner(4)
+
+    let exitModalOpen = false
 
     let version = '3'
     let remoteVersion = '3'
@@ -114,7 +118,13 @@
     const closeButton = {
         color: "#d6d3d1",
         icon: "close",
-        action: () => { appWindow.close() },
+        action: () => { 
+            if (unsaved) { 
+                exitModalOpen = true 
+            } else { 
+                appWindow.close() 
+            } 
+        },
         disabled: false
     }
 
@@ -129,6 +139,12 @@
         loadedProjectName = v.name
         // Refresh hack to force re-render
         tabs = [...tabs]
+        
+        if (ProjectSingleton.GetInstance().IsChanged()) {
+            unsaved = true
+        } else {
+            unsaved = false
+        }
     })
 </script>
 
@@ -182,8 +198,8 @@
             </div>
         </div>
         <!-- Absolute positioned project title -->
-        <div data-tauri-drag-region class="text-xs text-gray-300 cursor-default select-none mt-2" style="position: fixed; left: 50%; transform: translate(-50%, 0%); z-index: 50;">
-            {ProjectSingleton.GetInstance().IsValid() ? loadedProjectName : 'No active project'}
+        <div data-tauri-drag-region class="text-xs text-gray-300 cursor-default select-none mt-2" style="position: fixed; left: 50%; transform: translate(-50%, 0%); z-index: 98;">
+            {ProjectSingleton.GetInstance().IsValid() ? loadedProjectName + (unsaved == false ? '' : ' *') : 'No active project'}
         </div>
         <!-- Absolute positioned min/max/close bar -->
         <div class="flex flex-col absolute" style="right: 0; z-index: 99;">
@@ -272,6 +288,40 @@
         </div>
         {/each}
     </div>
+
+    <!-- Exit verification modal -->
+    <Modal bind:isOpen={exitModalOpen}
+        label={"Save changes before closing?"}
+        width={4}
+        >
+        <div class="flex flex-row p-2">
+            <button class="btn btn-secondary btn-sm rounded-lg flex flex-col" on:click={() => { exitModalOpen = false }}>Cancel</button>
+            <button class="btn btn-secondary btn-sm rounded-lg flex flex-col ml-auto" on:click={() => { appWindow.close() }}>No</button>
+            <button class="btn btn-primary btn-sm rounded-lg flex flex-col ml-1" on:click={() => {
+                let path = ProjectSingleton.GetInstance().Path
+
+                if (path === null) {
+                    save({
+                        filters: [{
+                            name: 'Project',
+                            extensions: ['ssproj']
+                        }],
+                        defaultPath: SIMSUNDT_PROJECT_FOLDER
+                    }).then((result) => {
+                        if (result !== null) {
+                            ProjectSingleton.GetInstance().Save(result).then(() => {
+                                appWindow.close()
+                            })
+                        }
+                    })
+                } else {
+                    ProjectSingleton.GetInstance().Save(path).then(() => {
+                        appWindow.close()
+                    })
+                }
+            }}>Yes</button>
+        </div>
+    </Modal> 
 </main>
 
 <style>

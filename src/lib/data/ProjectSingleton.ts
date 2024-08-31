@@ -2,11 +2,15 @@ import { basename, extname } from "@tauri-apps/api/path"
 import type { Project } from "../models/Project"
 import { createDir, exists, readTextFile, writeFile } from "@tauri-apps/api/fs"
 import { writable, type Subscriber, type Writable } from "svelte/store"
-import Root from "../tree/Root"
 import TreeNode from "../models/tree/TreeNode"
 import { Deserialize, New as NewTree, Serialize } from "../tree/Utils"
+import lodash from "lodash"
+import { TreeInput } from "../models/tree/TreeInput"
+import { TreeCheckbox } from "../models/tree/TreeCheckbox"
+import { TreeDropdown } from "../models/tree/TreeDropdown"
 
 export class ProjectSingleton {
+    private _lastLoaded: Project
     private _active: Project
     private _store: Writable<Project>
     private static _instance: ProjectSingleton
@@ -35,24 +39,8 @@ export class ProjectSingleton {
                 postprocessor: []
             }
         }
+        this._lastLoaded = lodash.cloneDeep(this._active)
         this._store = writable(this._active)
-    }
-
-    public static GetInstance(): ProjectSingleton {
-        if (!ProjectSingleton._instance) ProjectSingleton._instance = new ProjectSingleton()
-        return ProjectSingleton._instance
-    }
-
-    public ForceRefresh() {
-        return this._store.set(this._active)
-    }
-
-    public Subscribe(fnc: Subscriber<Project>) {
-        return this._store.subscribe(fnc)
-    }
-
-    public IsValid(): boolean {
-        return this._active.path !== null
     }
 
     public async New(): Promise<void> {
@@ -108,6 +96,7 @@ export class ProjectSingleton {
             this._active.path = path
             this._active.name = await basename(path, ".ssproj")
             this._store.set(this._active)
+            this._lastLoaded = lodash.cloneDeep(this._active)
         })
     }
 
@@ -136,7 +125,41 @@ export class ProjectSingleton {
             element.timestamp = new Date(element.timestamp)
         })
 
+        this._lastLoaded = lodash.cloneDeep(this._active)
+
         return Promise.resolve()
+    }
+
+    public static GetInstance(): ProjectSingleton {
+        if (!ProjectSingleton._instance) ProjectSingleton._instance = new ProjectSingleton()
+        return ProjectSingleton._instance
+    }
+
+    public ForceRefresh() {
+        return this._store.set(this._active)
+    }
+
+    public Subscribe(fnc: Subscriber<Project>) {
+        return this._store.subscribe(fnc)
+    }
+
+    public IsValid(): boolean {
+        return this._active.path !== null
+    }
+
+    public IsChanged(): boolean {
+        // Null check preprocessor and postprocessor
+        if (this._lastLoaded.data.preprocessor === null || this._active.data.postprocessor === null) {
+            return false
+        }
+
+        let isTreeChanged = !lodash.isEqual(Serialize(this._lastLoaded.data.preprocessor?.tree as TreeNode), Serialize(this._active.data.preprocessor?.tree as TreeNode))
+        let isMiscChanged = !lodash.isEqual(this._lastLoaded.data.preprocessor?.misc, this._active.data.preprocessor?.misc)
+        let isPostChanged = !lodash.isEqual(this._lastLoaded.data.postprocessor, this._active.data.postprocessor)
+
+        console.log(isTreeChanged, isMiscChanged, isPostChanged)
+
+        return isTreeChanged || isMiscChanged || isPostChanged
     }
 
     public async ImportTree(tree: TreeNode) {
