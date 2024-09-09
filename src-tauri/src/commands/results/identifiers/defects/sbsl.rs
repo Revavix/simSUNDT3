@@ -1,33 +1,33 @@
 use crate::commands::results::interfaces;
 
-fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sbsl) = &mut metadata.defect.surface_breaking_strip_like_crack {
-        sbsl.position.x = data[0];
-        sbsl.position.y = data[1];
+        sbsl.position.x = data[0].parse::<f64>().unwrap();
+        sbsl.position.y = data[1].parse::<f64>().unwrap();
     };
 }
 
-fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sbsl) = &mut metadata.defect.surface_breaking_strip_like_crack {
-        sbsl.depth = data[0];
+        sbsl.depth = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_width(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_width(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sbsl) = &mut metadata.defect.surface_breaking_strip_like_crack {
-        sbsl.width = data[0];
+        sbsl.width = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_vertical_tilt(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_vertical_tilt(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sbsl) = &mut metadata.defect.surface_breaking_strip_like_crack {
-        sbsl.vertical_tilt = data[0];
+        sbsl.vertical_tilt = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_horizontal_tilt(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_horizontal_tilt(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sbsl) = &mut metadata.defect.surface_breaking_strip_like_crack {
-        sbsl.horizontal_tilt = data[0];
+        sbsl.horizontal_tilt = data[0].parse::<f64>().unwrap();
     };
 }
 

@@ -1,21 +1,21 @@
 use crate::commands::results::interfaces;
 
-fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sc) = &mut metadata.defect.spherical_cavity {
-        sc.position.x = data[0];
-        sc.position.y = data[1];
+        sc.position.x = data[0].parse::<f64>().unwrap();
+        sc.position.y = data[1].parse::<f64>().unwrap();
     };
 }
 
-fn set_diameter(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_diameter(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sc) = &mut metadata.defect.spherical_cavity {
-        sc.diameter = data[0];
+        sc.diameter = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sc) = &mut metadata.defect.spherical_cavity {
-        sc.depth = data[0];
+        sc.depth = data[0].parse::<f64>().unwrap();
     };
 }
 

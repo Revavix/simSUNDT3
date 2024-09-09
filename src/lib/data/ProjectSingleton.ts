@@ -157,8 +157,6 @@ export class ProjectSingleton {
         let isMiscChanged = !lodash.isEqual(this._lastLoaded.data.preprocessor?.misc, this._active.data.preprocessor?.misc)
         let isPostChanged = !lodash.isEqual(this._lastLoaded.data.postprocessor, this._active.data.postprocessor)
 
-        console.log(isTreeChanged, isMiscChanged, isPostChanged)
-
         return isTreeChanged || isMiscChanged || isPostChanged
     }
 

@@ -32,7 +32,7 @@ export function rectify(rectification: Rectification, value: number): number {
 export function calculateDistance(metadata: Metadata, mode: DistanceMode, path: DistancePath, y: number) {
     return (metadata.timegate.start + (y * metadata.timegate.increment)) * 
         (mode === DistanceMode.Compressional ? metadata.wavespeeds.compressional : metadata.wavespeeds.shear) * 
-        (path === DistancePath.True ? Math.sin(metadata.probe.true_angle * DEG2RAD) : 1)
+        (path === DistancePath.True ? Math.cos(metadata.probe.true_angle * DEG2RAD) : 1) / 2
 }
 
 export function calculateTime(metadata: Metadata, y: number) {

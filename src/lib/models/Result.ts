@@ -27,6 +27,7 @@ export interface Metadata {
         bandwidth: number,
         couplant: number,
         wave_properties: {
+            type_of_probe: number
             angle: number,
             rotation: number,
             size: Position2D,
@@ -42,7 +43,7 @@ export interface Metadata {
             distance: number,
             eulers: Position3D
         } | null,
-        true_angle: number,
+        true_angle: number | null,
         focal_distance: number | null
     },
     defect: {

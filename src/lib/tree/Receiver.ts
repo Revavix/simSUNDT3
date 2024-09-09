@@ -58,6 +58,20 @@ separation.AddChild(new TreeInput("Y", "YSEP [1]", 0, true))
 
 // Receiver:Wave
 const wave = Receiver.AddChild(new TreeNode("Wave", true, false))
+wave.AddChild(new TreeDropdown("Type", null, [
+    {
+        text: "Transversal (hori. pol)",
+        value: 1
+    },
+    {
+        text: "Transversal (vert. pol)",
+        value: 2
+    },
+    {
+        text: "Longitudinal",
+        value: 3
+    }
+] as Array<TreeDropdownOption>, 1))
 wave.AddChild(new TreeCheckbox("Suppression", "INSTY [1]", false))
 
 // Receiver:BeamAngles

@@ -1,56 +1,56 @@
 use crate::commands::results::interfaces;
 
-fn set_max_output(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.max_output = data[0] * f64::powf(10.0, data[1]);
+fn set_max_output(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.max_output = data[0].parse::<f64>().unwrap() * f64::powf(10.0, data[1].parse::<f64>().unwrap());
 }
 
-fn set_probe_true_angle(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.probe.true_angle = data[0];
+fn set_probe_true_angle(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.probe.true_angle = Some(data[0].parse::<f64>().unwrap());
 }
 
-fn set_accuracy(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.accuracy = data[0];
+fn set_accuracy(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.accuracy = data[0].parse::<f64>().unwrap();
 }
 
-fn set_timegate(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.timegate.start = data[0];
-    metadata.timegate.end = data[1];
-    metadata.timegate.increment = data[2];
+fn set_timegate(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.timegate.start = data[0].parse::<f64>().unwrap();
+    metadata.timegate.end = data[1].parse::<f64>().unwrap();
+    metadata.timegate.increment = data[2].parse::<f64>().unwrap();
 }
 
-fn set_frequencies(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.frequencies = data[0];
+fn set_frequencies(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.frequencies = data[0].parse::<f64>().unwrap();
 }
 
-fn set_calibration(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.calibration.diameter = data[0];
-    metadata.calibration.depth = data[1];
+fn set_calibration(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.calibration.diameter = data[0].parse::<f64>().unwrap();
+    metadata.calibration.depth = data[1].parse::<f64>().unwrap();
 }
 
-fn set_probe_couplant(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.probe.couplant = data[0];
+fn set_probe_couplant(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.probe.couplant = data[0].parse::<f64>().unwrap();
 }
 
-fn set_signal(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.probe.frequency = data[0];
-    metadata.probe.bandwidth = data[1];
+fn set_signal(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.probe.frequency = data[0].parse::<f64>().unwrap();
+    metadata.probe.bandwidth = data[1].parse::<f64>().unwrap();
 }
 
-fn set_y_axis(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.coordinates.y.start = data[0];
-    metadata.coordinates.y.end = data[1];
-    metadata.coordinates.y.increment = data[2];
+fn set_y_axis(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.coordinates.y.start = data[0].parse::<f64>().unwrap();
+    metadata.coordinates.y.end = data[1].parse::<f64>().unwrap();
+    metadata.coordinates.y.increment = data[2].parse::<f64>().unwrap();
 }
 
-fn set_x_axis(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.coordinates.x.start = data[0];
-    metadata.coordinates.x.end = data[1];
-    metadata.coordinates.x.increment = data[2];
+fn set_x_axis(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.coordinates.x.start = data[0].parse::<f64>().unwrap();
+    metadata.coordinates.x.end = data[1].parse::<f64>().unwrap();
+    metadata.coordinates.x.increment = data[2].parse::<f64>().unwrap();
 }
 
-fn set_wavespeeds(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    metadata.wavespeeds.compressional = data[0];
-    metadata.wavespeeds.shear = data[1];
+fn set_wavespeeds(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    metadata.wavespeeds.compressional = data[0].parse::<f64>().unwrap();
+    metadata.wavespeeds.shear = data[1].parse::<f64>().unwrap();
 }
 
 pub static SHARED_IDENTIFIERS: &[interfaces::Identifier] = &[

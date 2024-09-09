@@ -24,7 +24,7 @@ pub fn parse_metadata(path: String) -> Result<interfaces::Metadata, String> {
                         let r_idx = id_match.range().end;
                         let re = Regex::new(&identifier.regex).unwrap();
                         let matches: Vec<_> = re.find_iter(&raw[l_idx..r_idx+identifier.max_offset]).map(|m| m.as_str()).collect();
-                        let mut vec: Vec<f64> = vec![0.0; identifier.fields as usize];
+                        let mut vec: Vec<&str> = vec!["0.0"; identifier.fields as usize];
                         
                         if matches.len() != identifier.fields {
                             if identifier.optional {
@@ -35,7 +35,7 @@ pub fn parse_metadata(path: String) -> Result<interfaces::Metadata, String> {
                             }
                         } else {
                             for i in 0..identifier.fields {
-                                vec[i] = matches[i as usize].trim().parse::<f64>().unwrap();
+                                vec[i] = matches[i as usize].trim();
                             }
             
                             (identifier.operation)(&mut metadata, &mut vec);

@@ -1,22 +1,22 @@
 use crate::commands::results::interfaces;
 
-fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut ssc) = &mut metadata.defect.strip_like_crack {
-        ssc.position.x = data[0];
-        ssc.position.y = data[1];
+        ssc.position.x = data[0].parse::<f64>().unwrap();
+        ssc.position.y = data[1].parse::<f64>().unwrap();
     };
 }
 
-fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut ssc) = &mut metadata.defect.strip_like_crack {
-        ssc.depth = data[0];
+        ssc.depth = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_width_and_tilt(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_width_and_tilt(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut ssc) = &mut metadata.defect.strip_like_crack {
-        ssc.width= data[0];
-        ssc.tilt = data[1];
+        ssc.width= data[0].parse::<f64>().unwrap();
+        ssc.tilt = data[1].parse::<f64>().unwrap();
     };
 }
 

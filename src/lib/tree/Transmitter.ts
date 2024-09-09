@@ -88,18 +88,18 @@ position.AddChild(new TreeInput("Y", "YSEP", 0, true))
 const wave = Transmitter.AddChild(new TreeNode("Wave", true, false))
 wave.AddChild(new TreeDropdown("Type", null, [
     {
-        text: "Longitudinal",
-        value: 0
-    },
-    {
-        text: "Transversal (vert. pol)",
+        text: "Transversal (hori. pol)",
         value: 1
     },
     {
-        text: "Transversal (hori. pol)",
+        text: "Transversal (vert. pol)",
         value: 2
+    },
+    {
+        text: "Longitudinal",
+        value: 3
     }
-] as Array<TreeDropdownOption>, 0))
+] as Array<TreeDropdownOption>, 1))
 wave.AddChild(new TreeCheckbox("Suppression", "INSTY [0]", false))
 
 // Transmitter:BeamAngles

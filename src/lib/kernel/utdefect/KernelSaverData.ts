@@ -151,11 +151,11 @@ export default class KernelSaverData {
         this.IMODE = [
             this.calculateIMODE(
                 (node.FindChildByPattern("Transmitter:Focus:Type") as TreeDropdown)?.value, 
-                (node.FindChildByPattern("Method:UTTechnique:Transmitter") as TreeDropdown)?.value
+                (node.FindChildByPattern("Transmitter:Wave:Type") as TreeDropdown)?.value
             ),
             this.calculateIMODE(
                 (node.FindChildByPattern("Receiver:Focus:Type") as TreeDropdown)?.value, 
-                (node.FindChildByPattern("Method:UTTechnique:Receiver") as TreeDropdown)?.value
+                (node.FindChildByPattern("Receiver:Wave:Type") as TreeDropdown)?.value
             )
         ]
         this.ISHA = [
