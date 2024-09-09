@@ -1,24 +1,24 @@
 use crate::commands::results::interfaces;
 
-fn set_defect_position(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_defect_position(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut esi) = &mut metadata.defect.spherical_inclusion {
-        esi.position.x = data[0];
-        esi.position.y = data[1];
+        esi.position.x = data[0].parse::<f64>().unwrap();
+        esi.position.y = data[1].parse::<f64>().unwrap();
     };
 }
 
-fn set_defect_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_defect_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut esi) = &mut metadata.defect.spherical_inclusion {
-        esi.depth = data[0];
+        esi.depth = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_esi_properties(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_esi_properties(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut esi) = &mut metadata.defect.spherical_inclusion {
-        esi.diameter = data[0];
-        esi.density = data[1];
-        esi.wavespeed_compressional = data[2];
-        esi.wavespeed_shear = data[3];
+        esi.diameter = data[0].parse::<f64>().unwrap();
+        esi.density = data[1].parse::<f64>().unwrap();
+        esi.wavespeed_compressional = data[2].parse::<f64>().unwrap();
+        esi.wavespeed_shear = data[3].parse::<f64>().unwrap();
     };
 }
 

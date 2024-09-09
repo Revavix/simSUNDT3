@@ -182,9 +182,9 @@
                     transmitterPos.y
                 ), 
                 new Vector3(
-                    transmitterPos.x - (5 * Math.cos(transmitterAngle * DEG2RAD) * Math.cos(transmitterSkew * DEG2RAD)), 
-                    (((defectDepth + 1) / 2) * 2) - (5 * Math.sin(transmitterAngle * DEG2RAD)), 
-                    transmitterPos.y - (5 * Math.sin(transmitterSkew * DEG2RAD) * Math.cos(transmitterAngle * DEG2RAD))
+                    transmitterPos.x - (5 * Math.cos((-transmitterAngle + 90) * DEG2RAD) * Math.cos(transmitterSkew * DEG2RAD)), 
+                    (((defectDepth + 1) / 2) * 2) - (5 * Math.sin((-transmitterAngle + 90) * DEG2RAD)), 
+                    transmitterPos.y - (5 * Math.sin(transmitterSkew * DEG2RAD) * Math.cos((-transmitterAngle + 90) * DEG2RAD))
                 )
             ]}  
         />

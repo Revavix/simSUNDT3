@@ -1,29 +1,29 @@
 use crate::commands::results::interfaces;
 
-fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sphc) = &mut metadata.defect.spheroidal_cavity {
-        sphc.position.x = data[0];
-        sphc.position.y = data[1];
+        sphc.position.x = data[0].parse::<f64>().unwrap();
+        sphc.position.y = data[1].parse::<f64>().unwrap();
     };
 }
 
-fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sphc) = &mut metadata.defect.spheroidal_cavity {
-        sphc.depth = data[0];
+        sphc.depth = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_axes(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_axes(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut sphc) = &mut metadata.defect.spheroidal_cavity {
-        sphc.axes.x = data[0];
-        sphc.axes.y = data[1];
+        sphc.axes.x = data[0].parse::<f64>().unwrap();
+        sphc.axes.y = data[1].parse::<f64>().unwrap();
     };
 }
 
-fn set_eulers(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_eulers(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut cc) = &mut metadata.defect.circular_crack {
-        cc.eulers.x = data[0];
-        cc.eulers.y = data[1];
+        cc.eulers.x = data[0].parse::<f64>().unwrap();
+        cc.eulers.y = data[1].parse::<f64>().unwrap();
     };
 }
 

@@ -47,6 +47,7 @@ pub struct Nearfield {
 
 #[derive(Serialize, Clone, Copy, Default)]
 pub struct ShearWavesAndLongitudinalProperties {
+    pub type_of_probe: u32,
     pub angle: f64,
     pub elements: Vector2,
     pub size: Vector2,
@@ -67,7 +68,7 @@ pub struct Probe {
     pub frequency: f64,
     pub bandwidth: f64,
     pub couplant: f64,
-    pub true_angle: f64,
+    pub true_angle: Option<f64>,
     pub wave_properties: Option<ShearWavesAndLongitudinalProperties>,
     pub immersion_properties: Option<ImmersionProperties>,
     pub focal_distance: Option<f64>
@@ -205,6 +206,8 @@ impl Metadata {
                 let swl_regex = Regex::new(r"(SV type with beam angle:|SH type with beam angle:|L type with beam angle:)").unwrap();
                 let imm_regex = Regex::new(r"Immersion probe in a fluid with wave speed:").unwrap();
 
+                self.probe.true_angle = Option::None;
+
                 match swl_regex.find(&contents) {
                     Some(_hit) => {
                         self.probe.wave_properties = Some(Default::default());
@@ -307,7 +310,7 @@ impl Metadata {
 
 pub struct Identifier<'a> {
     pub id: &'a str,
-    pub operation: fn(&mut Metadata, &mut Vec<f64>) -> (),
+    pub operation: fn(&mut Metadata, &mut Vec<&str>) -> (),
     pub regex: &'a str,
     pub fields: usize,
     pub max_offset: usize,

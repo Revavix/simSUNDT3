@@ -1,39 +1,58 @@
 use crate::commands::results::interfaces;
 
-fn set_probe_nearfield(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_probe_type(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut swl) = &mut metadata.probe.wave_properties {
-        swl.nearfield.length = data[0];
-        swl.nearfield.wavelength = data[1];
+        match data[0] {
+            "SV" => swl.type_of_probe = 1,
+            "SH" => swl.type_of_probe = 2,
+            "L" => swl.type_of_probe = 3,
+            _ => swl.type_of_probe = 0
+        }
     };
 }
 
-fn set_probe_elements(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_probe_nearfield(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut swl) = &mut metadata.probe.wave_properties {
-        swl.elements.x = data[0];
-        swl.elements.y = data[1];
-    }
-}
-
-fn set_probe_rotation(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    if let &mut Some(ref mut swl) = &mut metadata.probe.wave_properties {
-        swl.rotation = data[0];
-    }
-}
-
-fn set_probe_size(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
-    if let &mut Some(ref mut swl) = &mut metadata.probe.wave_properties {
-        swl.size.x = data[0];
-        swl.size.y = data[1];
+        swl.nearfield.length = data[0].parse::<f64>().unwrap();
+        swl.nearfield.wavelength = data[1].parse::<f64>().unwrap();
     };
 }
 
-fn set_probe_angle(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_probe_elements(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut swl) = &mut metadata.probe.wave_properties {
-        swl.angle = data[0] 
+        swl.elements.x = data[0].parse::<f64>().unwrap();
+        swl.elements.y = data[1].parse::<f64>().unwrap();
+    }
+}
+
+fn set_probe_rotation(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    if let &mut Some(ref mut swl) = &mut metadata.probe.wave_properties {
+        swl.rotation = data[0].parse::<f64>().unwrap();
+    }
+}
+
+fn set_probe_size(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    if let &mut Some(ref mut swl) = &mut metadata.probe.wave_properties {
+        swl.size.x = data[0].parse::<f64>().unwrap();
+        swl.size.y = data[1].parse::<f64>().unwrap();
+    };
+}
+
+fn set_probe_angle(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
+    if let &mut Some(ref mut swl) = &mut metadata.probe.wave_properties {
+        swl.angle = data[0].parse::<f64>().unwrap() 
     };
 }
 
 pub static SWL_IDENTIFIERS: &[interfaces::Identifier] = &[
+    interfaces::Identifier { 
+        id: r"(SV type with beam angle:|SH type with beam angle:|L type with beam angle:)", 
+        operation: set_probe_type,
+        regex: r"(SV|SH|L)",
+        fields: 1,
+        max_offset: 6,
+        optional: false
+    },
     interfaces::Identifier { 
         id: r"(SV type with beam angle:|SH type with beam angle:|L type with beam angle:)", 
         operation: set_probe_angle,

@@ -1,28 +1,28 @@
 use crate::commands::results::interfaces;
 
-fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_position(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut cc) = &mut metadata.defect.circular_crack {
-        cc.position.x = data[0];
-        cc.position.y = data[1];
+        cc.position.x = data[0].parse::<f64>().unwrap();
+        cc.position.y = data[1].parse::<f64>().unwrap();
     };
 }
 
-fn set_diameter(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_diameter(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut cc) = &mut metadata.defect.circular_crack {
-        cc.diameter = data[0];
+        cc.diameter = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut cc) = &mut metadata.defect.circular_crack {
-        cc.depth = data[0];
+        cc.depth = data[0].parse::<f64>().unwrap();
     };
 }
 
-fn set_eulers(metadata: &mut interfaces::Metadata, data: &mut Vec<f64>) -> () {
+fn set_eulers(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
     if let &mut Some(ref mut cc) = &mut metadata.defect.circular_crack {
-        cc.eulers.x = data[0];
-        cc.eulers.y = data[1];
+        cc.eulers.x = data[0].parse::<f64>().unwrap();
+        cc.eulers.y = data[1].parse::<f64>().unwrap();
     };
 }
 
