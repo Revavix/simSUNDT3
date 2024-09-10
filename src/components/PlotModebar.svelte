@@ -2,13 +2,14 @@
     import "@fontsource/fira-mono/500.css";
     import Plotly, { type Datum } from 'plotly.js-dist-min'
     import Button from '../components/Button.svelte'
-    import { CalculationMode, DistanceMode, DistancePath } from '../lib/models/SoundYAxisMode'
+    import { CalculationLength, CalculationMode, DistanceMode, DistancePath } from '../lib/models/SoundYAxisMode'
     import type { Metadata } from "../lib/models/Result";
     import TooltipMultiline from "./TooltipMultiline.svelte";
     import { onDestroy } from "svelte";
     import { loadedMetadata } from "../lib/data/Stores";
     
     export let calculationMode: CalculationMode | undefined = undefined
+    export let calculationLength: CalculationLength | undefined = undefined
     export let distanceMode: DistanceMode | undefined = undefined
     export let pathMode: DistancePath | undefined = undefined
     export let plot: Promise<object>
@@ -165,7 +166,7 @@
             <li>
                 <div class="form-control flex">
                     <label class="label cursor-pointer flex flex-row w-full text-xs">
-                        <span class="mr-auto text-neutral">Calculate using distance</span>
+                        <span class="mr-auto text-neutral">Calculate distance</span>
                         <input type="checkbox" class="toggle toggle-primary self-center rounded-full" checked={calculationMode === CalculationMode.Distance} 
                             on:change={(event) => calculationMode = event.currentTarget.checked ? CalculationMode.Distance : CalculationMode.Time}
                         />
@@ -174,8 +175,18 @@
             </li>
             <li>
                 <div class="form-control flex">
+                    <label class="label flex flex-row w-full text-xs">
+                        <span class="mr-auto text-neutral">Full length</span>
+                        <input type="checkbox" class="toggle toggle-primary self-center rounded-full" checked={calculationLength === CalculationLength.Full} 
+                            on:change={(event) => calculationLength = event.currentTarget.checked ? CalculationLength.Full : CalculationLength.Half}
+                        />
+                    </label>
+                </div>
+            </li>
+            <li>
+                <div class="form-control flex">
                     <label class="label {calculationMode !== CalculationMode.Distance ? 'cursor-not-allowed' : 'cursor-pointer'} flex flex-row w-full text-xs">
-                        <span class="mr-auto {calculationMode !== CalculationMode.Distance ? 'opacity-70' : 'opacity-100'} text-neutral">Calculate distance using shear wave</span>
+                        <span class="mr-auto {calculationMode !== CalculationMode.Distance ? 'opacity-70' : 'opacity-100'} text-neutral">Use shear waves</span>
                         {#if (distanceMode === DistanceMode.Shear && metadata?.probe.wave_properties?.type_of_probe === 3) ||
                             (distanceMode === DistanceMode.Compressional && metadata?.probe.wave_properties?.type_of_probe !== 3)}
                         <div class="tooltip tooltip-warning" data-tip="Inaccurate data may be produced since simulation uses {
