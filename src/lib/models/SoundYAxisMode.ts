@@ -3,6 +3,11 @@ export enum CalculationMode {
     Time = 2
 }
 
+export enum CalculationLength {
+    Half = 1,
+    Full = 2
+}
+
 export enum DistanceMode {
     Shear = 1,
     Compressional = 2

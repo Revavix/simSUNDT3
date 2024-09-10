@@ -2,7 +2,7 @@
     import Plotly, { type Data } from 'plotly.js-dist-min'
     import PlotModebar from "../PlotModebar.svelte";
     import { UltraVision } from '../../lib/plotting/Colorscales';
-    import { CalculationMode, DistanceMode, DistancePath } from '../../lib/models/SoundYAxisMode';
+    import { CalculationLength, CalculationMode, DistanceMode, DistancePath } from '../../lib/models/SoundYAxisMode';
     import { onDestroy } from 'svelte';
     import { dlayout } from '../../lib/plotting/Layouts';
     import { loadedMetadata, selectedPosEnd, theme } from '../../lib/data/Stores';
@@ -19,6 +19,7 @@
 
     let loading: LoadingState = LoadingState.LOADING
     let calculationMode = CalculationMode.Time
+    let calculationLength = CalculationLength.Half
     let distanceMode = DistanceMode.Compressional
     let pathMode = DistancePath.Soundpath
     
@@ -56,7 +57,10 @@
             let data: Data[] = [
                 {
                     x: signals.map(s => metadata.coordinates.y.start + (s.x * metadata.coordinates.y.increment)),
-                    y: signals.map(s => calculationMode === CalculationMode.Time ? calculateTime(metadata, s.y) : calculateDistance(metadata, distanceMode, pathMode, s.y)),
+                    y: signals.map(s => calculationMode === CalculationMode.Time ? 
+                        calculateTime(metadata, s.y) / (calculationLength === CalculationLength.Half ? 2 : 1) :
+                        calculateDistance(metadata, distanceMode, pathMode, s.y) / (calculationLength === CalculationLength.Half ? 2 : 1)
+                    ),
                     z: signals.map(s => rectify(rectification, s.z / end.amplitude)),
                     zsmooth: interpolationToZsmooth(interpolation),
                     type: 'heatmap',
@@ -90,7 +94,7 @@
         unsubscribeData()
     })
 
-    $: calculationMode || distanceMode || pathMode || rectification || colorscale, selectedPosEnd.update(n => n)
+    $: calculationMode || calculationLength || distanceMode || pathMode || rectification || colorscale, selectedPosEnd.update(n => n)
 </script>
 
 <div class="flex flex-row">
@@ -98,7 +102,7 @@
         <p class="pt-1 px-2 text-base-content">End View (D)</p>
     </div>
     <div class="flex flex-col ml-auto mr-2">
-        <PlotModebar bind:plot={plot} bind:calculationMode={calculationMode} bind:distanceMode={distanceMode} bind:pathMode={pathMode}/>
+        <PlotModebar bind:plot={plot} bind:calculationMode={calculationMode} bind:calculationLength={calculationLength} bind:distanceMode={distanceMode} bind:pathMode={pathMode}/>
     </div>
 </div>
 <div class="flex flex-row w-full h-full plotly_container" style="max-height: calc(100% - 28px);">

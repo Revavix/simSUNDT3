@@ -29,12 +29,12 @@ export function rectify(rectification: Rectification, value: number): number {
     return rectified
 }
 
-export function calculateDistance(metadata: Metadata, mode: DistanceMode, path: DistancePath, y: number) {
+export function calculateDistance(metadata: Metadata, mode: DistanceMode, path: DistancePath, y: number): number {
     return (metadata.timegate.start + (y * metadata.timegate.increment)) * 
         (mode === DistanceMode.Compressional ? metadata.wavespeeds.compressional : metadata.wavespeeds.shear) * 
-        (path === DistancePath.True ? Math.cos(metadata.probe.true_angle * DEG2RAD) : 1) / 2
+        (path === DistancePath.True ? Math.cos(metadata.probe.true_angle * DEG2RAD) : 1)
 }
 
-export function calculateTime(metadata: Metadata, y: number) {
+export function calculateTime(metadata: Metadata, y: number): number {
     return (metadata.timegate.start + (y * metadata.timegate.increment)) * Math.pow(10, -6)
 }
