@@ -26,7 +26,7 @@
     "electron-builder": "^24.6.4",
     "jsdom": "^24.0.0",
     "lodash": "^4.17.21",
-    "plotly.js-dist-min": "^2.27.0",
+    "plotly.js-dist-min": "^2.35.2",
     "postcss": "^8.4.19",
     "svelte": "^4.2.2",
     "svelte-check": "^3.5.2",
@@ -59,10 +59,14 @@
   "dependencies": {
     "@fontsource/fira-mono": "^5.0.8",
     "@fontsource/inter": "^5.0.15",
-    "@tauri-apps/api": "^1.5.1",
+    "@tauri-apps/api": "^2.0.0-rc.0",
+    "@tauri-apps/plugin-dialog": "^2.0.0-rc.1",
+    "@tauri-apps/plugin-fs": "^2.0.0-rc.2",
+    "@tauri-apps/plugin-os": "^2.0.0-rc.1",
+    "@tauri-apps/plugin-shell": "^2.0.0-rc.1",
     "@threlte/core": "^6.1.0",
     "@threlte/extras": "^7.5.0",
-    "@types/plotly.js-dist-min": "^2.3.3",
+    "@types/plotly.js-dist-min": "^2.3.4",
     "svelte-markdown": "^0.4.0",
     "three": "^0.158.0"
   }

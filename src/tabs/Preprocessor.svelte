@@ -12,7 +12,7 @@
     import { LoggingSingleton } from "../lib/data/LoggingSingleton";
     import { LoggingLevel } from "../lib/models/Logging";
     import { BaseDirectory } from "@tauri-apps/api/path";
-    import { createDir, writeTextFile } from "@tauri-apps/api/fs";
+    import { mkdir, writeTextFile } from "@tauri-apps/plugin-fs";
     import { ProjectSingleton } from "../lib/data/ProjectSingleton";
     import { Validator } from "../lib/validation/Validator";
     import { onMount } from "svelte";
@@ -55,7 +55,7 @@
             }
 
             // Clean up old runs
-            await createDir("simSUNDT/Simulations", { dir: BaseDirectory.Document, recursive: true})
+            await mkdir("simSUNDT/Simulations", { baseDir: BaseDirectory.Document, recursive: true})
 
             // Prep default Isometric data in the saver
             const saver = new KernelSaverUTDef6()

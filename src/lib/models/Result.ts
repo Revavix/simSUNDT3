@@ -74,31 +74,9 @@ export interface Top {
 }
 
 export interface Point {
-    amplitude: number,
-    ref: {
-        cols: number,
-        samples: number
-    }
-    pos: Position2D
-}
-
-export interface Side {
-    amplitude: number,
-    ref: {
-        cols: number,
-        samples: number
-    }
-    y: number
-}
-
-export interface End {
-    amplitude: number,
-    ref: {
-        rows: number,
-        cols: number,
-        samples: number
-    }
-    x: number
+    topData: Top,
+    pos: Position2D,
+    forceRefresh: boolean
 }
 
 export enum LoadingState {

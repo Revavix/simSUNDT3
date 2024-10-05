@@ -4,8 +4,8 @@ import { kernelProgress } from "../../data/Stores";
 import { Runner } from "../../models/Kernel";
 import type { Progress, Run } from "../../models/Kernel";
 import { LoggingLevel } from "../../models/Logging";
-import { Child, Command } from "@tauri-apps/api/shell";
-import { readTextFile } from "@tauri-apps/api/fs";
+import { Child, Command } from "@tauri-apps/plugin-shell";
+import { readTextFile } from "@tauri-apps/plugin-fs";
 
 export class KernelRunner extends Runner {
     progress: Array<Progress>
@@ -84,7 +84,7 @@ export class KernelRunner extends Runner {
             return Promise.reject("No run data is set in the this.runs variable")
         }
 
-        let commands: Array<Command> = []
+        let commands: Array<any> = []
         this.aborted = false
         this.progress = new Array<Progress>(this.runs.length)
 
@@ -93,7 +93,9 @@ export class KernelRunner extends Runner {
 
         // Prepare commands & their handlers
         for(let i = 0; i < this.runs.length; i++) {
-            let cmd: Command = Command.sidecar(sidecar, [], { cwd: this.runs[i].path })
+            const cmd = Command.sidecar(sidecar, [], { cwd: this.runs[i].path })
+
+            console.log(cmd)
 
             cmd.on('close', data => {
                 this.runs[i].closed.code = data.code
@@ -115,12 +117,13 @@ export class KernelRunner extends Runner {
             if (this.NumActiveProccesses < this.MaxNumberOfProcesses &&
                 index < this.runs.length
             ) {
+                console.log(commands[index])
                 this.runs[index].started = true
                 commands[index].spawn().then((child: Child) => {
                     this.runs[index].handle = child
                     this.StartProgressWatcher(this.runs[index], index)
                     index += 1
-                }).catch((e) => {
+                }).catch((e: any) => {
                     this.loggingSingleton.Log(LoggingLevel.WARNING, "Run " + index + " failed to start, canceling simulation(s)" + e)
                     this.runs.map((run) => run.closed.code = -1)
                     return Promise.reject()

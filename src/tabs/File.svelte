@@ -1,11 +1,11 @@
 <script lang="ts">
     import { slide } from 'svelte/transition';
     import { onMount } from "svelte";;
-    import { open, save } from '@tauri-apps/api/dialog';
+    import { open, save } from '@tauri-apps/plugin-dialog';
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
     import { SIMSUNDT_PROJECT_FOLDER } from '../lib/models/PresetPaths';
     import { ProjectCacheSingleton } from '../lib/data/ProjectCacheSingleton';
-    import { exists } from '@tauri-apps/api/fs';
+    import { exists } from '@tauri-apps/plugin-fs';
     import ImportModal from '../components/modals/ImportModal.svelte';
     import { activeTab } from '../lib/data/Stores';
     import NewProjectModal from '../components/modals/NewProjectModal.svelte';
