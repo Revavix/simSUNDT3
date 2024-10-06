@@ -109,8 +109,16 @@
         if (point === undefined || currentMetadata === undefined || plot === undefined) return
 
         clayout.annotations = [
-            crosshairHorizontalLabel(point.pos.y),
-            crosshairVerticalLabel(point.pos.x)
+            // Horizontal label should align left if cursor is on the right side of the plot, otherwise right
+            crosshairHorizontalLabel(
+                point.pos.y, 
+                (point.pos.x >= currentMetadata.coordinates.x.start + ((currentMetadata.coordinates.x.end - currentMetadata.coordinates.x.start) / 2)) ? 'left' : 'right'
+            ),
+            // Vertical label should align top if cursor is on the bottom side of the plot, otherwise bottom
+            crosshairVerticalLabel(
+                point.pos.x, 
+                (point.pos.y >= currentMetadata.coordinates.y.start + ((currentMetadata.coordinates.y.end - currentMetadata.coordinates.y.start) / 2)) ? 'bottom' : 'top'
+            )
         ]
 
         // Update the current decibel value

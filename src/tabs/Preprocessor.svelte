@@ -24,7 +24,6 @@
     import { Enforcer } from "../lib/validation/Enforcer";
     import Quickbar from "../components/panels/3d/Quickbar.svelte";
 
-    export let unsaved
     export let kernelRunner: Runner
  
     let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()

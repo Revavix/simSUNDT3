@@ -97,6 +97,7 @@
                 type: 'heatmap',
                 showscale: false,
                 colorscale: colorscale,
+                hovertemplate: 'Depth: %{y:.2f} mm<br>Amplitude: %{z:.2f}<extra></extra>',
                 zmin: -1,
                 zmax: 1
             }

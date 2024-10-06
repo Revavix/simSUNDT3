@@ -245,7 +245,3 @@
     </T.Mesh>
     {/if}
 </CSM>
-
-<style>
-
-</style>

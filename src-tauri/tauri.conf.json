@@ -52,7 +52,7 @@
   },
   "productName": "SimSUNDT",
   "mainBinaryName": "SimSUNDT",
-  "version": "3.2.2",
+  "version": "3.2.4",
   "identifier": "com.revavix.simsundt",
   "plugins": {},
   "app": {

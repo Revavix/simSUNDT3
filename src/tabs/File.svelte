@@ -146,52 +146,52 @@
     <div class="flex flex-col w-full h-full mt-24 items-center">
         <div class="grid grid-cols-2 md:grid-cols-3 w-9/12 md:w-8/12 lg:w-6/12 gap-1 auto-cols-max">
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => createNewProject()}>
+                <button class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => createNewProject()}>
                     <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         add
                     </div>
                     <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">New</h5>
-                </a>
+                </button>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenLoadModal()}>
+                <button class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenLoadModal()}>
                     <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         refresh
                     </div>
                     <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Load</h5>
-                </a>
+                </button>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenImportModal()}>
+                <button class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenImportModal()}>
                     <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         download
                     </div>
                     <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Import</h5>
-                </a>
+                </button>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenExportModal()}>
+                <button class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenExportModal()}>
                     <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         upload
                     </div>
                     <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Export</h5>
-                </a>
+                </button>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleSave()}>
+                <button class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleSave()}>
                     <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         save
                     </div>
                     <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Save</h5>
-                </a>
+                </button>
             </div>
             <div class="flex flex-col">
-                <a href="#" class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenSaveModal()}>
+                <button class="block p-6 bg-base-100 border border-gray-500 rounded-lg shadow-md hover:bg-primary text-center" on:click={(e) => handleOpenSaveModal()}>
                     <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 48px;">
                         save_as
                     </div>
                     <h5 class="text-xl font-bold tracking-tight text-base-content mt-5">Save As</h5>
-                </a>
+                </button>
             </div>
         </div>
         <div class="flex flex-row w-9/12 md:w-8/12 lg:w-6/12 mx-auto mt-4">
@@ -203,7 +203,7 @@
                 <div class="flex flex-col w-full latest-projects pr-1 mt-1"  style="overflow: auto">
                     {#each cacheSingleton.projects.sort((a, b) => { return a.date > b.date ? -1 : 1 }).slice(0,6) as project}
                     <div class="flex flex-row rounded-md shadow-md w-full bg-base-100 py-2 my-1 hover:bg-primary" transition:slide|local> 
-                        <a href="#" class="flex flex-row w-full items-center" on:click={(e) => handleLoadByName(project)}>
+                        <button class="flex flex-row w-full items-center" on:click={(e) => handleLoadByName(project)}>
                             <div class="flex flex-col ml-2">
                                 <p class="font-lg text-base-content">{project.name}</p>
                                 <p class="font-lg text-sm text-base-content">{new Date(project.date).toLocaleString()}</p>
@@ -222,7 +222,7 @@
                                     </Tooltip>
                                 </div>
                             </div>
-                        </a>
+                        </button>
                     </div>
                     {/each}
                 </div>

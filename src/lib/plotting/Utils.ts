@@ -1,4 +1,4 @@
-import { DEG2RAD } from "three/src/math/MathUtils.js";
+import { MathUtils } from "three/src/math/MathUtils.js";
 import { Interpolation, Rectification, type Metadata } from "../models/Result";
 import { DistanceMode, DistancePath } from "../models/SoundYAxisMode";
 
@@ -32,7 +32,7 @@ export function rectify(rectification: Rectification, value: number): number {
 export function calculateDistance(metadata: Metadata, mode: DistanceMode, path: DistancePath, y: number): number {
     return (metadata.timegate.start + (y * metadata.timegate.increment)) * 
         (mode === DistanceMode.Compressional ? metadata.wavespeeds.compressional : metadata.wavespeeds.shear) * 
-        (path === DistancePath.True ? Math.cos(metadata.probe.true_angle * DEG2RAD) : 1)
+        (path === DistancePath.True ? Math.cos(MathUtils.degToRad(metadata.probe.true_angle)) : 1)
 }
 
 export function calculateTime(metadata: Metadata, y: number): number {

@@ -1,16 +1,16 @@
-export function crosshairHorizontalLabel(y: any) {
+export function crosshairHorizontalLabel(y: any, alignment: 'left' | 'right' = 'left') {
     return {
-        x: 1,
+        x: alignment === 'left' ? 1 : 0,
         y: y,
         xref: 'paper',
         yref: 'y',
-        xanchor: 'left',
+        xanchor: alignment,
         text: y,
         width: 36,
         showarrow: true,
         arrowhead: 0,
         axref: 'paper',
-        ax: 0,
+        ax: alignment === 'left' ? 0 : 1,
         ay: 0,
         font: {
             family: 'Courier New, monospace',
@@ -23,20 +23,20 @@ export function crosshairHorizontalLabel(y: any) {
     }
 }
 
-export function crosshairVerticalLabel(x: any) {
+export function crosshairVerticalLabel(x: any, alignment: 'top' | 'bottom' = 'bottom') {
     return {
         x: x,
-        y: 1,
+        y: alignment === 'top' ? 0 : 1,
         xref: 'x',
         yref: 'paper',
-        yanchor: 'bottom',
+        yanchor: alignment,
         text: x,
         width: 36,
         showarrow: true,
         arrowhead: 0,
         ayref: 'paper',
         ax: 0,
-        ay: 0,
+        ay: alignment === 'top' ? 1 : 0,
         font: {
             family: 'Courier New, monospace',
             size: 10,
