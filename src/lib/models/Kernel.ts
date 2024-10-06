@@ -1,4 +1,4 @@
-import type { Child } from "@tauri-apps/api/shell"
+import type { Child } from "@tauri-apps/plugin-shell"
 import type { KernelSaver as KernelSaverUTDef6 } from "../kernel/utdefect/KernelSaver"
 import type IValidationResult from "./validation/ValidationResult"
 import type { TreeInput } from "./tree/TreeInput"
@@ -15,7 +15,7 @@ export interface Run {
     path: string
     started: boolean,
     handle: Child | null,
-    watcherId: number,
+    watcherId: ReturnType<typeof setTimeout> | number,
     closed: {
         code: number | null,
         signal: number | null

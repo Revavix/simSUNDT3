@@ -1,6 +1,7 @@
 import type { Layout } from "plotly.js-dist-min"
 import { get } from "svelte/store"
 import { theme } from "../data/Stores"
+import { range } from "lodash"
 
 export const blayout: any = {
     font: {
@@ -16,10 +17,22 @@ export const blayout: any = {
     },
     shapes: [],
     annotations: [],
+    xaxis: {
+        minor: {
+            ticks: 'outside',
+            ticklen: 5,
+            tickcolor: get(theme) === 'business' ? '#fff' : '#000'
+        }
+    },
     yaxis: {
         showticksuffix: 'all',
         ticksuffix: 's',
-        autorange: 'reversed'
+        autorange: 'reversed',
+        minor: {
+            ticks: 'outside',
+            ticklen: 5,
+            tickcolor: get(theme) === 'business' ? '#fff' : '#000'
+        }
     }
 }
 
@@ -37,10 +50,23 @@ export const dlayout: any = {
     },
     shapes: [],
     annotations: [],
+    xaxis: {
+        minor: {
+            ticks: 'outside',
+            ticklen: 5,
+            tickcolor: get(theme) === 'business' ? '#fff' : '#000'
+        }
+    },
     yaxis: {
+        label: 'Time (s)',
         showticksuffix: 'all',
         ticksuffix: 's',
-        autorange: 'reversed'
+        autorange: 'reversed',
+        minor: {
+            ticks: 'outside',
+            ticklen: 5,
+            tickcolor: get(theme) === 'business' ? '#fff' : '#000'
+        }
     }
 }
 
@@ -56,6 +82,20 @@ export const clayout: any = {
         r: 20,
         b: 40
     },
-    shapes: [],
-    annotations: []
+    annotations: [],
+    clickmode: 'event+select',
+    xaxis: {
+        minor: {
+            ticks: 'outside',
+            ticklen: 5,
+            tickcolor: get(theme) === 'business' ? '#fff' : '#000'
+        }
+    },
+    yaxis: {
+        minor: {
+            ticks: 'outside',
+            ticklen: 5,
+            tickcolor: get(theme) === 'business' ? '#fff' : '#000'
+        }
+    }
 }

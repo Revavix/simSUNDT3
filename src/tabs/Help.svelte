@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import Modal from '../components/Modal.svelte';
     import { ArticleType, type Article } from '../lib/models/Article';
-    import { BaseDirectory, readDir, readTextFile } from '@tauri-apps/api/fs';
+    import { BaseDirectory, readDir, readTextFile } from '@tauri-apps/plugin-fs';
 
     let selectedTab: number = 0
     let articles: Article[] = []
@@ -12,8 +12,8 @@
     let openArticleContent: string = ""
 
     onMount(async () => {
-        let guides = await readDir("resources/articles/guides", { dir: BaseDirectory.Resource })
-        let troubleshooting = await readDir("resources/articles/troubleshooting", { dir: BaseDirectory.Resource })
+        let guides = await readDir("resources/articles/guides", { baseDir: BaseDirectory.Resource })
+        let troubleshooting = await readDir("resources/articles/troubleshooting", { baseDir: BaseDirectory.Resource })
 
         guides.forEach(element => {
             let name = element.name !== undefined ? element.name : "Unknown"
@@ -32,7 +32,7 @@
         isArticleModalOpen = true
         openArticleName = article.name + " - " + article.type
         
-        readTextFile("resources/articles/guides/" + article.name + ".md", { dir: BaseDirectory.Resource }).then((v) => {
+        readTextFile("resources/articles/guides/" + article.name + ".md", { baseDir: BaseDirectory.Resource }).then((v) => {
             openArticleContent = v
         })
     }

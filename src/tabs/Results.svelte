@@ -1,19 +1,20 @@
 <script lang="ts">
-    import APlot from '../components/plots/APlot.svelte';
-    import CPlot from '../components/plots/CPlot.svelte';
-    import BPlot from '../components/plots/BPlot.svelte';
-    import DPlot from '../components/plots/DPlot.svelte';
+    import APlot from '../components/plotting/APlot.svelte';
+    import CPlot from '../components/plotting/CPlot.svelte';
+    import BPlot from '../components/plotting/BPlot.svelte';
+    import DPlot from '../components/plotting/DPlot.svelte';
     import { onMount } from 'svelte';
     import { activeTab, loadedMetadata } from '../lib/data/Stores';
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
-    import { Command } from '@tauri-apps/api/shell'
-    import { invoke } from '@tauri-apps/api/tauri'
+    import { Command } from '@tauri-apps/plugin-shell'
+    import { invoke } from '@tauri-apps/api/core'
     import { Interpolation, Rectification, type Metadata } from '../lib/models/Result';
     import { Grayscale, Magma, Parula, Rainbow, UltraVision } from '../lib/plotting/Colorscales';
     import { LoggingSingleton } from '../lib/data/LoggingSingleton';
     import { LoggingLevel } from '../lib/models/Logging';
-    import { readTextFile } from '@tauri-apps/api/fs';
+    import { readTextFile } from '@tauri-apps/plugin-fs';
     import { Deserialize } from '../lib/tree/Utils';
+    import { get } from 'svelte/store';
     
     export let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
 
@@ -51,8 +52,8 @@
 
     const handleInspect = () => {
         const folder = projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path
-        let cmd = new Command("notepad", folder + "/utIndefa")
-        cmd.execute()
+        let cmd = Command.create("notepad", folder + "/utIndefa")
+        cmd.spawn()
     }
 
     const handleImportToPreprocessor = () => {

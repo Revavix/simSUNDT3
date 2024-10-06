@@ -31,46 +31,45 @@ fn set_horizontal_tilt(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>
     };
 }
 
-
 pub static DEFECT_SBSL_IDENTIFIERS: &[interfaces::Identifier] = &[
-    interfaces::Identifier { 
-        id: r"The x- and y- coordinates of the defect centre are:", 
+    interfaces::Identifier {
+        id: r"The x- and y- coordinates of the defect centre are:",
         operation: set_position,
         regex: r"-?\d+\.\d+",
         fields: 2,
         max_offset: 18,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"The depth to the back surface is:", 
+    interfaces::Identifier {
+        id: r"The depth to the back surface is:",
         operation: set_depth,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 10,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"The width of the crack is:", 
+    interfaces::Identifier {
+        id: r"The width of the crack is:",
         operation: set_width,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 10,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"The crack is tilted from the vertical with the angle:", 
+    interfaces::Identifier {
+        id: r"The crack is tilted from the vertical with the angle:",
         operation: set_vertical_tilt,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 10,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"The back surface is tilted from the horisontal with the angle:", 
+    interfaces::Identifier {
+        id: r"The back surface is tilted from the horisontal with the angle:",
         operation: set_horizontal_tilt,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 10,
-        optional: false
-    }
+        optional: false,
+    },
 ];

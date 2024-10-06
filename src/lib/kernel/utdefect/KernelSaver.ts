@@ -1,4 +1,4 @@
-import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs"
+import { BaseDirectory, writeTextFile } from "@tauri-apps/plugin-fs"
 import { Saver } from "../../models/Kernel"
 import type TreeNode from "../../models/tree/TreeNode"
 import KernelSaverData from "./KernelSaverData"
@@ -354,7 +354,7 @@ export class KernelSaver extends Saver {
             output += v + "\n"
         })
 
-        await writeTextFile(dest, output, { dir: BaseDirectory.Document })
+        await writeTextFile(dest, output, { baseDir: BaseDirectory.Document })
         
         return Promise.resolve()
     }

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { open } from "@tauri-apps/api/dialog";
+    import { open } from "@tauri-apps/plugin-dialog";
     import type { Button as IButton } from "../../lib/models/Button";
     import Button from "../Button.svelte";
     import Modal from "../Modal.svelte";

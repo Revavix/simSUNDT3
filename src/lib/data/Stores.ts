@@ -1,6 +1,6 @@
 import type { Writable } from "svelte/store"
 import { writable } from "svelte/store"
-import type { End, Metadata, Point, Side } from "../models/Result"
+import type { Metadata, Point } from "../models/Result"
 import type { Progress, Status } from "../models/Kernel"
 import type { FileCache } from "../models/FileCache"
 import { Euler } from "three"
@@ -18,9 +18,7 @@ export const kernelStatus: Writable<Status> = writable()
 export const loadedMetadata: Writable<Metadata> = writable()
 
 // Selected positions for A, B and D scans
-export const selectedPosSignal: Writable<Point> = writable()
-export const selectedPosSide: Writable<Side> = writable()
-export const selectedPosEnd: Writable<End> = writable()
+export const cursorData: Writable<Point> = writable()
 
 // Interpolation mode, smoothing of C scan
 export const interpolationMode: Writable<Array<string | boolean>> = writable([])

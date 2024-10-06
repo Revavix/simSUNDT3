@@ -1,7 +1,7 @@
 import { InitializerMode, type InitializerExecutionResult, type InitializerValidationResult, Initializer, type Run } from "../../models/Kernel"
 import { KernelSaver as KernelSaverUTDef6 } from "./KernelSaver"
 import { BaseDirectory, documentDir, homeDir } from "@tauri-apps/api/path"
-import { createDir, removeDir, removeFile } from "@tauri-apps/api/fs"
+import { mkdir, remove } from "@tauri-apps/plugin-fs"
 import { GenerateParametricCombinations } from "./KernelUtils"
 
 export class KernelInitializer extends Initializer {
@@ -30,7 +30,7 @@ export class KernelInitializer extends Initializer {
             this.saver.rootNode = runs[i]
 
             // Create a new folder for each combination produced by constructParametricData
-            await createDir("simSUNDT\\Simulations\\" + folder, { dir: BaseDirectory.Document, recursive: true })
+            await mkdir("simSUNDT\\Simulations\\" + folder, { baseDir: BaseDirectory.Document, recursive: true })
 
             // Save each individual run data to folder created above
             await this.saver?.Save("simSUNDT\\Simulations\\" + folder + "\\utdefdat").catch((v) => {
@@ -39,7 +39,7 @@ export class KernelInitializer extends Initializer {
 
             // Copy binary to the simulation folder
             this.runner?.runs.push({
-                path: await documentDir() + "simSUNDT\\Simulations\\" + folder,
+                path: await documentDir() + "\\simSUNDT\\Simulations\\" + folder,
                 started: false,
                 handle: null,
                 watcherId: -1,
@@ -59,8 +59,8 @@ export class KernelInitializer extends Initializer {
             // Clean up unused files post run
             this.runner?.runs.forEach(async (element) => {
                 try {
-                    await removeDir(element.path + "\\utdefcontrol")
-                    await removeDir(element.path + "\\utdefdat")
+                    await remove(element.path + "\\utdefcontrol")
+                    await remove(element.path + "\\utdefdat")
                 } catch (e) {
 
                 }
