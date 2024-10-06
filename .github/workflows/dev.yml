@@ -23,8 +23,8 @@ jobs:
           echo $env:GITHUB_ENV
       - name: Extract package info from Tauri Config
         run: |
-          echo 'PACKAGE_VERSION=${{ fromJson(env.PACKAGE_JSON).package.version }}' >> $env:GITHUB_ENV
-          echo 'PRODUCT_NAME=${{ fromJson(env.PACKAGE_JSON).package.productName }}' >> $env:GITHUB_ENV
+          echo 'PACKAGE_VERSION=${{ fromJson(env.PACKAGE_JSON).version }}' >> $env:GITHUB_ENV
+          echo 'PRODUCT_NAME=${{ fromJson(env.PACKAGE_JSON).productName }}' >> $env:GITHUB_ENV
       - name: Install node
         uses: actions/setup-node@v4
       - name: Install tauri-cli
@@ -36,15 +36,15 @@ jobs:
           cargo tauri build
       - name: Compress dist
         run: |
-          tar -zcvf ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz src-tauri/target/release
-          cp ./src-tauri/target/release/bundle/msi/${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi ./${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
+          tar -zcvf ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_dev.tar.gz src-tauri/target/release
+          cp ./src-tauri/target/release/bundle/msi/${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_dev_x64_en-US.msi ./${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_dev_x64_en-US.msi
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_dev
           path: |
-            ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz
-            ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_x64_en-US.msi
+            ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_dev.tar.gz
+            ${{ env.PRODUCT_NAME }}_${{ env.PACKAGE_VERSION }}_dev_x64_en-US.msi
   test:
     runs-on: ubuntu-latest
     needs: build-windows
