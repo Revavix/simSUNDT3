@@ -3,13 +3,18 @@ import { KernelSaver } from "../../../../src/lib/kernel/utdefect/KernelSaver";
 import TreeNode from "../../../../src/lib/models/tree/TreeNode";
 import { mockIPC } from "@tauri-apps/api/mocks";
 import { New } from "../../../../src/lib/tree/Utils";
+import { InvokeArgs } from "@tauri-apps/api/core";
+
+function mockedWriteTextFile<T>(cmd: string, payload: InvokeArgs | undefined): Promise<T> {
+    if (cmd === "plugin:fs|write_text_file") {
+        return Promise.resolve({} as T);
+    }
+
+    return Promise.reject();
+}
 
 beforeAll(() => {
-    mockIPC((cmd, args: any) => {
-        if (args.message.cmd === "writeFile") {
-            return Promise.resolve();
-        }
-    })
+    mockIPC(mockedWriteTextFile)
 });
 
 test("Save with valid root node", async () => {
