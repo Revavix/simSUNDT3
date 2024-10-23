@@ -2,8 +2,35 @@ import type { Layout } from "plotly.js-dist-min"
 import { get } from "svelte/store"
 import { theme } from "../data/Stores"
 import { range } from "lodash"
+import { crosshairHorizontalLabel, crosshairVerticalLabel } from "./Annotations"
 
-export const blayout: any = {
+export const layoutAPlot: any = {
+    annotations: [],
+    paper_bgcolor: 'rgba(0, 0, 0, 0)',
+    plot_bgcolor: 'rgba(0, 0, 0, 0)',
+    margin: {
+        t: 20,
+        l: 50,
+        r: 30,
+        b: 40
+    },
+    font: {
+        size: 12,
+        family: 'Inter',
+        color: get(theme) === 'business' ? '#fff' : '#000'
+    },
+    xaxis: {
+        showticksuffix: 'all' as const,
+        ticksuffix: 's',
+    },
+    yaxis: {
+        autorange: false,
+        range: [-1, 1],
+    }
+}
+
+
+export const layoutBPlot: any = {
     font: {
         color: get(theme) === 'business' ? '#fff' : '#000'
     },
@@ -16,7 +43,10 @@ export const blayout: any = {
         b: 40
     },
     shapes: [],
-    annotations: [],
+    annotations: [
+        crosshairVerticalLabel(0),
+        crosshairHorizontalLabel(0)
+    ],
     xaxis: {
         minor: {
             ticks: 'outside',
@@ -36,7 +66,7 @@ export const blayout: any = {
     }
 }
 
-export const dlayout: any = {
+export const layoutDPlot: any = {
     font: {
         color: get(theme) === 'business' ? '#fff' : '#000'
     },
@@ -49,7 +79,10 @@ export const dlayout: any = {
         b: 40
     },
     shapes: [],
-    annotations: [],
+    annotations: [
+        crosshairVerticalLabel(0),
+        crosshairHorizontalLabel(0)
+    ],
     xaxis: {
         minor: {
             ticks: 'outside',
@@ -71,6 +104,7 @@ export const dlayout: any = {
 }
 
 export const clayout: any = {
+    autosize: true,
     font: {
         color: get(theme) === 'business' ? '#fff' : '#000'
     },

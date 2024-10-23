@@ -17,8 +17,8 @@ export const kernelStatus: Writable<Status> = writable()
 // Previously densityAndSignalData
 export const loadedMetadata: Writable<Metadata> = writable()
 
-// Selected positions for A, B and D scans
-export const cursorData: Writable<Point> = writable()
+// Active graph
+export const activePlot: Writable<"A" | "B" | "C" | "D"> = writable("C")
 
 // Interpolation mode, smoothing of C scan
 export const interpolationMode: Writable<Array<string | boolean>> = writable([])

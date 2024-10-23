@@ -1,11 +1,11 @@
-export function crosshairHorizontalLabel(y: any, alignment: 'left' | 'right' = 'left') {
+export function crosshairHorizontalLabel(y: any, alignment: 'left' | 'right' = 'left', pow: number = 0, rounding: number = 0) {
     return {
         x: alignment === 'left' ? 1 : 0,
         y: y,
         xref: 'paper',
         yref: 'y',
         xanchor: alignment,
-        text: y,
+        text: (y * Math.pow(10, pow)).toFixed(rounding),
         width: 36,
         showarrow: true,
         arrowhead: 0,
@@ -23,14 +23,14 @@ export function crosshairHorizontalLabel(y: any, alignment: 'left' | 'right' = '
     }
 }
 
-export function crosshairVerticalLabel(x: any, alignment: 'top' | 'bottom' = 'bottom') {
+export function crosshairVerticalLabel(x: any, alignment: 'top' | 'bottom' = 'bottom', pow: number = 0, rounding: number = 0) {
     return {
         x: x,
         y: alignment === 'top' ? 0 : 1,
         xref: 'x',
         yref: 'paper',
         yanchor: alignment,
-        text: x,
+        text: (x * Math.pow(10, pow)).toFixed(rounding),
         width: 36,
         showarrow: true,
         arrowhead: 0,

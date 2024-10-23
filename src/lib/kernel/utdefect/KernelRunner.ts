@@ -95,8 +95,6 @@ export class KernelRunner extends Runner {
         for(let i = 0; i < this.runs.length; i++) {
             const cmd = Command.sidecar(sidecar, [], { cwd: this.runs[i].path })
 
-            console.log(cmd)
-
             cmd.on('close', data => {
                 this.runs[i].closed.code = data.code
                 this.runs[i].closed.signal = data.signal
@@ -117,7 +115,6 @@ export class KernelRunner extends Runner {
             if (this.NumActiveProccesses < this.MaxNumberOfProcesses &&
                 index < this.runs.length
             ) {
-                console.log(commands[index])
                 this.runs[index].started = true
                 commands[index].spawn().then((child: Child) => {
                     this.runs[index].handle = child

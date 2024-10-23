@@ -3,25 +3,26 @@
     import type { Data } from "plotly.js-dist-min"
     import { crosshairHorizontalLabel, crosshairVerticalLabel } from '../../lib/plotting/Annotations'
     import { UltraVision } from '../../lib/plotting/Colorscales';
-    import { loadedMetadata, cursorData, theme } from '../../lib/data/Stores';
+    import { loadedMetadata, theme, activePlot } from '../../lib/data/Stores';
     import { invoke } from '@tauri-apps/api/core';
-    import { Interpolation, LoadingState, type Metadata, type Point, type Top } from '../../lib/models/Result';
-    import Spinner from '../Spinner.svelte';
-    import { onDestroy, onMount } from 'svelte';
+    import { Interpolation, LoadingState, type Top } from '../../lib/models/Result';
+    import { onDestroy } from 'svelte';
     import { interpolationToZsmooth } from '../../lib/plotting/Utils';
     import { clayout } from '../../lib/plotting/Layouts';
     import { get } from 'svelte/store';
     import Modebar from './Modebar.svelte';
     import Zoombar from './Zoombar.svelte';
     import type { Position3D } from '../../lib/models/Positions';
+    import { cScanLoadedData } from '../../lib/data/stores/Data';
+    import { aScanCursor, bScanCursor, cScanCursor, dScanCursor } from '../../lib/data/stores/Cursors';
+    import Unitbar from './Unitbar.svelte';
 
     export let interpolation: Interpolation
     export let colorscale = UltraVision
 
-    let mode = "All"
+    let active: boolean = true
     let currentDecibel: number = 0
     let loading: LoadingState = LoadingState.LOADING
-    let currentMetadata: Metadata
     let loadedTopData: Top
     let plot: any
     let div: any
@@ -37,13 +38,16 @@
         // Active load status again
         loading = LoadingState.LOADING
 
+        Plotly.purge(div)
+
         // Load the C.dat file
         invoke('commands_results_parse_top_view', { path: metadata.path }).then((cdat: any) => {
-            let top = cdat as Top
-            let midPointX = Math.floor(((top.columns-1) * metadata.coordinates.x.increment) / 2) + metadata.coordinates.x.start
+            let midPointX = Math.floor(((cdat.columns-1) * metadata.coordinates.x.increment) / 2) + metadata.coordinates.x.start
             midPointX += midPointX % metadata.coordinates.x.increment
-            let midPointY = Math.floor(((top.rows-1) * metadata.coordinates.y.increment) / 2) + metadata.coordinates.y.start
+            let midPointY = Math.floor(((cdat.rows-1) * metadata.coordinates.y.increment) / 2) + metadata.coordinates.y.start
             midPointY += midPointY % metadata.coordinates.y.increment
+            let midPointColumn = Math.floor(cdat.columns / 2)
+            let midPointRow = Math.floor(cdat.rows / 2)
 
             clayout.annotations = [
                 crosshairHorizontalLabel(midPointY),
@@ -52,41 +56,47 @@
 
             loading = LoadingState.OK
             setTimeout(() => {
-                loadedTopData = top
-                currentMetadata = metadata
+                loadedTopData = cdat as Top
 
                 // Trigger a plot update since data has changed
                 updatePlot()
 
                 // Manually update on first plot draw
-                cursorData.set({
-                    topData: top,
-                    pos: {
-                        x: midPointX, 
-                        y: midPointY
-                    },
-                    forceRefresh: true
+                cScanLoadedData.set({
+                    currentCol: midPointColumn, 
+                    currentRow: midPointRow,
+                    cols: cdat.columns,
+                    rows: cdat.rows,
+                    samples: cdat.samples,
+                    amplitude: cdat.amplitude,
+                    content: cdat.content
                 })
+                cScanCursor.set({ x: midPointX, y: midPointY })
+                setTimeout(() => {
+                    aScanCursor.set({ xIndex: Math.floor(cdat.samples / 2) })
+                    bScanCursor.set({ x: midPointX, yIndex: Math.floor(cdat.samples / 2) })
+                    dScanCursor.set({ x: midPointY, yIndex: Math.floor(cdat.samples / 2) })
+                    currentDecibel = getCurrentDecibel(loadedTopData.content, midPointX, midPointY)
+                }, 500)
 
                 // Listen to click events in the plot
-                div.on('plotly_click', function(d: any) {
-                    for(var i=0; i < d.points.length; i++){
-                        top.content.find((cd) => {
-                            let x = metadata.coordinates.x.start + (cd.x * metadata.coordinates.x.increment)
-                            let y = metadata.coordinates.y.start + (cd.y * metadata.coordinates.y.increment)
-                            // Only update if the coordinate has data in it
-                            if (x === d.points[i].x && y === d.points[i].y) {
-                                cursorData.set({
-                                    topData: top,
-                                    pos: {
-                                        x: x, 
-                                        y: y
-                                    },
-                                    forceRefresh: false
-                                })
-                            }
-                        })
-                    }
+                div.on('plotly_click', function(clickData: any) {
+                    if (!active) return
+                    cScanLoadedData.update(data => {
+                        data.currentCol = Math.abs(Math.floor((clickData.points[0].x - metadata.coordinates.x.start) / metadata.coordinates.x.increment))
+                        data.currentRow = Math.abs(Math.floor((clickData.points[0].y - metadata.coordinates.y.start) / metadata.coordinates.y.increment))
+                        return data
+                    })
+                    cScanCursor.set({ x: clickData.points[0].x, y: clickData.points[0].y })
+                    bScanCursor.update(cursor => {
+                        cursor.x = clickData.points[0].x
+                        return cursor
+                    })
+                    dScanCursor.update(cursor => {
+                        cursor.x = clickData.points[0].y
+                        return cursor
+                    })
+                    activePlot.set("C")
                 })
             }, 10)
         }).catch((e) => {
@@ -105,57 +115,35 @@
         })
     })
 
-    let unsubscribeCursorData = cursorData.subscribe(point => {
-        if (point === undefined || currentMetadata === undefined || plot === undefined) return
+    let unsubscribeCScanCursor = cScanCursor.subscribe(cursor => {
+        if (cursor === undefined || $loadedMetadata === undefined || plot === undefined) return
 
         clayout.annotations = [
             // Horizontal label should align left if cursor is on the right side of the plot, otherwise right
             crosshairHorizontalLabel(
-                point.pos.y, 
-                (point.pos.x >= currentMetadata.coordinates.x.start + ((currentMetadata.coordinates.x.end - currentMetadata.coordinates.x.start) / 2)) ? 'left' : 'right'
+                cursor.y, 
+                (cursor.x >= $loadedMetadata.coordinates.x.start + (($loadedMetadata.coordinates.x.end - $loadedMetadata.coordinates.x.start) / 2)) ? 'left' : 'right'
             ),
             // Vertical label should align top if cursor is on the bottom side of the plot, otherwise bottom
             crosshairVerticalLabel(
-                point.pos.x, 
-                (point.pos.y >= currentMetadata.coordinates.y.start + ((currentMetadata.coordinates.y.end - currentMetadata.coordinates.y.start) / 2)) ? 'bottom' : 'top'
+                cursor.x, 
+                (cursor.y >= $loadedMetadata.coordinates.y.start + (($loadedMetadata.coordinates.y.end - $loadedMetadata.coordinates.y.start) / 2)) ? 'bottom' : 'top'
             )
         ]
 
         // Update the current decibel value
-        currentDecibel = getCurrentDecibel(point.topData.content, point.pos.x, point.pos.y)
+        currentDecibel = getCurrentDecibel(loadedTopData.content, cursor.x, cursor.y)
 
-        Plotly.relayout(div, clayout)
-    })
-
-    function onKeyDown(e: any) {
-        const metadata = get(loadedMetadata)
-        const currentPoint = get(cursorData)
-        const movements: Record<number, Point> = {
-            40: { topData: currentPoint.topData, pos: { x: currentPoint.pos.x, y: currentPoint.pos.y - Math.abs(metadata.coordinates.y.increment) }, forceRefresh: false } as Point,
-            39: { topData: currentPoint.topData, pos: { x: currentPoint.pos.x + Math.abs(metadata.coordinates.x.increment), y: currentPoint.pos.y }, forceRefresh: false } as Point,
-            38: { topData: currentPoint.topData, pos: { x: currentPoint.pos.x, y: currentPoint.pos.y + Math.abs(metadata.coordinates.y.increment) }, forceRefresh: false } as Point,
-            37: { topData: currentPoint.topData, pos: { x: currentPoint.pos.x - Math.abs(metadata.coordinates.x.increment), y: currentPoint.pos.y }, forceRefresh: false } as Point
-        }
-
-        if (movements[e.keyCode] === undefined) return
-
-        // Sample the data at the new position to check if it is valid, and if so update the cursor
-        let found = currentPoint.topData.content.find((cd) => {
-            let xd = currentMetadata.coordinates.x.start + (cd.x * currentMetadata.coordinates.x.increment)
-            let yd = currentMetadata.coordinates.y.start + (cd.y * currentMetadata.coordinates.y.increment)
-            return xd === movements[e.keyCode].pos.x && yd === movements[e.keyCode].pos.y
+        Plotly.relayout(div, clayout).then((p) => {
+            plot = p
         })
-
-        if (found !== undefined) {
-            cursorData.set(movements[e.keyCode])
-        }
-    }
+    })
 
     let getCurrentDecibel = (data: Array<Position3D>, x: number, y: number) => {
         if (plot !== undefined) {
             let point = data.find((cd) => {
-                let xd = currentMetadata.coordinates.x.start + (cd.x * currentMetadata.coordinates.x.increment)
-                let yd = currentMetadata.coordinates.y.start + (cd.y * currentMetadata.coordinates.y.increment)
+                let xd = $loadedMetadata.coordinates.x.start + (cd.x * $loadedMetadata.coordinates.x.increment)
+                let yd = $loadedMetadata.coordinates.y.start + (cd.y * $loadedMetadata.coordinates.y.increment)
                 return xd === x && yd === y
             })
 
@@ -167,19 +155,37 @@
         return 0
     }
 
+
     let findZero = () => {
-        let data = get(cursorData)
+        let data = get(cScanLoadedData)
 
         // Find the point where Z is 0
-        let zero = data.topData.content.find((cd) => {
+        let zero = data.content.find((cd) => {
             return cd.z === 0
         })
 
         if (zero !== undefined) {
-            cursorData.update(point => {
-                point.pos.x = currentMetadata.coordinates.x.start + (zero.x * currentMetadata.coordinates.x.increment)
-                point.pos.y = currentMetadata.coordinates.y.start + (zero.y * currentMetadata.coordinates.y.increment)
-                return point
+            cScanCursor.update(cursor => {
+                cursor.x = $loadedMetadata.coordinates.x.start + (zero.x * $loadedMetadata.coordinates.x.increment)
+                cursor.y = $loadedMetadata.coordinates.y.start + (zero.y * $loadedMetadata.coordinates.y.increment)
+                return cursor
+            })
+            cScanLoadedData.update(data => {
+                data.currentCol = zero.x
+                data.currentRow = zero.y
+                return data
+            })
+            aScanCursor.update(cursor => {
+                cursor.xIndex = cursor.xIndex
+                return cursor
+            })
+            bScanCursor.update(cursor => {
+                cursor.x = $loadedMetadata.coordinates.x.start + (zero.x * $loadedMetadata.coordinates.x.increment)
+                return cursor
+            })
+            dScanCursor.update(cursor => {
+                cursor.x = $loadedMetadata.coordinates.y.start + (zero.y * $loadedMetadata.coordinates.y.increment)
+                return cursor
             })
         }
     }
@@ -189,8 +195,8 @@
 
         let data: Data[] = [
             {
-                x: loadedTopData.content.map(c => currentMetadata.coordinates.x.start + (c.x * currentMetadata.coordinates.x.increment)),
-                y: loadedTopData.content.map(c => currentMetadata.coordinates.y.start + (c.y * currentMetadata.coordinates.y.increment)),
+                x: loadedTopData.content.map(c => $loadedMetadata.coordinates.x.start + (c.x * $loadedMetadata.coordinates.x.increment)),
+                y: loadedTopData.content.map(c => $loadedMetadata.coordinates.y.start + (c.y * $loadedMetadata.coordinates.y.increment)),
                 z: loadedTopData.content.map(c => c.z),
                 zsmooth: interpolationToZsmooth(interpolation),
                 type: 'heatmap',
@@ -202,23 +208,24 @@
 
         clayout.font.color = get(theme) === 'business' ? '#fff' : '#000'
 
-        plot = Plotly.react(div, data, clayout, cfg)
+        Plotly.react(div, data, clayout, cfg).then((p) => {
+            plot = p
+        })
     }
 
     onDestroy(() => {
         unsubscribeTheme()
         unsubscribeData()
-        unsubscribeCursorData()
+        unsubscribeCScanCursor()
     })
 
     $: interpolation || colorscale, updatePlot()
 </script>
 
-<svelte:window on:keydown|preventDefault={onKeyDown}/>
 <div class="flex flex-row items-center pt-1">
-    <div class="flex flex-col">
-        <p class="px-2 text-base-content">Top View (C)</p>
-    </div>
+    <button class="flex flex-col" on:click={() => activePlot.set("C")}>
+        <p class="px-2 text-base-content {$activePlot === 'C' ? '' : 'opacity-70'}">Top (C)</p>
+    </button>
     <div class="flex flex-col ml-1">
         {#if loading === LoadingState.LOADING}
             <span class="loading loading-bars loading-xs"/>
@@ -226,18 +233,6 @@
             <div class="tooltip" data-tip="hello">
                 <div style="font-family: 'Material Icons'; font-size: 24px; color: #f44336;">error</div>
             </div>
-        {:else}
-        <div class="flex flex-row items-center">
-            <button class="flex flex-col pr-1.5 {mode == "All" ? "opacity-100" : "opacity-40"}" style="font-size:12px; color:#4d4d4d;" on:click={() => mode = "All"}>
-                All
-            </button>
-            <button class="flex flex-col pr-1.5 {mode == "B" ? "opacity-100" : "opacity-40"}" style="font-size:12px; color:#4d4d4d;" on:click={() => mode = "B"}>
-                B
-            </button>
-            <button class="flex flex-col {mode == "D" ? "opacity-100" : "opacity-40"}" style="font-size:12px; color:#4d4d4d;" on:click={() => mode = "D"}>
-                D
-            </button>
-        </div>
         {/if}
     </div>
     <div class="flex flex-col ml-auto mr-0.5">

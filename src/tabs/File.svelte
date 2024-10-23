@@ -205,8 +205,8 @@
                     <div class="flex flex-row rounded-md shadow-md w-full bg-base-100 py-2 my-1 hover:bg-primary" transition:slide|local> 
                         <button class="flex flex-row w-full items-center" on:click={(e) => handleLoadByName(project)}>
                             <div class="flex flex-col ml-2">
-                                <p class="font-lg text-base-content">{project.name}</p>
-                                <p class="font-lg text-sm text-base-content">{new Date(project.date).toLocaleString()}</p>
+                                <p class="flex flex-row font-lg text-base-content">{project.name}</p>
+                                <p class="flex flex-row font-lg text-sm text-base-content">{new Date(project.date).toLocaleString()}</p>
                             </div>
                             <!-- Stylized badge indicator of how many simulations results are in the project -->
                             <div class="flex flex-col ml-auto mr-2">

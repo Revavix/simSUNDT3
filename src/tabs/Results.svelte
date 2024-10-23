@@ -4,7 +4,7 @@
     import BPlot from '../components/plotting/BPlot.svelte';
     import DPlot from '../components/plotting/DPlot.svelte';
     import { onMount } from 'svelte';
-    import { activeTab, loadedMetadata } from '../lib/data/Stores';
+    import { activePlot, activeTab, loadedMetadata } from '../lib/data/Stores';
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
     import { Command } from '@tauri-apps/plugin-shell'
     import { invoke } from '@tauri-apps/api/core'
@@ -15,6 +15,8 @@
     import { readTextFile } from '@tauri-apps/plugin-fs';
     import { Deserialize } from '../lib/tree/Utils';
     import { get } from 'svelte/store';
+    import { cScanLoadedData } from '../lib/data/stores/Data';
+    import { aScanCursor, bScanCursor, cScanCursor, dScanCursor } from '../lib/data/stores/Cursors';
     
     export let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
 
@@ -76,8 +78,139 @@
             activeTab.set("Preprocessor")
         })
     }
+
+    
+    let onKeyDown = (ev: any) => {
+        // Return if keys are not 37-40
+        if (ev.keyCode < 37 || ev.keyCode > 40) return
+
+        if ($activePlot === 'A') {
+            const movements: Record<number, { index: number }> = {
+                39: { index: $aScanCursor.xIndex + 1 },
+                37: { index: $aScanCursor.xIndex - 1 }
+            }
+
+            if (movements[ev.keyCode].index >= 0 || movements[ev.keyCode].index <= $cScanLoadedData.samples) {
+                aScanCursor.set({ xIndex: movements[ev.keyCode].index })
+                bScanCursor.update(cursor => { return { x: cursor?.x, yIndex: movements[ev.keyCode].index } })
+                dScanCursor.update(cursor => { return { x: cursor?.x, yIndex: movements[ev.keyCode].index } })
+            }
+        } else if ($activePlot === 'B') {
+            const movements: Record<number, { col: number, index: number }> = {
+                40: { col: $cScanLoadedData.currentCol, index: $aScanCursor.xIndex + 1 },
+                39: { col: $cScanLoadedData.currentCol + Math.sign($loadedMetadata.coordinates.x.increment), index: $aScanCursor.xIndex },
+                38: { col: $cScanLoadedData.currentCol, index: $aScanCursor.xIndex - 1 },
+                37: { col: $cScanLoadedData.currentCol - Math.sign($loadedMetadata.coordinates.x.increment), index: $aScanCursor.xIndex }
+            }
+
+            let found = $cScanLoadedData.content.find((cd) => {
+                let x = $loadedMetadata.coordinates.x.start + (cd.x * $loadedMetadata.coordinates.x.increment)
+                let xd = $loadedMetadata.coordinates.x.start + (movements[ev.keyCode].col * $loadedMetadata.coordinates.x.increment)
+                return x === xd
+            })
+
+            if ((movements[ev.keyCode].index >= 0 || movements[ev.keyCode].index <= $cScanLoadedData.samples) && found) {
+                cScanLoadedData.update(data => {
+                    data.currentCol = movements[ev.keyCode].col
+                    return data
+                })
+                cScanCursor.update(cursor => {
+                    cursor.x = $loadedMetadata.coordinates.x.start + (movements[ev.keyCode].col * $loadedMetadata.coordinates.x.increment)
+                    return cursor
+                })
+                dScanCursor.update(cursor => { return { 
+                    x: cursor.x, 
+                    yIndex: movements[ev.keyCode].index % $cScanLoadedData.samples 
+                }})
+                bScanCursor.set({ 
+                    x: $loadedMetadata.coordinates.x.start + (movements[ev.keyCode].col * $loadedMetadata.coordinates.x.increment), 
+                    yIndex: movements[ev.keyCode].index % $cScanLoadedData.samples
+                })
+                aScanCursor.set({ 
+                    xIndex: movements[ev.keyCode].index % $cScanLoadedData.samples
+                })
+            }
+        } else if ($activePlot === 'C') {
+            const movements: Record<number, { col: number, row: number }> = {
+                40: { col: $cScanLoadedData.currentCol, row: $cScanLoadedData.currentRow - Math.sign($loadedMetadata.coordinates.y.increment) },
+                39: { col: $cScanLoadedData.currentCol + Math.sign($loadedMetadata.coordinates.x.increment), row: $cScanLoadedData.currentRow },
+                38: { col: $cScanLoadedData.currentCol, row: $cScanLoadedData.currentRow + Math.sign($loadedMetadata.coordinates.y.increment) },
+                37: { col: $cScanLoadedData.currentCol - Math.sign($loadedMetadata.coordinates.x.increment), row: $cScanLoadedData.currentRow }
+            }
+
+            // Convert column to x and row to y and sample the data at the new position to check if it is valid, and if so update the cursor
+            let found = $cScanLoadedData.content.find((cd) => {
+                let x = $loadedMetadata.coordinates.x.start + (cd.x * $loadedMetadata.coordinates.x.increment)
+                let y = $loadedMetadata.coordinates.y.start + (cd.y * $loadedMetadata.coordinates.y.increment)
+                let xd = $loadedMetadata.coordinates.x.start + (movements[ev.keyCode].col * $loadedMetadata.coordinates.x.increment)
+                let yd = $loadedMetadata.coordinates.y.start + (movements[ev.keyCode].row * $loadedMetadata.coordinates.y.increment)
+                return x === xd && y === yd 
+            })
+
+            if (found !== undefined) {
+                cScanLoadedData.update(data => {
+                    data.currentCol = movements[ev.keyCode].col
+                    data.currentRow = movements[ev.keyCode].row
+                    return data
+                })
+                cScanCursor.update(cursor => {
+                    cursor.x = $loadedMetadata.coordinates.x.start + (movements[ev.keyCode].col * $loadedMetadata.coordinates.x.increment)
+                    cursor.y = $loadedMetadata.coordinates.y.start + (movements[ev.keyCode].row * $loadedMetadata.coordinates.y.increment)
+                    return cursor
+                })
+                aScanCursor.update(cursor => {
+                    cursor.xIndex = cursor.xIndex
+                    return cursor
+                })
+                bScanCursor.update(cursor => {
+                    cursor.x = $loadedMetadata.coordinates.x.start + (movements[ev.keyCode].col * $loadedMetadata.coordinates.x.increment)
+                    return cursor
+                })
+                dScanCursor.update(cursor => {
+                    cursor.x = $loadedMetadata.coordinates.y.start + (movements[ev.keyCode].row * $loadedMetadata.coordinates.y.increment)
+                    return cursor
+                })
+            }
+        } else if ($activePlot === 'D') {
+            const movements: Record<number, { row: number, index: number }> = {
+                40: { row: $cScanLoadedData.currentRow, index: $aScanCursor.xIndex + 1 },
+                39: { row: $cScanLoadedData.currentRow + Math.sign($loadedMetadata.coordinates.y.increment), index: $aScanCursor.xIndex },
+                38: { row: $cScanLoadedData.currentRow, index: $aScanCursor.xIndex - 1 },
+                37: { row: $cScanLoadedData.currentRow - Math.sign($loadedMetadata.coordinates.y.increment), index: $aScanCursor.xIndex }
+            }
+
+            let found = $cScanLoadedData.content.find((cd) => {
+                let y = $loadedMetadata.coordinates.y.start + (cd.y * $loadedMetadata.coordinates.y.increment)
+                let yd = $loadedMetadata.coordinates.y.start + (movements[ev.keyCode].row * $loadedMetadata.coordinates.y.increment)
+                return y === yd 
+            })
+
+            if ((movements[ev.keyCode].index >= 0 || movements[ev.keyCode].index <= $cScanLoadedData.samples) && found) {
+                cScanLoadedData.update(data => {
+                    data.currentRow = movements[ev.keyCode].row
+                    return data
+                })
+                cScanCursor.update(cursor => { return { 
+                    x: cursor?.x, 
+                    y: $loadedMetadata.coordinates.y.start + (movements[ev.keyCode].row * $loadedMetadata.coordinates.y.increment) 
+                }})
+                bScanCursor.update(cursor => { return { 
+                    x: cursor?.x, 
+                    yIndex: movements[ev.keyCode].index % $cScanLoadedData.samples
+                }})
+                dScanCursor.set({ 
+                    x: $loadedMetadata.coordinates.y.start + (movements[ev.keyCode].row * $loadedMetadata.coordinates.y.increment), 
+                    yIndex: movements[ev.keyCode].index % $cScanLoadedData.samples
+                })
+                aScanCursor.set({ 
+                    xIndex: movements[ev.keyCode].index % $cScanLoadedData.samples 
+                })
+            }
+        }
+    }
 </script>
 
+<svelte:window on:keydown|preventDefault={onKeyDown}/>
 <div id="postprocessor-tab">
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-base-100 w-full h-24" style="z-index: 50; position: relative">
         <div class="flex flex-col w-60 pt-2">

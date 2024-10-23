@@ -2,7 +2,6 @@
     import { onDestroy } from "svelte";
     import { loadedMetadata } from "../../lib/data/Stores";
     import type { Metadata } from "../../lib/models/Result";
-    import { CalculationLength, CalculationMode, DistanceMode, DistancePath } from "../../lib/models/SoundYAxisMode";
 
     let metadata: Metadata | null = null
     export let calculationMode: CalculationMode | undefined = undefined

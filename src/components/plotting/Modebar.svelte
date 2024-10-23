@@ -3,19 +3,10 @@
     import { onMount } from "svelte";
     import { get } from 'svelte/store';
 
-    export let plot: Promise<object>
-    let div: any
+    export let plot: any
     let plotMode: "zoom" | "pan" = "zoom"
 
-    $: plot, update()
 
-    async function update() {
-        if (plot === undefined) return
-        plot.then((v: any) => {
-            if (v.childNodes.length === 0) return
-            div = v
-        })
-    }
 </script>
 
 <div class="flex flex-col">
@@ -24,10 +15,10 @@
             <button class="{plotMode === 'zoom' ? '' : 'opacity-60'}"
             on:click={() => {
                 plotMode = 'zoom'
-                Plotly.relayout(div, {
+                Plotly.relayout(plot, {
                     dragmode: 'zoom'
                 })
-                div = div
+                plot = plot
             }}
             >
                 <div class="flex flex-col text-md" style="font-family:'Material Icons';">
@@ -39,10 +30,10 @@
             <button class="{plotMode === 'pan' ? '' : 'opacity-60'}"
             on:click={() => {
                 plotMode = 'pan'
-                Plotly.relayout(div, {
+                Plotly.relayout(plot, {
                     dragmode: 'pan'
                 })
-                div = div
+                plot = plot
             }}
             >
                 <div class="flex flex-col text-md" style="font-family:'Material Icons';">

@@ -1,6 +1,5 @@
 import { MathUtils } from "three/src/math/MathUtils.js";
 import { Interpolation, Rectification, type Metadata } from "../models/Result";
-import { DistanceMode, DistancePath } from "../models/SoundYAxisMode";
 
 export function interpolationToZsmooth(interpolation: Interpolation): false | "fast" | "best" {
     switch(interpolation) {
@@ -29,10 +28,14 @@ export function rectify(rectification: Rectification, value: number): number {
     return rectified
 }
 
-export function calculateDistance(metadata: Metadata, mode: DistanceMode, path: DistancePath, y: number): number {
+export function calculateDistance(metadata: Metadata, 
+    type: "Shear" | "Longitudinal", 
+    path: "Soundpath" | "True", 
+    y: number
+): number {
     return (metadata.timegate.start + (y * metadata.timegate.increment)) * 
-        (mode === DistanceMode.Compressional ? metadata.wavespeeds.compressional : metadata.wavespeeds.shear) * 
-        (path === DistancePath.True ? Math.cos(MathUtils.degToRad(metadata.probe.true_angle)) : 1)
+        (type === "Shear" ? metadata.wavespeeds.compressional : metadata.wavespeeds.shear) * 
+        (path === "True" ? Math.cos(MathUtils.degToRad(metadata.probe.true_angle ?? 1)) : 1)
 }
 
 export function calculateTime(metadata: Metadata, y: number): number {

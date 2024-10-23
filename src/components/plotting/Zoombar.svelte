@@ -6,39 +6,18 @@
     import { onDestroy } from "svelte";
     import { loadedMetadata } from "../../lib/data/Stores";
     
-    export let plot: Promise<object>
+    export let plot: any
     export let metadata: Metadata | null = null
 
-    let plotDiv: any
     let originalXRange: [Datum, Datum] = [0, 0]
     let originalYRange: [Datum, Datum] = [0, 0]
-
-    let zoomOutButton = {
-        label: undefined,
-        color: "#4d4d4d",
-        icon: "zoom_out",
-        action:  () => {
-            zoom(2)
-        },
-        disabled: true
-    }
-
-    let zoomInButton = {
-        label: undefined,
-        color: "#4d4d4d",
-        icon: "zoom_in",
-        action:  () => {
-            zoom(0.5)
-        },
-        disabled: true
-    }
 
     let zoomResetButton = {
         label: undefined,
         color: "#4d4d4d",
         icon: "zoom_out_map",
         action:  () => {
-            Plotly.relayout(plotDiv, {
+            Plotly.relayout(plot, {
                 'xaxis.range': originalXRange, 
                 'xaxis.autorange': true, 
                 'yaxis.range': originalYRange, 
@@ -53,29 +32,27 @@
     async function update() {
         if (plot === undefined) return
 
-        plot.then((v: any) => {
-            if (v.childNodes.length === 0) return
-            plotDiv = v
-            originalXRange = v.layout.xaxis.range
-            originalYRange = v.layout.yaxis.range
-        })
+        if (plot.childNodes?.length > 0) {
+            originalXRange = plot.layout.xaxis.range
+            originalYRange = plot.layout.yaxis.range
+        }
     }
 
     function zoom(mag: number) {
         let r0 = (1 + mag) / 2;
         let r1 = (1 - mag) / 2;
 
-        let axx = plotDiv._fullLayout.xaxis
-        let axy = plotDiv._fullLayout.yaxis
+        let axx = plot._fullLayout.xaxis
+        let axy = plot._fullLayout.yaxis
 
         let xRangeNow = [
-            axx.r2l(plotDiv.layout.xaxis.range[0]),
-            axx.r2l(plotDiv.layout.xaxis.range[1])
+            axx.r2l(plot.layout.xaxis.range[0]),
+            axx.r2l(plot.layout.xaxis.range[1])
         ]
 
         let yRangeNow = [
-            axy.r2l(plotDiv.layout.yaxis.range[0]),
-            axy.r2l(plotDiv.layout.yaxis.range[1])
+            axy.r2l(plot.layout.yaxis.range[0]),
+            axy.r2l(plot.layout.yaxis.range[1])
         ]
 
         let xNew: [Datum, Datum] = [
@@ -88,7 +65,7 @@
             axy.l2r(r0 * yRangeNow[1] + r1 * yRangeNow[0]),
         ]
 
-        Plotly.relayout(plotDiv, {
+        Plotly.relayout(plot, {
             'xaxis.range': xNew, 
             'yaxis.range': yNew
         })
@@ -106,7 +83,7 @@
 <div class="flex flex-row w-full items-center">
     <div class="flex flex-col w-full mx-0.5">
         <button class="flex flex-col text-md" style="font-family:'Material Icons';" 
-        disabled={plotDiv?._fullLayout?.dragmode !== 'zoom'} on:click={() => {
+        disabled={plot?._fullLayout?.dragmode !== 'zoom'} on:click={() => {
             zoom(2)
         }}>
             zoom_out
@@ -114,7 +91,7 @@
     </div>
     <div class="flex flex-col w-full mx-0.5">
         <button class="flex flex-col text-md" style="font-family:'Material Icons';"
-        disabled={plotDiv?._fullLayout?.dragmode !== 'zoom'} on:click={() => {
+        disabled={plot?._fullLayout?.dragmode !== 'zoom'} on:click={() => {
             zoom(0.5)
         }}>
             zoom_in
