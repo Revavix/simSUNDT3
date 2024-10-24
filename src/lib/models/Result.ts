@@ -74,31 +74,9 @@ export interface Top {
 }
 
 export interface Point {
-    amplitude: number,
-    ref: {
-        cols: number,
-        samples: number
-    }
-    pos: Position2D
-}
-
-export interface Side {
-    amplitude: number,
-    ref: {
-        cols: number,
-        samples: number
-    }
-    y: number
-}
-
-export interface End {
-    amplitude: number,
-    ref: {
-        rows: number,
-        cols: number,
-        samples: number
-    }
-    x: number
+    topData: Top,
+    pos: Position2D,
+    forceRefresh: boolean
 }
 
 export enum LoadingState {
@@ -112,10 +90,4 @@ export enum Rectification {
     FULLWAVE = 1,
     HALFWAVE_POS = 2,
     HALFWAVE_NEG = 3
-}
-
-export enum Interpolation {
-    OFF = 0,
-    FAST = 1,
-    BEST = 2
 }

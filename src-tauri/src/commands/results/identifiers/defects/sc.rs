@@ -20,28 +20,28 @@ fn set_depth(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
 }
 
 pub static DEFECT_SC_IDENTIFIERS: &[interfaces::Identifier] = &[
-    interfaces::Identifier { 
-        id: r"The x- and y- coordinates of the defect centre are:", 
+    interfaces::Identifier {
+        id: r"The x- and y- coordinates of the defect centre are:",
         operation: set_position,
         regex: r"-?\d+\.\d+",
         fields: 2,
         max_offset: 18,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"The depth to the centre of the defect is:", 
+    interfaces::Identifier {
+        id: r"The depth to the centre of the defect is:",
         operation: set_depth,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 10,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"Defect is .+ with diameter:", 
+    interfaces::Identifier {
+        id: r"Defect is .+ with diameter:",
         operation: set_diameter,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 10,
-        optional: false
-    }
+        optional: false,
+    },
 ];

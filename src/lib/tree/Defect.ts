@@ -5,11 +5,6 @@ import TreeNode from "../models/tree/TreeNode";
 
 const Defect = new TreeNode("Defect", false, false)
 
-// Defect:Position
-const position = Defect.AddChild(new TreeNode("Position", true, false))
-position.AddChild(new TreeInput("X", "XDEF", 0, true))
-position.AddChild(new TreeInput("Y", "YDEF", 0, true))
-
 // Defect:Specification
 const specification = Defect.AddChild(new TreeNode("Specification", true, false))
 specification.AddChild(new TreeDropdown("Variant", "LDTY", [
@@ -87,6 +82,11 @@ circularProperties.AddChild(new TreeDropdown("Variant", "LDC", [
 ], 1))
 circularProperties.AddChild(new TreeInput("Stress Quotient", "DC", 0.5, true))
 circularProperties.AddChild(new TreeInput("Contact Diameter", "DAC", 0, true))
+
+// Defect:Position
+const position = Defect.AddChild(new TreeNode("Position", true, false))
+position.AddChild(new TreeInput("X", "XDEF", 0, true))
+position.AddChild(new TreeInput("Y", "YDEF", 0, true))
 
 // Defect:Surfaces
 const surfaces = Defect.AddChild(new TreeNode("Surfaces", true, false))

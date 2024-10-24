@@ -2,99 +2,60 @@
   "build": {
     "beforeBuildCommand": "yarn build",
     "beforeDevCommand": "yarn dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "../src/dist"
+    "frontendDist": "../src/dist",
+    "devUrl": "http://localhost:5173"
   },
-  "package": {
-    "productName": "SimSUNDT",
-    "version": "3.2.2"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": true,
-      "path": {
-        "all": true
+  "bundle": {
+    "active": true,
+    "publisher": "Revavix, University West",
+    "category": "Productivity",
+    "copyright": "",
+    "targets": "all",
+    "externalBin": [
+      "binaries/v6/UTDef6",
+      "binaries/light/UTDefectLight"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "wix": {
+        "dialogImagePath": "icons/banners/msi/493x312.bmp",
+        "bannerPath": "icons/banners/msi/493x58_2.bmp"
       },
-      "fs": {
-        "all": true,
-        "scope": [
-          "$DOCUMENT/**",
-          "$APPDATA/**",
-          "$RESOURCE/**"
-        ]
-      },
-      "shell": {
-        "sidecar": true,
-        "scope": [
-          {
-            "name": "binaries/v6/UTDef6",
-            "sidecar": true
-          },
-          {
-            "name": "binaries/light/UTDefectLight",
-            "sidecar": true
-          },
-          
-          {
-            "name": "notepad",
-            "cmd": "notepad",
-            "args": [{"validator": "\\S+"}]
-          }
-        ]
-      }
+      "nsis": {}
     },
-    "bundle": {
-      "active": true,
-      "publisher": "Revavix, University West",
-      "category": "Productivity",
-      "copyright": "",
+    "longDescription": "",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
+    },
+    "resources": [
+      "resources/*"
+    ],
+    "shortDescription": "",
+    "linux": {
       "deb": {
         "depends": []
-      },
-      "externalBin": [
-        "binaries/v6/UTDef6",
-        "binaries/light/UTDefectLight"
-      ],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.ico"
-      ],
-      "identifier": "com.revavix.simsundt",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [
-        "resources/*"
-      ],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": "",
-        "wix": {
-          "license": "../LICENSE",
-          "bannerPath": "icons/banners/msi/493x58_2.bmp",
-          "dialogImagePath": "icons/banners/msi/493x312.bmp"
-        },
-        "nsis": {
-          "license": "../LICENSE"
-        }
       }
     },
-    "security": {
-      "csp": null
-    },
-    "updater": {
-      "active": false
-    },
+    "licenseFile": "../LICENSE"
+  },
+  "productName": "SimSUNDT",
+  "mainBinaryName": "SimSUNDT",
+  "version": "3.2.4",
+  "identifier": "com.revavix.simsundt",
+  "plugins": {},
+  "app": {
     "windows": [
       {
         "fullscreen": false,
@@ -104,6 +65,9 @@
         "width": 1280,
         "decorations": false
       }
-    ]
+    ],
+    "security": {
+      "csp": null
+    }
   }
 }

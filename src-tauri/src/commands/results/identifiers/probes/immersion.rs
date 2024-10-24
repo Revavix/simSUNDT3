@@ -27,36 +27,36 @@ fn set_eulers(metadata: &mut interfaces::Metadata, data: &mut Vec<&str>) -> () {
 }
 
 pub static IMMERSION_IDENTIFIERS: &[interfaces::Identifier] = &[
-    interfaces::Identifier { 
-        id: r"Immersion probe in a fluid with wave speed:", 
+    interfaces::Identifier {
+        id: r"Immersion probe in a fluid with wave speed:",
         operation: set_wavespeed,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 12,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"and density ratio to the solid component:", 
+    interfaces::Identifier {
+        id: r"and density ratio to the solid component:",
         operation: set_density_ratio,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 12,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"Distance between probe and component:", 
+    interfaces::Identifier {
+        id: r"Distance between probe and component:",
         operation: set_distance,
         regex: r"-?\d+\.\d+",
         fields: 1,
         max_offset: 12,
-        optional: false
+        optional: false,
     },
-    interfaces::Identifier { 
-        id: r"Euler angles \(zyz\) of probe orientation:", 
+    interfaces::Identifier {
+        id: r"Euler angles \(zyz\) of probe orientation:",
         operation: set_eulers,
         regex: r"-?\d+\.\d+",
         fields: 3,
         max_offset: 24,
-        optional: false
+        optional: false,
     },
 ];

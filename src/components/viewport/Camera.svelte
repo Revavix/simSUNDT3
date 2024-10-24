@@ -1,21 +1,11 @@
 <script lang="ts">
     import { T, useThrelte } from '@threlte/core'
     import { OrbitControls } from '@threlte/extras'
-    import { onDestroy, onMount } from 'svelte'
     import { cameraPosition, cameraRotation } from '../../lib/data/Stores';
-    import { toArray } from 'lodash';
 
     export let renderer: any
 
     const { invalidate } = useThrelte()
-
-    onMount(() => {
-        console.log('Mounted')
-    })
-
-    onDestroy(() => {
-        console.log('Destroyed')
-    })
 </script>
 
 <T.PerspectiveCamera
