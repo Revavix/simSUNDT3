@@ -269,7 +269,7 @@ const appWindow = getCurrentWebviewWindow()
     {#if $activeTab == "File"}
         <File bind:unsaved={unsaved} bind:activeAlerts={activeAlerts}/>
     {:else if $activeTab == "Preprocessor"}
-        <Preprocessor bind:kernelRunner={kernelRunner} bind:unsaved={unsaved}/>
+        <Preprocessor bind:kernelRunner={kernelRunner}/>
     {:else if $activeTab == "Results"}
         <Results/>
     {:else if $activeTab == "Help"}

@@ -20,9 +20,6 @@ export const loadedMetadata: Writable<Metadata> = writable()
 // Active graph
 export const activePlot: Writable<"A" | "B" | "C" | "D"> = writable("C")
 
-// Interpolation mode, smoothing of C scan
-export const interpolationMode: Writable<Array<string | boolean>> = writable([])
-
 // Active tab
 export const activeTab: Writable<string> = writable("File")
 

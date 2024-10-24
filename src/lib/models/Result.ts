@@ -91,9 +91,3 @@ export enum Rectification {
     HALFWAVE_POS = 2,
     HALFWAVE_NEG = 3
 }
-
-export enum Interpolation {
-    OFF = 0,
-    FAST = 1,
-    BEST = 2
-}

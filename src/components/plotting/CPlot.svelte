@@ -5,9 +5,8 @@
     import { UltraVision } from '../../lib/plotting/Colorscales';
     import { loadedMetadata, theme, activePlot } from '../../lib/data/Stores';
     import { invoke } from '@tauri-apps/api/core';
-    import { Interpolation, LoadingState, type Top } from '../../lib/models/Result';
+    import { LoadingState, type Top } from '../../lib/models/Result';
     import { onDestroy } from 'svelte';
-    import { interpolationToZsmooth } from '../../lib/plotting/Utils';
     import { clayout } from '../../lib/plotting/Layouts';
     import { get } from 'svelte/store';
     import Modebar from './Modebar.svelte';
@@ -15,9 +14,8 @@
     import type { Position3D } from '../../lib/models/Positions';
     import { cScanLoadedData } from '../../lib/data/stores/Data';
     import { aScanCursor, bScanCursor, cScanCursor, dScanCursor } from '../../lib/data/stores/Cursors';
-    import Unitbar from './Unitbar.svelte';
 
-    export let interpolation: Interpolation
+    export let interpolationOn: boolean
     export let colorscale = UltraVision
 
     let active: boolean = true
@@ -198,7 +196,7 @@
                 x: loadedTopData.content.map(c => $loadedMetadata.coordinates.x.start + (c.x * $loadedMetadata.coordinates.x.increment)),
                 y: loadedTopData.content.map(c => $loadedMetadata.coordinates.y.start + (c.y * $loadedMetadata.coordinates.y.increment)),
                 z: loadedTopData.content.map(c => c.z),
-                zsmooth: interpolationToZsmooth(interpolation),
+                zsmooth: interpolationOn ? 'best' : false,
                 type: 'heatmap',
                 showscale: false,
                 colorscale: colorscale,
@@ -219,11 +217,11 @@
         unsubscribeCScanCursor()
     })
 
-    $: interpolation || colorscale, updatePlot()
+    $: interpolationOn || colorscale, updatePlot()
 </script>
 
 <div class="flex flex-row items-center pt-1">
-    <button class="flex flex-col" on:click={() => activePlot.set("C")}>
+    <button class="flex flex-col focus:outline-none focus:ring-none" on:click={() => activePlot.set("C")}>
         <p class="px-2 text-base-content {$activePlot === 'C' ? '' : 'opacity-70'}">Top (C)</p>
     </button>
     <div class="flex flex-col ml-1">

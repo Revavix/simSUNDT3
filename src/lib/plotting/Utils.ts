@@ -1,18 +1,6 @@
 import { MathUtils } from "three/src/math/MathUtils.js";
-import { Interpolation, Rectification, type Metadata } from "../models/Result";
+import { Rectification, type Metadata } from "../models/Result";
 
-export function interpolationToZsmooth(interpolation: Interpolation): false | "fast" | "best" {
-    switch(interpolation) {
-        case Interpolation.OFF:
-            break
-        case Interpolation.BEST:
-            return "best"
-        case Interpolation.FAST:
-            return "fast"
-    }
-
-    return false
-}
 
 export function rectify(rectification: Rectification, value: number): number {
     let rectified: number = value
@@ -34,8 +22,8 @@ export function calculateDistance(metadata: Metadata,
     y: number
 ): number {
     return (metadata.timegate.start + (y * metadata.timegate.increment)) * 
-        (type === "Shear" ? metadata.wavespeeds.compressional : metadata.wavespeeds.shear) * 
-        (path === "True" ? Math.cos(MathUtils.degToRad(metadata.probe.true_angle ?? 1)) : 1)
+        (type === "Shear" ? metadata.wavespeeds.shear : metadata.wavespeeds.compressional) * 
+        (path === "True" ? Math.sin(MathUtils.degToRad(metadata.probe.true_angle ?? metadata.probe.wave_properties?.angle ?? 90)) : 1)
 }
 
 export function calculateTime(metadata: Metadata, y: number): number {

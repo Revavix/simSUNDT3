@@ -4,10 +4,10 @@
     import { onDestroy } from 'svelte';
     import { layoutBPlot } from '../../lib/plotting/Layouts';
     import { activePlot, loadedMetadata, theme } from '../../lib/data/Stores';
-    import { LoadingState, Rectification, type Metadata, Interpolation } from '../../lib/models/Result';
+    import { LoadingState, Rectification, type Metadata } from '../../lib/models/Result';
     import { get } from 'svelte/store';
     import type { Position3D } from '../../lib/models/Positions';
-    import { calculateDistance, calculateTime, interpolationToZsmooth, rectify } from '../../lib/plotting/Utils';
+    import { calculateDistance, calculateTime, rectify } from '../../lib/plotting/Utils';
     import Zoombar from './Zoombar.svelte';
     import Modebar from './Modebar.svelte';
     import { invoke } from '@tauri-apps/api/core';
@@ -17,7 +17,7 @@
     import Unitbar from './Unitbar.svelte';
 
     export let rectification: Rectification
-    export let interpolation: Interpolation
+    export let interpolationOn: boolean
     export let colorscale = UltraVision
 
     let active: boolean = true
@@ -41,7 +41,6 @@
         loading = LoadingState.LOADING
 
         invoke('cmd_parse_bscan', { row: data.currentRow }).then((v: any) => {
-            const metadata: Metadata = get(loadedMetadata)
             loadedSignals = v as Array<Position3D>
             updatePlot().then((p) => {
                 plot = p
@@ -51,7 +50,7 @@
                     if (!active) return
 
                     cScanLoadedData.update(data => {
-                        data.currentCol = Math.floor((clickData.points[0].x - metadata.coordinates.x.start) / metadata.coordinates.x.increment)
+                        data.currentCol = Math.floor((clickData.points[0].x - $loadedMetadata.coordinates.x.start) / $loadedMetadata.coordinates.x.increment)
                         return data
                     })
                     cScanCursor.update(cursor => { return { x: clickData.points[0].x, y: cursor?.y } })
@@ -103,7 +102,7 @@
                     calculateDistance($loadedMetadata, waveType, wavePath, s.y) / (waveLength === "Half" ? 2 : 1)
                 ),
                 z: loadedSignals.map(s => zAxisUnitType === 'dB' ? (20 * Math.log10(rectify(Rectification.FULLWAVE, s.z / $cScanLoadedData.amplitude))) : rectify(rectification, s.z / $cScanLoadedData.amplitude)),
-                zsmooth: interpolationToZsmooth(interpolation),
+                zsmooth: interpolationOn ? 'best' : false,
                 type: 'heatmap',
                 colorscale: colorscale,
                 showscale: false,
@@ -137,7 +136,7 @@
     }
 
 
-    $: yAxisUnitType, zAxisUnitType, waveLength, waveType, wavePath, rectification, updatePlot().then((p) => {
+    $: yAxisUnitType, zAxisUnitType, waveLength, waveType, wavePath, rectification, interpolationOn, colorscale, updatePlot().then((p) => {
         loading = LoadingState.OK
         plot = p
     })
@@ -146,7 +145,7 @@
 
 
 <div class="flex flex-row items-center">
-    <button class="flex flex-col" on:click={() => activePlot.set("B")}>
+    <button class="flex flex-col focus:outline-none focus:ring-none" on:click={() => activePlot.set("B")}>
         <p class="px-2 text-base-content {$activePlot === 'B' ? '' : 'opacity-70'}">Side (B)</p>
     </button>
     {#if zAxisUnitType === 'dB'}

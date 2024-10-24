@@ -100,9 +100,7 @@
             layoutAPlot.margin.r = 20
             layoutAPlot.yaxis.ticksuffix = ''
             layoutAPlot.yaxis.autorange = false
-            layoutAPlot.yaxis.range = rectification === Rectification.FULLWAVE || rectification === Rectification.HALFWAVE_POS ? [0, 1.1] : 
-                rectification === Rectification.HALFWAVE_NEG ? [-1.1, 0] :
-                [-1.1, 1.1]
+            layoutAPlot.yaxis.range = rectification === Rectification.FULLWAVE || rectification === Rectification.HALFWAVE_POS || rectification === Rectification.HALFWAVE_NEG  ? [0, 1.1] : [-1.1, 1.1]
         } else {
             layoutAPlot.margin.l = 50
             layoutAPlot.margin.r = 30
@@ -135,7 +133,7 @@
 </script>
 
 <div class="flex flex-row items-center">
-    <button class="flex flex-col" on:click={() => activePlot.set("A")}>
+    <button class="flex flex-col focus:outline-none focus:ring-none" on:click={() => activePlot.set("A")}>
         <p class="px-2 text-base-content {$activePlot === 'A' ? '' : 'opacity-70'}">Signal (A)</p>
     </button>
     {#if ($loadedMetadata?.probe.wave_properties?.type_of_probe === 3 && waveType === 'Shear' || $loadedMetadata?.probe.wave_properties?.type_of_probe !== 3 && waveType === 'Longitudinal') &&

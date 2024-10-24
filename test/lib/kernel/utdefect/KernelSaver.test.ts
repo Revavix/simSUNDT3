@@ -23,9 +23,6 @@ test("Save with valid root node", async () => {
     saver.rootNode = rootNode;
 
     await saver.Save("test.txt");
-
-    // Assert that the file is saved successfully
-    // You can add your own assertions here
 });
 
 test("Save with null root node", async () => {

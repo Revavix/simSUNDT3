@@ -39,6 +39,7 @@
     let showPresetProbesModal = false
     let namingSchemeMethod = 1
     let namingSchemeName = ""
+    let namingSchemeValid: boolean = true
 
     onMount(() => {
         kernelInitializer = new KernelInitializerV6()
@@ -354,8 +355,19 @@
                                         <label for="custom_naming" class="ml-2 text-sm font-medium text-base-content">Specified naming</label>
                                     </div>
                                     <div class="flex flex-row w-full items-center mt-1">
-                                        <input bind:value={namingSchemeName} disabled={namingSchemeMethod == 2 ? false : true} type="text" id="custom_run_name_textbox" class="input input-sm bg-secondary focus:outline-none text-neutral" required>
+                                        <input bind:value={namingSchemeName} 
+                                            on:input={() => {namingSchemeValid = /^[a-zA-Z0-9_\-]+$/.test(namingSchemeName) || namingSchemeName == ""}}
+                                            disabled={namingSchemeMethod == 2 ? false : true} 
+                                            type="text" 
+                                            id="custom_run_name_textbox" 
+                                            class="input input-sm bg-secondary focus:outline-none text-neutral {namingSchemeValid ? '' : 'border-2 border-error'}" 
+                                            required>
                                     </div>
+                                    {#if !namingSchemeValid}
+                                    <div class="flex flex-row -mb-4">
+                                        <p class="text-xs text-error">Invalid name specified, only A-Z, 0-9 and underscores are allowed</p>
+                                    </div>
+                                    {/if}
                                 </div>
                             </div>
                         </div>
