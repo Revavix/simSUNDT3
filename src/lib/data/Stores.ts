@@ -4,6 +4,7 @@ import type { Metadata, Point } from "../models/Result"
 import type { Progress, Status } from "../models/Kernel"
 import type { FileCache } from "../models/FileCache"
 import { Euler } from "three"
+import type { CScanLoadedData } from "../models/plotting/Data"
 
 // Previously fileCache
 export const cache: Writable<Array<FileCache>> = writable()
@@ -15,7 +16,10 @@ export const kernelProgress: Writable<Array<Progress>> = writable()
 export const kernelStatus: Writable<Status> = writable()
 
 // Previously densityAndSignalData
-export const loadedMetadata: Writable<Metadata> = writable()
+export const loadedMetadata: Writable<Metadata | undefined> = writable(undefined)
+
+// Loaded C scan data for plotting
+export const cScanLoadedData: Writable<CScanLoadedData> = writable()
 
 // Active graph
 export const activePlot: Writable<"A" | "B" | "C" | "D"> = writable("C")

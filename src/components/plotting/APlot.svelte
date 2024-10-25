@@ -11,11 +11,13 @@
     import { crosshairVerticalLabel } from '../../lib/plotting/Annotations';
     import { layoutAPlot } from '../../lib/plotting/Layouts';
     import { aScanCursor, bScanCursor, dScanCursor } from '../../lib/data/stores/Cursors';
-    import { cScanLoadedData } from '../../lib/data/stores/Data';
+    import { cScanLoadedData } from '../../lib/data/Stores';
     import Unitbar from './Unitbar.svelte';
-    
 
     export let rectification: any
+    export const isLoaded = () => {
+        return root !== undefined
+    }
 
     let active: boolean = true
     let loading: LoadingState = LoadingState.LOADING
@@ -26,7 +28,7 @@
     let wavePath: "Soundpath" | "True" = "Soundpath"
     let loadedSignal: Array<Position2D> = []
     let plot: any
-    let root: any
+    let root: any = undefined
 
     onMount(() => {
         plot = Plotly.react(root, [], layoutAPlot, {
@@ -35,8 +37,17 @@
         })
     })
 
+    let unsubscribeMetadata = loadedMetadata.subscribe(metadata => {
+        if (metadata === undefined && root !== undefined) {
+            Plotly.react(root, [], layoutAPlot, {
+                responsive: true,
+                displayModeBar: false
+            })
+        }
+    })
+
     let unsubscribeCScanLoadedData = cScanLoadedData.subscribe(data => {
-        if (data === undefined) return
+        if ($loadedMetadata === undefined || data === undefined) return
 
         loading = LoadingState.LOADING
 
@@ -47,7 +58,7 @@
                 plot = p
                 root?.removeAllListeners('plotly_click')
                 loading = LoadingState.OK
-                plot.on('plotly_click', (data: any) => {
+                plot?.on('plotly_click', (data: any) => {
                     if (!active) return
                     aScanCursor.set({ xIndex: data.points[0].pointIndex })
                     bScanCursor.update(cursor => { return { x: cursor?.x, yIndex: data.points[0].pointIndex } })
@@ -81,7 +92,7 @@
     })
 
     const updatePlot = async () => {
-        if (root === undefined) return
+        if ($loadedMetadata === undefined || root === undefined) return
 
         let transformedData: Data[] = [
             {
@@ -116,6 +127,7 @@
 
     onDestroy(() => {
         unsubscribeTheme()
+        unsubscribeMetadata()
         unsubscribeCScanLoadedData()
         unsubscribeAScanCursor()
     })
@@ -132,6 +144,7 @@
     $: yAxisUnitType, xAxisUnitType, waveLength, waveType, wavePath, refreshAnnotations()
 </script>
 
+<svelte:options accessors={true}/>
 <div class="flex flex-row items-center">
     <button class="flex flex-col focus:outline-none focus:ring-none" on:click={() => activePlot.set("A")}>
         <p class="px-2 text-base-content {$activePlot === 'A' ? '' : 'opacity-70'}">Signal (A)</p>

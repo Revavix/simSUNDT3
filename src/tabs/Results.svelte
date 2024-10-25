@@ -8,24 +8,31 @@
     import { ProjectSingleton } from '../lib/data/ProjectSingleton';
     import { Command } from '@tauri-apps/plugin-shell'
     import { invoke } from '@tauri-apps/api/core'
-    import { Rectification, type Metadata } from '../lib/models/Result';
+    import { LoadingState, Rectification, type Metadata } from '../lib/models/Result';
     import { Grayscale, Magma, Parula, Rainbow, UltraVision } from '../lib/plotting/Colorscales';
     import { LoggingSingleton } from '../lib/data/LoggingSingleton';
     import { LoggingLevel } from '../lib/models/Logging';
     import { readTextFile } from '@tauri-apps/plugin-fs';
     import { Deserialize } from '../lib/tree/Utils';
-    import { cScanLoadedData } from '../lib/data/stores/Data';
+    import { cScanLoadedData } from '../lib/data/Stores';
     import { aScanCursor, bScanCursor, cScanCursor, dScanCursor } from '../lib/data/stores/Cursors';
-    import type { string } from 'three/webgpu';
+    import { remove, BaseDirectory } from '@tauri-apps/plugin-fs';
     
     export let projectSingleton: ProjectSingleton = ProjectSingleton.GetInstance()
 
+    let loading: LoadingState = LoadingState.OK
     let interpolationOn: boolean = false
     let rectification: Rectification = Rectification.UNRECTIFIED
+    let tests = projectSingleton.Postprocessor
     let selectedTest: number = 0
     let selectedTestSubIndex: number = 0
     let largeDataSet: boolean = false
     let selectedColorscale = UltraVision
+
+    let aPlotComponent: APlot | null = null
+    let bPlotComponent: BPlot | null = null
+    let cPlotComponent: CPlot | null = null
+    let dPlotComponent: DPlot | null = null
 
     onMount(() => {
         selectedTest = projectSingleton.Postprocessor.length - 1
@@ -33,30 +40,59 @@
     })
 
     const handleSubtestChange = () => {
+        loading = LoadingState.LOADING
+
         if (projectSingleton.Postprocessor.length == 0) {
+            loadedMetadata.set(undefined)
             return
         }
 
-        invoke('commands_results_parse_metadata', { path: projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path + "\\utIndefa.txt" }).then((v: any) => {
-            let metadata = v as Metadata
-            metadata.path = projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path
-            loadedMetadata.set(metadata)
+        let interval = setInterval(() => {
+            if (aPlotComponent?.isLoaded() && bPlotComponent?.isLoaded() && cPlotComponent?.isLoaded() && dPlotComponent?.isLoaded()) {
+                invoke('commands_results_parse_metadata', { path: projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path + "\\utIndefa.txt" }).then((v: any) => {
+                    let metadata = v as Metadata
+                    metadata.path = projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path
+                    loadedMetadata.set(metadata)
 
-            // Check if large dataset
-            let columns = (Math.abs(metadata.coordinates.x.end) + Math.abs(metadata.coordinates.x.start)) / metadata.coordinates.x.increment
-            let rows = (Math.abs(metadata.coordinates.y.end) + Math.abs(metadata.coordinates.y.start)) / metadata.coordinates.y.increment
-            largeDataSet = columns * rows > 6400 ? true : false
-        }).catch((e) => {
-            console.error(e)
-            // TODO: Add error feedback
+                    let columns = (Math.abs(metadata.coordinates.x.end) + Math.abs(metadata.coordinates.x.start)) / metadata.coordinates.x.increment
+                    let rows = (Math.abs(metadata.coordinates.y.end) + Math.abs(metadata.coordinates.y.start)) / metadata.coordinates.y.increment
+                    largeDataSet = columns * rows > 6400 ? true : false
+                    loading = LoadingState.OK
+                }).catch((e) => {
+                    loading = LoadingState.INVALID
+                    loadedMetadata.set(undefined)
+                    console.error(e)
+
+                })
+                clearInterval(interval)
+            }
+        }, 100)
+        setTimeout(() => {
+            clearInterval(interval)
+        }, 10000)
+    }
+
+    const handlePurgeTest = () => {
+        if (projectSingleton.Postprocessor.length == 0) return
+
+        // Remove the folder if the path exists and then remove the test from the projectSingleton postprocessor object
+        remove(projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path).catch(() => {}).finally(() => {
+            if (projectSingleton.Path) {
+                // Remove the test from the projectSingleton and save the project
+                projectSingleton.rmPostprocessorData(selectedTest)
+                tests = projectSingleton.Postprocessor
+                selectedTest = tests.length - 1
+                projectSingleton.Save(projectSingleton.Path)
+
+                // Trigger a subtest change to update the view
+                handleSubtestChange()
+            }
         })
     }
 
     const handleInspect = () => {
         const folder = projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path
-        console.log(folder + "\\utIndefa.txt")
         let cmd = Command.create("notepad", folder + "\\utIndefa.txt")
-        console.log(cmd)
         cmd.spawn()
     }
 
@@ -80,11 +116,11 @@
             activeTab.set("Preprocessor")
         })
     }
-
     
     let onKeyDown = (ev: any) => {
+        console.log("Test")
         // Return if keys are not 37-40
-        if (ev.keyCode < 37 || ev.keyCode > 40) return
+        if (ev.keyCode < 37 || ev.keyCode > 40 || loading === LoadingState.INVALID || loading === LoadingState.LOADING || $loadedMetadata === undefined) return
 
         if ($activePlot === 'A') {
             const movements: Record<number, { index: number }> = {
@@ -223,30 +259,50 @@
 <div id="postprocessor-tab">
     <div class="flex flex-row shadow-lg rounded-lg px-2 mt-2 bg-base-100 w-full h-24" style="z-index: 50; position: relative">
         <div class="flex flex-col w-60 pt-2">
-            <div class="flex flex-row w-full items-center">
+            <div class="flex flex-row w-full">
                 <div class="flex flex-col w-full">
-                    <select bind:value={selectedTest} on:change={handleSubtestChange} class="select select-secondary select-xs w-full max-w-xs focus:outline-none rounded-lg">
-                        {#each projectSingleton.Postprocessor as data, i}
+                    <select bind:value={selectedTest} on:change={handleSubtestChange} class="select select-secondary select-xs w-full max-w-xs focus:outline-none rounded-lg {loading === LoadingState.INVALID ? 'focus:border focus:border-error border border-error' : ''}">
+                        {#each tests as data, i}
                             <option value="{i}">{data.name} ({data.timestamp?.toLocaleString()})</option>
                         {/each}
                     </select>
                 </div>
-                <div class="flex flex-col w-5/12 ml-1">
+                <div class="flex flex-col ml-1">
+                    <div class="tooltip tooltip-bottom" data-tip="Remove test from project">
+                        <button class="hover:bg-neutral text-secondary rounded outline outline-1 outline-secondary p-0.5" style="font-size:10px" on:click={handlePurgeTest}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex flex-col ml-1">
+                    <div class="tooltip tooltip-right" data-tip="Inspect test parameters">
+                        <button class="hover:bg-neutral text-secondary rounded outline outline-1 outline-secondary p-0.5" style="font-size:10px" on:click={handleInspect}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M11.25 13.5q.95 0 1.6-.65t.65-1.6t-.65-1.6t-1.6-.65t-1.6.65t-.65 1.6t.65 1.6t1.6.65m4.825 4l-2.625-2.625q-.5.325-1.062.475t-1.138.15q-1.775 0-3.012-1.237T7 11.25t1.238-3.012T11.25 7t3.013 1.238T15.5 11.25q0 .575-.162 1.138t-.488 1.062l2.65 2.65zM5 21q-.825 0-1.412-.587T3 19v-4h2v4h4v2zm10 0v-2h4v-4h2v4q0 .825-.587 1.413T19 21zM3 9V5q0-.825.588-1.412T5 3h4v2H5v4zm16 0V5h-4V3h4q.825 0 1.413.588T21 5v4z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-row w-full items-center">
+                <div class="flex flex-col w-16">
                     <select bind:value={selectedTestSubIndex} on:change={handleSubtestChange} class="select select-secondary select-xs w-full max-w-xs focus:outline-none rounded-lg">
-                        {#if projectSingleton.Postprocessor.length > 0}
-                            {#each projectSingleton.Postprocessor[selectedTest].runs as data, i}
+                        {#if tests[selectedTest]?.runs.length > 0}
+                            {#each tests[selectedTest].runs as data, i}
                                 <option value="{i}">{i}</option>
                             {/each}
                         {/if}
                     </select>
                 </div>
-                <div class="flex flex-col pl-1">
-                    <button type="button" class="btn btn-primary btn-xs font-normal rounded-full" style="font-size:10px" on:click={handleInspect}>Inspect</button>
+                <div class="flex flex-col -mt-4">
+                    {#if loading === LoadingState.INVALID}
+                    <p class="text-error text-xs">Loaded data is invalid</p>
+                    {/if}
                 </div>
-            </div>
-            <div class="flex flex-row w-full items-center pt-1">
-                <div class="flex flex-col w-full">
-                    <button type="button" class="btn btn-primary btn-xs font-normal rounded-full" style="font-size:10px" on:click={handleImportToPreprocessor}>Import to preprocessor</button>
+                <div class="flex flex-col ml-auto">
+                    <div class="tooltip tooltip-right" data-tip="Import selected test to preprocessor">
+                        <button class="hover:bg-neutral text-secondary rounded outline outline-1 outline-secondary p-0.5" style="font-size:10px" on:click={handleImportToPreprocessor}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="m14 12l-4-4v3H2v2h8v3m10 2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3h2V6h12v12H6v-3H4v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2"/></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="flex flex-row w-full justify-center h-full">
@@ -259,17 +315,17 @@
         <div class="flex flex-col w-40 pt-2 -space-y-1">
             <div class="flex flex-col w-full">
                 <div class="flex flex-row w-full">
-                    <button class="hover:bg-neutral text-secondary rounded outline outline-1 outline-neutral p-0.5 {rectification === Rectification.UNRECTIFIED ? 'bg-neutral' : ''}" on:click={() => rectification = Rectification.UNRECTIFIED}>
+                    <button class="hover:bg-neutral text-secondary rounded outline outline-1 outline-secondary p-0.5 {rectification === Rectification.UNRECTIFIED ? 'bg-neutral' : ''}" on:click={() => rectification = Rectification.UNRECTIFIED}>
                         <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <polyline points="22.5 12 17.42 12 17.42 22.11 11.56 22.11 11.56 12 11.56 12 11.56 1.89 5.24 1.89 5.24 12.06 1.5 12.06" stroke="currentColor" style="fill: none; stroke-miterlimit: 10; stroke-width: 2px;"/>
                         </svg>
                     </button>
-                    <button class="ml-1 hover:bg-neutral text-secondary rounded outline outline-1 outline-neutral p-0.5 {rectification === Rectification.FULLWAVE ? 'bg-neutral' : ''}" on:click={() => rectification = Rectification.FULLWAVE}>
+                    <button class="ml-1 hover:bg-neutral text-secondary rounded outline outline-1 outline-secondary p-0.5 {rectification === Rectification.FULLWAVE ? 'bg-neutral' : ''}" on:click={() => rectification = Rectification.FULLWAVE}>
                         <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <polyline points="22.48 17.02 17.5 17.05 17.5 6.95 6.5 6.91 6.5 17.09 1.52 17.09" stroke="currentColor" style="fill: none; stroke-miterlimit: 10; stroke-width: 2px;"/>
                         </svg>
                     </button>
-                    <button class="ml-1 hover:bg-neutral text-secondary rounded outline outline-1 outline-neutral p-0.5 {rectification === Rectification.HALFWAVE_NEG ? 'bg-neutral' : ''}" on:click={() => rectification = Rectification.HALFWAVE_NEG}>
+                    <button class="ml-1 hover:bg-neutral text-secondary rounded outline outline-1 outline-secondary p-0.5 {rectification === Rectification.HALFWAVE_NEG ? 'bg-neutral' : ''}" on:click={() => rectification = Rectification.HALFWAVE_NEG}>
                         <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <g>
                                 <line x1="12" y1="12" x2="12" y2="11" stroke="currentColor" style="fill: none; stroke-miterlimit: 10; stroke-width: 2px;"/>
@@ -284,7 +340,7 @@
                               <polyline points="22.5 12 18.5 12 18.5 22.11 12 22.11 12 12" stroke="currentColor" style="fill: none; stroke-miterlimit: 10; stroke-width: 2px;"/>
                         </svg>
                     </button>
-                    <button class="ml-1 hover:bg-neutral text-secondary rounded outline outline-1 outline-neutral p-0.5 {rectification === Rectification.HALFWAVE_POS ? 'bg-neutral' : ''}" on:click={() => rectification = Rectification.HALFWAVE_POS}>
+                    <button class="ml-1 hover:bg-neutral text-secondary rounded outline outline-1 outline-secondary p-0.5 {rectification === Rectification.HALFWAVE_POS ? 'bg-neutral' : ''}" on:click={() => rectification = Rectification.HALFWAVE_POS}>
                         <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <polyline points="12 12 12 1.89 5.5 1.89 5.5 12.06 1.5 12.06" stroke="currentColor" style="fill: none; stroke-miterlimit: 10; stroke-width: 2px;"/>
                             <g>
@@ -301,7 +357,7 @@
                     </button>
                     <div class="flex flex-col">
                         <div class="flex flex-row dropdown dropdown-bottom">
-                            <div tabindex="0" role="button" class="hover:bg-neutral text-secondary rounded outline outline-1 outline-neutral ml-1">
+                            <div tabindex="0" role="button" class="hover:bg-neutral text-secondary rounded outline outline-1 outline-secondary ml-1">
                                 <div class="flex flex-row">
                                     <div class="text-secondary" style="font-family:'Material Icons'; font-size:20px">
                                         palette
@@ -358,24 +414,27 @@
         </div>
     </div>
     <!-- Interaction Panel -->
-
     <div class="w-full grid grid-cols-2 gap-2 mt-2" style="z-index: 1; height: calc(100vh - 190px);">
         <div class="rounded-md bg-base-100 flex-col" style="z-index: 5;">
-            <CPlot bind:interpolationOn={interpolationOn} 
+            <CPlot bind:this={cPlotComponent}
+                bind:interpolationOn={interpolationOn} 
                 bind:colorscale={selectedColorscale}
                 />
         </div>
         <div class="rounded-md bg-base-100 flex-col px-2" style="z-index: 5;">
-            <APlot bind:rectification={rectification}/>
+            <APlot bind:this={aPlotComponent} 
+            bind:rectification={rectification}/>
         </div>
         <div class="rounded-md bg-base-100 flex-col px-2 pb-2" style="z-index: 5;">
-            <BPlot bind:rectification={rectification} 
+            <BPlot bind:this={bPlotComponent} 
+                bind:rectification={rectification} 
                 bind:interpolationOn={interpolationOn} 
                 bind:colorscale={selectedColorscale}
             />
         </div>
         <div class="rounded-md bg-base-100 px-2" style="z-index: 5;">
-            <DPlot bind:rectification={rectification} 
+            <DPlot bind:this={dPlotComponent} 
+                bind:rectification={rectification} 
                 bind:interpolationOn={interpolationOn} 
                 bind:colorscale={selectedColorscale}
             />

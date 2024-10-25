@@ -157,6 +157,10 @@ export class ProjectSingleton {
         return isTreeChanged || isMiscChanged || isPostChanged
     }
 
+    public rmPostprocessorData(index: number) {
+        this._active.data.postprocessor.splice(index, 1)
+    }
+
     public async ImportTree(tree: TreeNode) {
         this._active.data.preprocessor.tree = tree
         this._store.set(this._active)

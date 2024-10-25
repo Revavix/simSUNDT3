@@ -94,10 +94,10 @@
 
     <!-- Cancel/create -->
     <div class="flex flex-row w-full p-3">
-        <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 mr-auto">
+        <div class="flex flex-col rounded px-2 py-1 mr-auto">
             <button class="btn btn-xs text-xs rounded-full btn-primary font-normal" on:click={() => isOpen = false}>Cancel</button>
         </div>
-        <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50">
+        <div class="flex flex-col rounded px-2 py-1">
             <button class="btn btn-xs text-xs rounded-full btn-primary font-normal" on:click={applyProbeAction}>Apply</button>
         </div>
     </div>

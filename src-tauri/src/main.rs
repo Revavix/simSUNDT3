@@ -1,15 +1,15 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
 
-use commands::results;
-use commands::results::interfaces::{Metadata, Top, Vector2, Vector3};
+use std::panic::{self, PanicHookInfo};
+use std::time::SystemTime;
+use commands::results::interfaces::{Metadata, Top};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use std::sync::Mutex;
 use tauri::ipc::Response;
 use tauri::{Manager, State};
-use window_shadows::set_shadow;
 
 mod commands;
 
@@ -57,6 +57,17 @@ fn cmd_parse_ultrasound(
     return tauri::ipc::Response::new(serde_json::to_string(&result).unwrap());
 }
 
+fn write_crash_log(info: &PanicHookInfo<'_>) {
+    let mut log = format!("{:?}\n", info.location().unwrap());
+    log += &format!("{:?}", info.payload().downcast_ref::<&str>());
+    let document_dir = dirs::document_dir().expect("Could not find document directory");
+    match std::fs::create_dir_all(format!("{}\\simSUNDT\\logs", document_dir.display())) {
+        Ok(_) => {}
+        Err(_) => {}
+    }
+    std::fs::write(format!("{}\\simSUNDT\\logs\\crash_{}.log", document_dir.display(), SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs()), log).unwrap();
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
@@ -77,6 +88,20 @@ fn main() {
             cmd_parse_ultrasound
         ])
         .setup(|app| {
+            let app_handle = app.handle().clone();
+            panic::set_hook(Box::new(move |info: &PanicHookInfo<'_> | {
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    let _ = window.hide();
+                }
+                write_crash_log(info);
+                let app_handle = app_handle.clone();
+                app_handle.dialog()
+                .message("An unexpected error occured, please visit https://github.com/Revavix/simSUNDT3/issues to report an issue. Crash log has been saved to your documents/simSUNDT folder.") 
+                .title("Critical error")
+                .buttons(MessageDialogButtons::OkCustom("Ok".to_owned()))
+                .blocking_show();
+                app_handle.exit(1)
+            }));
             Ok(())
         })
         .run(tauri::generate_context!())

@@ -35,13 +35,24 @@ pub fn parse_metadata(path: String) -> Result<interfaces::Metadata, String> {
     let mut metadata: interfaces::Metadata = interfaces::Metadata::new();
 
     let mut identifiers: Vec<&interfaces::Identifier> = vec![];
-    metadata.set_shared_identifiers(&mut identifiers).unwrap();
-    metadata
-        .set_probe_identifiers(&path, &mut identifiers)
-        .unwrap();
-    metadata
-        .set_defect_identifiers(&path, &mut identifiers)
-        .unwrap();
+    match metadata.set_shared_identifiers(&mut identifiers) {
+        Ok(_) => {}
+        Err(e) => {
+            return Err(format!("{:?}", e));
+        }
+    }
+    match metadata.set_probe_identifiers(&path, &mut identifiers) {
+        Ok(_) => {}
+        Err(e) => {
+            return Err(format!("{:?}", e));
+        }
+    }
+    match metadata.set_defect_identifiers(&path, &mut identifiers) {
+        Ok(_) => {}
+        Err(e) => {
+            return Err(format!("{:?}", e));
+        }
+    }
 
     match fs::read_to_string(path) {
         Ok(raw) => {

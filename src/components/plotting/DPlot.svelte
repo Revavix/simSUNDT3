@@ -11,7 +11,7 @@
     import { rectify, calculateDistance, calculateTime } from '../../lib/plotting/Utils';
     import Zoombar from './Zoombar.svelte';
     import Modebar from './Modebar.svelte';
-    import { cScanLoadedData } from '../../lib/data/stores/Data';
+    import { cScanLoadedData } from '../../lib/data/Stores';
     import { aScanCursor, bScanCursor, cScanCursor, dScanCursor } from '../../lib/data/stores/Cursors';
     import { crosshairHorizontalLabel, crosshairVerticalLabel } from '../../lib/plotting/Annotations';
     import Unitbar from './Unitbar.svelte';
@@ -19,6 +19,9 @@
     export let rectification: Rectification
     export let interpolationOn: boolean
     export let colorscale = UltraVision
+    export const isLoaded = () => {
+        return root !== undefined
+    }
 
     let active: boolean = true
     let loading: LoadingState = LoadingState.LOADING
@@ -33,10 +36,26 @@
     
     // Bound variables
     let plot: any
-    let root: any
+    let root: any = undefined
+
+    onMount(() => {
+        plot = Plotly.react(root, [], layoutDPlot, {
+            responsive: true,
+            displayModeBar: false
+        })
+    })
+
+    let unsubscribeMetadata = loadedMetadata.subscribe(metadata => {
+        if (metadata === undefined && root !== undefined) {
+            plot = Plotly.react(root, [], layoutDPlot, {
+                responsive: true,
+                displayModeBar: false
+            })
+        }
+    })
 
     let unsubscribeCScanLoadedData = cScanLoadedData.subscribe(data => {
-        if (data === undefined) return
+        if ($loadedMetadata === undefined || data === undefined) return
 
         loading = LoadingState.LOADING
 
@@ -46,9 +65,8 @@
                 plot = p
                 loading = LoadingState.OK
                 root?.removeAllListeners('plotly_click')
-                plot.on('plotly_click', (clickData: any) => {
-                    if (!active) return
-
+                plot?.on('plotly_click', (clickData: any) => {
+                    if ($loadedMetadata === undefined || !active) return
                     cScanLoadedData.update(data => {
                         data.currentRow = Math.floor((clickData.points[0].x - $loadedMetadata.coordinates.y.start) / $loadedMetadata.coordinates.y.increment)
                         return data
@@ -86,13 +104,14 @@
 
     onDestroy(() => {
         unsubscribeTheme()
+        unsubscribeMetadata()
         unsubscribeCScanLoadedData()
         unsubscribeDScanCursor()
     })
 
     // Internal method for updating the plot
     let updatePlot = async () => {
-        if (root === undefined) return
+        if ($loadedMetadata === undefined || root === undefined) return
 
         let data: Data[] = [
             {
@@ -142,6 +161,7 @@
     $: yAxisUnitType, zAxisUnitType, waveLength, waveType, wavePath, refreshAnnotations()
 </script>
 
+<svelte:options accessors={true}/>
 <div class="flex flex-row items-center">
     <button class="flex flex-col focus:outline-none focus:ring-none" on:click={() => activePlot.set("D")}>
         <p class="px-2 text-base-content {$activePlot === 'D' ? '' : 'opacity-70'}">End (D)</p>

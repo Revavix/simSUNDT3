@@ -6,21 +6,24 @@
     import { loadedMetadata, theme, activePlot } from '../../lib/data/Stores';
     import { invoke } from '@tauri-apps/api/core';
     import { LoadingState, type Top } from '../../lib/models/Result';
-    import { onDestroy } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { clayout } from '../../lib/plotting/Layouts';
     import { get } from 'svelte/store';
     import Modebar from './Modebar.svelte';
     import Zoombar from './Zoombar.svelte';
     import type { Position3D } from '../../lib/models/Positions';
-    import { cScanLoadedData } from '../../lib/data/stores/Data';
+    import { cScanLoadedData } from '../../lib/data/Stores';
     import { aScanCursor, bScanCursor, cScanCursor, dScanCursor } from '../../lib/data/stores/Cursors';
 
     export let interpolationOn: boolean
     export let colorscale = UltraVision
+    export const isLoaded = () => {
+        return div !== undefined
+    }
 
     let active: boolean = true
     let currentDecibel: number = 0
-    let loading: LoadingState = LoadingState.LOADING
+    let loading: LoadingState = LoadingState.OK
     let loadedTopData: Top
     let plot: any
     let div: any
@@ -30,13 +33,26 @@
         dragmode: 'zoom'
     }
 
+    onMount(() => {
+        if (div === undefined) return
+
+        Plotly.newPlot(div, [], clayout, cfg).then((p) => {
+            plot = p
+        })
+    })
+
     let unsubscribeData = loadedMetadata.subscribe((metadata) => {
-        if (metadata === undefined || div === undefined) return
+        if (div === undefined) return
+
+        if (metadata === undefined) {
+            Plotly.react(div, [], clayout, cfg).then((p) => {
+                plot = p
+            })
+            return
+        }
 
         // Active load status again
         loading = LoadingState.LOADING
-
-        Plotly.purge(div)
 
         // Load the C.dat file
         invoke('commands_results_parse_top_view', { path: metadata.path }).then((cdat: any) => {
@@ -53,52 +69,49 @@
             ]
 
             loading = LoadingState.OK
+            loadedTopData = cdat as Top
+
+            // Trigger a plot update since data has changed
+            updatePlot()
+
+            // Manually update on first plot draw
+            cScanLoadedData.set({
+                currentCol: midPointColumn, 
+                currentRow: midPointRow,
+                cols: cdat.columns,
+                rows: cdat.rows,
+                samples: cdat.samples,
+                amplitude: cdat.amplitude,
+                content: cdat.content
+            })
+            cScanCursor.set({ x: midPointX, y: midPointY })
             setTimeout(() => {
-                loadedTopData = cdat as Top
+                aScanCursor.set({ xIndex: Math.floor(cdat.samples / 2) })
+                bScanCursor.set({ x: midPointX, yIndex: Math.floor(cdat.samples / 2) })
+                dScanCursor.set({ x: midPointY, yIndex: Math.floor(cdat.samples / 2) })
+                currentDecibel = getCurrentDecibel(loadedTopData.content, midPointX, midPointY)
+            }, 500)
 
-                // Trigger a plot update since data has changed
-                updatePlot()
-
-                // Manually update on first plot draw
-                cScanLoadedData.set({
-                    currentCol: midPointColumn, 
-                    currentRow: midPointRow,
-                    cols: cdat.columns,
-                    rows: cdat.rows,
-                    samples: cdat.samples,
-                    amplitude: cdat.amplitude,
-                    content: cdat.content
+            // Listen to click events in the plot
+            div.on('plotly_click', function(clickData: any) {
+                if (!active) return
+                cScanLoadedData.update(data => {
+                    data.currentCol = Math.abs(Math.floor((clickData.points[0].x - metadata.coordinates.x.start) / metadata.coordinates.x.increment))
+                    data.currentRow = Math.abs(Math.floor((clickData.points[0].y - metadata.coordinates.y.start) / metadata.coordinates.y.increment))
+                    return data
                 })
-                cScanCursor.set({ x: midPointX, y: midPointY })
-                setTimeout(() => {
-                    aScanCursor.set({ xIndex: Math.floor(cdat.samples / 2) })
-                    bScanCursor.set({ x: midPointX, yIndex: Math.floor(cdat.samples / 2) })
-                    dScanCursor.set({ x: midPointY, yIndex: Math.floor(cdat.samples / 2) })
-                    currentDecibel = getCurrentDecibel(loadedTopData.content, midPointX, midPointY)
-                }, 500)
-
-                // Listen to click events in the plot
-                div.on('plotly_click', function(clickData: any) {
-                    if (!active) return
-                    cScanLoadedData.update(data => {
-                        data.currentCol = Math.abs(Math.floor((clickData.points[0].x - metadata.coordinates.x.start) / metadata.coordinates.x.increment))
-                        data.currentRow = Math.abs(Math.floor((clickData.points[0].y - metadata.coordinates.y.start) / metadata.coordinates.y.increment))
-                        return data
-                    })
-                    cScanCursor.set({ x: clickData.points[0].x, y: clickData.points[0].y })
-                    bScanCursor.update(cursor => {
-                        cursor.x = clickData.points[0].x
-                        return cursor
-                    })
-                    dScanCursor.update(cursor => {
-                        cursor.x = clickData.points[0].y
-                        return cursor
-                    })
-                    activePlot.set("C")
+                cScanCursor.set({ x: clickData.points[0].x, y: clickData.points[0].y })
+                bScanCursor.update(cursor => {
+                    cursor.x = clickData.points[0].x
+                    return cursor
                 })
-            }, 10)
+                dScanCursor.update(cursor => {
+                    cursor.x = clickData.points[0].y
+                    return cursor
+                })
+                activePlot.set("C")
+            })
         }).catch((e) => {
-            console.log(e)
             loading = LoadingState.INVALID
         })
     })
@@ -138,16 +151,16 @@
     })
 
     let getCurrentDecibel = (data: Array<Position3D>, x: number, y: number) => {
-        if (plot !== undefined) {
-            let point = data.find((cd) => {
-                let xd = $loadedMetadata.coordinates.x.start + (cd.x * $loadedMetadata.coordinates.x.increment)
-                let yd = $loadedMetadata.coordinates.y.start + (cd.y * $loadedMetadata.coordinates.y.increment)
-                return xd === x && yd === y
-            })
+        if ($loadedMetadata === undefined || plot === undefined) return 0
 
-            if (point !== undefined) {
-                return Number(point.z.toFixed(2))
-            }
+        let point = data.find((cd) => {
+            let xd = $loadedMetadata.coordinates.x.start + (cd.x * $loadedMetadata.coordinates.x.increment)
+            let yd = $loadedMetadata.coordinates.y.start + (cd.y * $loadedMetadata.coordinates.y.increment)
+            return xd === x && yd === y
+        })
+
+        if (point !== undefined) {
+            return Number(point.z.toFixed(2))
         }
 
         return 0
@@ -155,10 +168,10 @@
 
 
     let findZero = () => {
-        let data = get(cScanLoadedData)
+        if ($loadedMetadata === undefined) return
 
         // Find the point where Z is 0
-        let zero = data.content.find((cd) => {
+        let zero = $cScanLoadedData.content.find((cd) => {
             return cd.z === 0
         })
 
@@ -189,7 +202,7 @@
     }
 
     let updatePlot = () => {
-        if (loadedTopData === undefined || div === undefined) return
+        if ($loadedMetadata === undefined || loadedTopData === undefined || div === undefined) return
 
         let data: Data[] = [
             {
@@ -220,6 +233,7 @@
     $: interpolationOn || colorscale, updatePlot()
 </script>
 
+<svelte:options accessors={true}/>
 <div class="flex flex-row items-center pt-1">
     <button class="flex flex-col focus:outline-none focus:ring-none" on:click={() => activePlot.set("C")}>
         <p class="px-2 text-base-content {$activePlot === 'C' ? '' : 'opacity-70'}">Top (C)</p>
