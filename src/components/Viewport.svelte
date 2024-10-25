@@ -111,8 +111,8 @@
         let positions: Array<Vector2> = []
         
         // Build Y positions
-        for(let y = pointStart.y * 10; y != (pointEnd.y * 10); y += (increment.y * 10)) {
-            for(let x = pointStart.x * 10; x != (pointEnd.x * 10); x += (increment.x * 10)) {
+        for(let y = pointStart.y * 10; y < (pointEnd.y * 10); y += (increment.y * 10)) {
+            for(let x = pointStart.x * 10; x < (pointEnd.x * 10); x += (increment.x * 10)) {
                 positions.push(new Vector2(x / 10, y / 10))
             } 
         }

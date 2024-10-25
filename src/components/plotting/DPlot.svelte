@@ -22,6 +22,9 @@
     export const isLoaded = () => {
         return root !== undefined
     }
+    export const isDataLoaded = () => {
+        return plot?.data !== undefined
+    }
 
     let active: boolean = true
     let loading: LoadingState = LoadingState.LOADING
@@ -62,9 +65,13 @@
         invoke('cmd_parse_dscan', { col: data.currentCol }).then((v: any) => {
             loadedSignals = v as Array<Position3D>
             updatePlot().then((p) => {
+                // Update plot to refreshed one
                 plot = p
-                loading = LoadingState.OK
+
+                // Remove any previous plotly click listeners
                 root?.removeAllListeners('plotly_click')
+
+                // Rebind click listener to update cursors and active plot
                 plot?.on('plotly_click', (clickData: any) => {
                     if ($loadedMetadata === undefined || !active) return
                     cScanLoadedData.update(data => {
@@ -77,6 +84,9 @@
                     aScanCursor.set({ xIndex: clickData.points[0].pointIndex % data.samples })
                     activePlot.set("D")
                 })
+
+                // Finally set the loading state to OK
+                loading = LoadingState.OK
             })
         }).catch((e) => {
             loading = LoadingState.INVALID

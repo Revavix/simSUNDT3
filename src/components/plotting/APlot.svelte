@@ -18,6 +18,9 @@
     export const isLoaded = () => {
         return root !== undefined
     }
+    export const isDataLoaded = () => {
+        return plot?.data !== undefined
+    }
 
     let active: boolean = true
     let loading: LoadingState = LoadingState.LOADING
@@ -55,16 +58,23 @@
             loadedSignal = signals as Array<Position2D>
 
             updatePlot().then((p) => {
+                // Update plot to refreshed one
                 plot = p
+
+                // Remove any previous plotly click listeners
                 root?.removeAllListeners('plotly_click')
-                loading = LoadingState.OK
-                plot?.on('plotly_click', (data: any) => {
+
+                // Rebind click listener to update cursors and active plot
+                plot?.on('plotly_click', (clickData: any) => {
                     if (!active) return
-                    aScanCursor.set({ xIndex: data.points[0].pointIndex })
-                    bScanCursor.update(cursor => { return { x: cursor?.x, yIndex: data.points[0].pointIndex } })
-                    dScanCursor.update(cursor => { return { x: cursor?.x, yIndex: data.points[0].pointIndex } })
+                    aScanCursor.set({ xIndex: clickData.points[0].pointIndex })
+                    bScanCursor.update(cursor => { return { x: cursor?.x, yIndex: clickData.points[0].pointIndex } })
+                    dScanCursor.update(cursor => { return { x: cursor?.x, yIndex: clickData.points[0].pointIndex } })
                     activePlot.set("A")
                 })
+
+                // Finally set the loading state to OK
+                loading = LoadingState.OK
             })
         }).catch((e) => {
             console.error(e)

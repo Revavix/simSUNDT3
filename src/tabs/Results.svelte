@@ -47,7 +47,7 @@
             return
         }
 
-        let interval = setInterval(() => {
+        let intervalSetMetadata = setInterval(() => {
             if (aPlotComponent?.isLoaded() && bPlotComponent?.isLoaded() && cPlotComponent?.isLoaded() && dPlotComponent?.isLoaded()) {
                 invoke('commands_results_parse_metadata', { path: projectSingleton.Postprocessor[selectedTest].runs[selectedTestSubIndex].path + "\\utIndefa.txt" }).then((v: any) => {
                     let metadata = v as Metadata
@@ -62,13 +62,30 @@
                     loading = LoadingState.INVALID
                     loadedMetadata.set(undefined)
                     console.error(e)
-
+                }).finally(() => {
+                    clearInterval(intervalSetMetadata)
                 })
-                clearInterval(interval)
+            }
+        }, 100)
+        let intervalSetCursorsCenter = setInterval(() => {
+            if (aPlotComponent?.isDataLoaded() && 
+                        bPlotComponent?.isDataLoaded() && 
+                        cPlotComponent?.isDataLoaded() && 
+                        dPlotComponent?.isDataLoaded() &&
+                        $loadedMetadata !== undefined
+            ) {
+                let midPointX = $loadedMetadata.coordinates.x.start + (($loadedMetadata.coordinates.x.end - $loadedMetadata.coordinates.x.start) / 2)
+                let midPointY = $loadedMetadata.coordinates.y.start + (($loadedMetadata.coordinates.y.end - $loadedMetadata.coordinates.y.start) / 2)
+                cScanCursor.set({ x: midPointX, y: midPointY })
+                aScanCursor.set({ xIndex: Math.floor($cScanLoadedData.samples / 2) })
+                bScanCursor.set({ x: midPointX, yIndex: Math.floor($cScanLoadedData.samples / 2) })
+                dScanCursor.set({ x: midPointY, yIndex: Math.floor($cScanLoadedData.samples / 2) })
+                clearInterval(intervalSetCursorsCenter)
             }
         }, 100)
         setTimeout(() => {
-            clearInterval(interval)
+            clearInterval(intervalSetMetadata)
+            clearInterval(intervalSetCursorsCenter)
         }, 10000)
     }
 
@@ -118,7 +135,6 @@
     }
     
     let onKeyDown = (ev: any) => {
-        console.log("Test")
         // Return if keys are not 37-40
         if (ev.keyCode < 37 || ev.keyCode > 40 || loading === LoadingState.INVALID || loading === LoadingState.LOADING || $loadedMetadata === undefined) return
 

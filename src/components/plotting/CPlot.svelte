@@ -20,6 +20,9 @@
     export const isLoaded = () => {
         return div !== undefined
     }
+    export const isDataLoaded = () => {
+        return plot?.data !== undefined
+    }
 
     let active: boolean = true
     let currentDecibel: number = 0
@@ -84,13 +87,7 @@
                 amplitude: cdat.amplitude,
                 content: cdat.content
             })
-            cScanCursor.set({ x: midPointX, y: midPointY })
-            setTimeout(() => {
-                aScanCursor.set({ xIndex: Math.floor(cdat.samples / 2) })
-                bScanCursor.set({ x: midPointX, yIndex: Math.floor(cdat.samples / 2) })
-                dScanCursor.set({ x: midPointY, yIndex: Math.floor(cdat.samples / 2) })
-                currentDecibel = getCurrentDecibel(loadedTopData.content, midPointX, midPointY)
-            }, 500)
+            currentDecibel = getCurrentDecibel(loadedTopData.content, midPointX, midPointY)
 
             // Listen to click events in the plot
             div.on('plotly_click', function(clickData: any) {
@@ -127,7 +124,7 @@
     })
 
     let unsubscribeCScanCursor = cScanCursor.subscribe(cursor => {
-        if (cursor === undefined || $loadedMetadata === undefined || plot === undefined) return
+        if (cursor === undefined || $loadedMetadata === undefined || loadedTopData === undefined || plot === undefined) return
 
         clayout.annotations = [
             // Horizontal label should align left if cursor is on the right side of the plot, otherwise right
@@ -225,6 +222,9 @@
     }
 
     onDestroy(() => {
+        Plotly.purge(div)
+        plot = undefined
+
         unsubscribeTheme()
         unsubscribeData()
         unsubscribeCScanCursor()
