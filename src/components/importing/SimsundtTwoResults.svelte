@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { open } from "@tauri-apps/api/dialog";
+    import { open } from "@tauri-apps/plugin-dialog";
     import { DOCUMENT_DIR, SIMSUNDT_SIMULATION_FOLDER } from "../../lib/models/PresetPaths";
     import type { Button as IButton } from "../../lib/models/Button";
     import Button from "../Button.svelte";
-    import { copyFile, createDir } from "@tauri-apps/api/fs";
+    import { copyFile, mkdir } from "@tauri-apps/plugin-fs";
     import { ProjectSingleton } from "../../lib/data/ProjectSingleton";
-    import { invoke } from "@tauri-apps/api/tauri";
+    import { invoke } from "@tauri-apps/api/core";
     import { onMount } from "svelte";
 
     export let parentModalIsOpen: boolean
@@ -146,7 +146,7 @@
     }
 
     parentSubmitButton.action = () => {
-        createDir(SIMSUNDT_SIMULATION_FOLDER + "\\" + name, { recursive: true })
+        mkdir(SIMSUNDT_SIMULATION_FOLDER + "\\" + name, { recursive: true })
         .then(() => {
             return copyFile(metadataPath, SIMSUNDT_SIMULATION_FOLDER + "\\" + name + "\\utIndefa.txt")
         })

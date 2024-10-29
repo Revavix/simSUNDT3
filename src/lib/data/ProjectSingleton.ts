@@ -1,13 +1,10 @@
 import { basename, extname } from "@tauri-apps/api/path"
 import type { Project } from "../models/Project"
-import { createDir, exists, readTextFile, writeFile } from "@tauri-apps/api/fs"
+import { mkdir, exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { writable, type Subscriber, type Writable } from "svelte/store"
 import TreeNode from "../models/tree/TreeNode"
 import { Deserialize, New as NewTree, Serialize } from "../tree/Utils"
 import lodash from "lodash"
-import { TreeInput } from "../models/tree/TreeInput"
-import { TreeCheckbox } from "../models/tree/TreeCheckbox"
-import { TreeDropdown } from "../models/tree/TreeDropdown"
 
 export class ProjectSingleton {
     private _lastLoaded: Project
@@ -89,10 +86,10 @@ export class ProjectSingleton {
         let exist = await exists(path.split("\\").slice(0, -1).join("\\"))
 
         if (!exist) {
-            await createDir(path.split("\\").slice(0, -1).join("\\"), { recursive: true })
+            await mkdir(path.split("\\").slice(0, -1).join("\\"), { recursive: true })
         }
 
-        return writeFile(path, JSON.stringify(saveData, null, 4)).then(async () => {
+        return writeTextFile(path, JSON.stringify(saveData, null, 4)).then(async () => {
             this._active.path = path
             this._active.name = await basename(path, ".ssproj")
             this._store.set(this._active)
@@ -158,6 +155,10 @@ export class ProjectSingleton {
         let isPostChanged = !lodash.isEqual(this._lastLoaded.data.postprocessor, this._active.data.postprocessor)
 
         return isTreeChanged || isMiscChanged || isPostChanged
+    }
+
+    public rmPostprocessorData(index: number) {
+        this._active.data.postprocessor.splice(index, 1)
     }
 
     public async ImportTree(tree: TreeNode) {

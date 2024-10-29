@@ -61,7 +61,7 @@
     sectionThickness={0} 
     cellSize={Math.abs(increment.y)} 
     gridSize={[Math.abs(pointStart.x - pointEnd.x), Math.abs(pointStart.y - pointEnd.y)]} 
-    axis="z" 
+    axis="y" 
     type="lines"
 />
 {/if}

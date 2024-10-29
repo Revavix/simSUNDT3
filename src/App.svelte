@@ -19,17 +19,18 @@
     import { Canvas } from "@threlte/core";
 
     // Tauri Interactions
-    import { platform } from '@tauri-apps/api/os';
-    import { appWindow } from "@tauri-apps/api/window"
-    import { save } from '@tauri-apps/api/dialog';
-    import { exists, createDir, BaseDirectory } from '@tauri-apps/api/fs';
+    import { platform } from '@tauri-apps/plugin-os';
+    import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow"
+    import { save } from '@tauri-apps/plugin-dialog';
+    import { exists, mkdir, BaseDirectory } from '@tauri-apps/plugin-fs';
     import type { Runner } from "./lib/models/Kernel";
     import { activeTab, theme } from "./lib/data/Stores";
     import Tooltip from "./components/Tooltip.svelte";
     import { getVersion } from "@tauri-apps/api/app";
-    import { open } from "@tauri-apps/api/shell";
+    import { open } from "@tauri-apps/plugin-shell";
     import Modal from "./components/Modal.svelte";
     import { SIMSUNDT_PROJECT_FOLDER } from "./lib/models/PresetPaths";
+const appWindow = getCurrentWebviewWindow()
     
     let tabs = [
         {
@@ -73,10 +74,10 @@
 
     onMount(async () => {
         // Ensure simSUNDT folder structure is present on App startup
-        const folderExists = await exists('simSUNDT', { dir: BaseDirectory.Document })
+        const folderExists = await exists('simSUNDT', { baseDir: BaseDirectory.Document })
 
         if (!folderExists) {
-            await createDir('Projects', { dir: BaseDirectory.Document, recursive: true})
+            await mkdir('Projects', { baseDir: BaseDirectory.Document, recursive: true})
         }
 
         // Update version to released version
@@ -157,11 +158,11 @@
     {#await platform()}
         App is loading
     {:then os}
-        {#if os === 'darwin'}
+        {#if os === 'linux' || os === 'macos'}
         <div class="flex flex-row text-center justify-center mt-2 text-sm">
             <p>SimSUNDT [{version}] - {loadedProjectName} {unsaved == false ? '' : '(Unsaved)'}</p>
         </div>
-        {:else if os === 'win32'}
+        {:else if os === 'windows'}
         <div data-tauri-drag-region class="flex flex-row text-xs items-center mt-2" style="z-index: 99;">
             <!-- Image -->
             <div data-tauri-drag-region class="flex flex-col w-4 mr-1">
@@ -268,7 +269,7 @@
     {#if $activeTab == "File"}
         <File bind:unsaved={unsaved} bind:activeAlerts={activeAlerts}/>
     {:else if $activeTab == "Preprocessor"}
-        <Preprocessor bind:kernelRunner={kernelRunner} bind:unsaved={unsaved}/>
+        <Preprocessor bind:kernelRunner={kernelRunner}/>
     {:else if $activeTab == "Results"}
         <Results/>
     {:else if $activeTab == "Help"}

@@ -1,61 +1,49 @@
-export function dot(x, y, text, textOffset) {
+export function crosshairHorizontalLabel(y: any, alignment: 'left' | 'right' = 'left', pow: number = 0, rounding: number = 0) {
     return {
-        x: x,
-        y: y,
-        xref: 'x',
-        yref: 'y',
-        text: text,
-        showarrow: true,
-        arrowhead: 7,
-        ax: 0,
-        ay: textOffset,
-        font: {
-            size: 12,
-            color: "black"
-        }
-    }
-}
-
-export function verticalLine(x, text) {
-    return {
-        align: "center",
-        x: x,
-        y: 0,
-        xref: 'x',
-        yref: 'paper',
-        ayref: 'paper',
-        text: text,
-        arrowcolor: "#333333",
-        xanchor: "left",
-        showarrow: true,
-        arrowhead: 0,
-        ax: 0,
-        ay: 1,
-        font: {
-            size: 12,
-            color: "black"
-        }
-    }
-}
-
-export function horizontalLine(y, text) {
-    return {
-        align: "center",
-        x: 0,
+        x: alignment === 'left' ? 1 : 0,
         y: y,
         xref: 'paper',
         yref: 'y',
-        axref: 'paper',
-        text: text,
-        arrowcolor: "#333333",
-        yanchor: "bottom",
+        xanchor: alignment,
+        text: (y * Math.pow(10, pow)).toFixed(rounding),
+        width: 36,
         showarrow: true,
         arrowhead: 0,
-        ax: 1,
+        axref: 'paper',
+        ax: alignment === 'left' ? 0 : 1,
         ay: 0,
         font: {
-            size: 12,
-            color: "black"
-        }
+            family: 'Courier New, monospace',
+            size: 10,
+            color: '#ffffff'
+        },
+        align: 'center',
+        bgcolor: 'rgb(34, 34, 34)',
+        opacity: 0.8
+    }
+}
+
+export function crosshairVerticalLabel(x: any, alignment: 'top' | 'bottom' = 'bottom', pow: number = 0, rounding: number = 0) {
+    return {
+        x: x,
+        y: alignment === 'top' ? 0 : 1,
+        xref: 'x',
+        yref: 'paper',
+        yanchor: alignment,
+        text: (x * Math.pow(10, pow)).toFixed(rounding),
+        width: 36,
+        showarrow: true,
+        arrowhead: 0,
+        ayref: 'paper',
+        ax: 0,
+        ay: alignment === 'top' ? 1 : 0,
+        font: {
+            family: 'Courier New, monospace',
+            size: 10,
+            color: '#ffffff'
+        },
+        align: 'center',
+        bgcolor: 'rgb(34, 34, 34)',
+        opacity: 0.8
     }
 }

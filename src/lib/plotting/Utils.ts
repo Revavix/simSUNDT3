@@ -1,19 +1,6 @@
-import { DEG2RAD } from "three/src/math/MathUtils.js";
-import { Interpolation, Rectification, type Metadata } from "../models/Result";
-import { DistanceMode, DistancePath } from "../models/SoundYAxisMode";
+import { MathUtils } from "three/src/math/MathUtils.js";
+import { Rectification, type Metadata } from "../models/Result";
 
-export function interpolationToZsmooth(interpolation: Interpolation): false | "fast" | "best" {
-    switch(interpolation) {
-        case Interpolation.OFF:
-            break
-        case Interpolation.BEST:
-            return "best"
-        case Interpolation.FAST:
-            return "fast"
-    }
-
-    return false
-}
 
 export function rectify(rectification: Rectification, value: number): number {
     let rectified: number = value
@@ -29,10 +16,14 @@ export function rectify(rectification: Rectification, value: number): number {
     return rectified
 }
 
-export function calculateDistance(metadata: Metadata, mode: DistanceMode, path: DistancePath, y: number): number {
+export function calculateDistance(metadata: Metadata, 
+    type: "Shear" | "Longitudinal", 
+    path: "Soundpath" | "True", 
+    y: number
+): number {
     return (metadata.timegate.start + (y * metadata.timegate.increment)) * 
-        (mode === DistanceMode.Compressional ? metadata.wavespeeds.compressional : metadata.wavespeeds.shear) * 
-        (path === DistancePath.True ? Math.cos(metadata.probe.true_angle * DEG2RAD) : 1)
+        (type === "Shear" ? metadata.wavespeeds.shear : metadata.wavespeeds.compressional) * 
+        (path === "True" ? Math.sin(MathUtils.degToRad(metadata.probe.true_angle ?? metadata.probe.wave_properties?.angle ?? 90)) : 1)
 }
 
 export function calculateTime(metadata: Metadata, y: number): number {

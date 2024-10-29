@@ -1,9 +1,10 @@
 import type { Writable } from "svelte/store"
 import { writable } from "svelte/store"
-import type { End, Metadata, Point, Side } from "../models/Result"
+import type { Metadata } from "../models/Result"
 import type { Progress, Status } from "../models/Kernel"
 import type { FileCache } from "../models/FileCache"
 import { Euler } from "three"
+import type { CScanLoadedData } from "../models/plotting/Data"
 
 // Previously fileCache
 export const cache: Writable<Array<FileCache>> = writable()
@@ -15,15 +16,13 @@ export const kernelProgress: Writable<Array<Progress>> = writable()
 export const kernelStatus: Writable<Status> = writable()
 
 // Previously densityAndSignalData
-export const loadedMetadata: Writable<Metadata> = writable()
+export const loadedMetadata: Writable<Metadata | undefined> = writable(undefined)
 
-// Selected positions for A, B and D scans
-export const selectedPosSignal: Writable<Point> = writable()
-export const selectedPosSide: Writable<Side> = writable()
-export const selectedPosEnd: Writable<End> = writable()
+// Loaded C scan data for plotting
+export const cScanLoadedData: Writable<CScanLoadedData> = writable()
 
-// Interpolation mode, smoothing of C scan
-export const interpolationMode: Writable<Array<string | boolean>> = writable([])
+// Active graph
+export const activePlot: Writable<"A" | "B" | "C" | "D"> = writable("C")
 
 // Active tab
 export const activeTab: Writable<string> = writable("File")

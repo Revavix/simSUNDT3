@@ -1,4 +1,4 @@
-import { exists } from "@tauri-apps/api/fs"
+import { exists } from "@tauri-apps/plugin-fs"
 import type { ProjectCache } from "../models/Cache"
 import type { Project } from "../models/Project"
 

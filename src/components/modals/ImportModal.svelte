@@ -58,7 +58,7 @@
                 <span class="flex flex-col text-xs">Cancel</span>
             </button>
         </div>
-        <div class="flex flex-col rounded px-2 py-1 hover:bg-stone-50 ml-auto">
+        <div class="flex flex-col rounded px-2 py-1 ml-auto">
             <button class="btn btn-sm btn-primary rounded-lg" on:click={submitButton.action}>
                 <div class="flex flex-col text-base-content" style="font-family: 'Material Icons'; font-size: 16px;">
                     input
