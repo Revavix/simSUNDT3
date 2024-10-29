@@ -1,6 +1,6 @@
 import type { Writable } from "svelte/store"
 import { writable } from "svelte/store"
-import type { Metadata, Point } from "../models/Result"
+import type { Metadata } from "../models/Result"
 import type { Progress, Status } from "../models/Kernel"
 import type { FileCache } from "../models/FileCache"
 import { Euler } from "three"

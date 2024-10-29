@@ -75,19 +75,21 @@
             loadedTopData = cdat as Top
 
             // Trigger a plot update since data has changed
-            updatePlot()
+            updatePlot().then((p) => {
+                plot = p
 
-            // Manually update on first plot draw
-            cScanLoadedData.set({
-                currentCol: midPointColumn, 
-                currentRow: midPointRow,
-                cols: cdat.columns,
-                rows: cdat.rows,
-                samples: cdat.samples,
-                amplitude: cdat.amplitude,
-                content: cdat.content
+                // Manually update on first plot draw
+                cScanLoadedData.set({
+                    currentCol: midPointColumn, 
+                    currentRow: midPointRow,
+                    cols: cdat.columns,
+                    rows: cdat.rows,
+                    samples: cdat.samples,
+                    amplitude: cdat.amplitude,
+                    content: cdat.content
+                })
+                currentDecibel = getCurrentDecibel(loadedTopData.content, midPointX, midPointY)
             })
-            currentDecibel = getCurrentDecibel(loadedTopData.content, midPointX, midPointY)
 
             // Listen to click events in the plot
             div.on('plotly_click', function(clickData: any) {
@@ -198,7 +200,7 @@
         }
     }
 
-    let updatePlot = () => {
+    let updatePlot = async () => {
         if ($loadedMetadata === undefined || loadedTopData === undefined || div === undefined) return
 
         let data: Data[] = [
@@ -216,9 +218,7 @@
 
         clayout.font.color = get(theme) === 'business' ? '#fff' : '#000'
 
-        Plotly.react(div, data, clayout, cfg).then((p) => {
-            plot = p
-        })
+        return Plotly.react(div, data, clayout, cfg)
     }
 
     onDestroy(() => {
@@ -230,7 +230,9 @@
         unsubscribeCScanCursor()
     })
 
-    $: interpolationOn || colorscale, updatePlot()
+    $: interpolationOn || colorscale, updatePlot().then((p) => {
+        plot = p
+    })
 </script>
 
 <svelte:options accessors={true}/>

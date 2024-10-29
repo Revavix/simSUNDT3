@@ -1,7 +1,5 @@
 <script lang="ts">
     import Plotly, { type Datum } from 'plotly.js-dist-min'
-    import { onMount } from "svelte";
-    import { get } from 'svelte/store';
 
     export let plot: any
     let plotMode: "zoom" | "pan" = "zoom"

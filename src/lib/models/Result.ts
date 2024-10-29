@@ -1,9 +1,5 @@
 import type { Position2D, Position3D } from "./Positions"
 
-interface Signal extends Position3D {
-    r: Array<Position2D>
-}
-
 export interface Metadata {
     path: string
     wavespeeds: {
@@ -71,12 +67,6 @@ export interface Top {
     samples: number,
     amplitude: number,
     content: Array<Position3D>
-}
-
-export interface Point {
-    topData: Top,
-    pos: Position2D,
-    forceRefresh: boolean
 }
 
 export enum LoadingState {

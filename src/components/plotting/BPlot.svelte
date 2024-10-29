@@ -4,7 +4,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { layoutBPlot } from '../../lib/plotting/Layouts';
     import { activePlot, loadedMetadata, theme } from '../../lib/data/Stores';
-    import { LoadingState, Rectification, type Metadata } from '../../lib/models/Result';
+    import { LoadingState, Rectification } from '../../lib/models/Result';
     import { get } from 'svelte/store';
     import type { Position3D } from '../../lib/models/Positions';
     import { calculateDistance, calculateTime, rectify } from '../../lib/plotting/Utils';

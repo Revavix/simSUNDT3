@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { loadedMetadata } from "../../lib/data/Stores";
-
     export let u1: "dB" | "Percentage" = "dB"
     export let u2: "Time" | "Distance" = "Time"
     export let wave: "Shear" | "Longitudinal" = "Shear"
