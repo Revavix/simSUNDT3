@@ -23,7 +23,7 @@
         return root !== undefined
     }
     export const isDataLoaded = () => {
-        return plot?.data !== undefined
+        return plot?.data[0]?.y.length > 0 && plot?.data[0]?.x.length > 0 && plot?.data[0]?.z.length > 0
     }
 
     let active: boolean = true
@@ -95,6 +95,7 @@
 
     let unsubscribeDScanCursor = dScanCursor.subscribe(cursor => {
         if (cursor === undefined || plot?.data === undefined) return
+
         layoutDPlot.annotations = [
             crosshairVerticalLabel(cursor.x, 'bottom', 0, 2),
             crosshairHorizontalLabel(plot?.data[0].y[cursor.yIndex], 'left', yAxisUnitType === "Time" ? 6 : 0, 2)
@@ -117,6 +118,7 @@
         unsubscribeMetadata()
         unsubscribeCScanLoadedData()
         unsubscribeDScanCursor()
+        Plotly.purge(root)
     })
 
     // Internal method for updating the plot

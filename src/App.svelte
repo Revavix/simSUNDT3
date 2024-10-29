@@ -149,7 +149,7 @@ const appWindow = getCurrentWebviewWindow()
     })
 </script>
 
-<svelte:window on:contextmenu={(e) => e.preventDefault()} />
+<!--<svelte:window on:contextmenu={(e) => e.preventDefault()} />-->
 
 <main class="flex flex-col main-container rounded-xl ">
     <!-- Drag bar -->

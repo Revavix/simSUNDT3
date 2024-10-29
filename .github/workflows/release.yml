@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3 
       - name: Extract tauri config
         run: |
-          echo $(jq --arg version "${{ github.ref_name }}" '.package.version = ($version)' ./src-tauri/tauri.conf.json) > ./src-tauri/tauri.conf.json
+          echo $(jq --arg version "${{ github.ref_name }}" '.version = ($version)' ./src-tauri/tauri.conf.json) > ./src-tauri/tauri.conf.json
       - name: Install node
         uses: actions/setup-node@v3
       - name: Install tauri-cli

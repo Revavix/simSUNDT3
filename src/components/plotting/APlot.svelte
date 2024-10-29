@@ -19,7 +19,7 @@
         return root !== undefined
     }
     export const isDataLoaded = () => {
-        return plot?.data !== undefined
+        return plot?.data[0]?.y.length > 0 && plot?.data[0]?.x.length > 0
     }
 
     let active: boolean = true
@@ -140,6 +140,7 @@
         unsubscribeMetadata()
         unsubscribeCScanLoadedData()
         unsubscribeAScanCursor()
+        Plotly.purge(root)
     })
 
     // Internal wrapper method for refreshing the annotations, necessary to not trigger a re-render loop
