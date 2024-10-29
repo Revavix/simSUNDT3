@@ -8,8 +8,7 @@ export default defineConfig({
   plugins: [
     svelte({
       preprocess: autoPreprocess()
-    }), 
-   
+    })
   ],
   ssr: {
     noExternal: ['three']
@@ -29,6 +28,15 @@ export default defineConfig({
   build: {
     target: 'esnext',
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
-    sourcemap: !!process.env.TAURI_DEBUG
+    sourcemap: !!process.env.TAURI_DEBUG,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor'
+          }
+        }
+      }
+    }
   },
 })

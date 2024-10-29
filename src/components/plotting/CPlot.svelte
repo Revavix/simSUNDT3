@@ -21,7 +21,7 @@
         return div !== undefined
     }
     export const isDataLoaded = () => {
-        return plot?.data !== undefined
+        return plot?.data[0]?.y.length > 0 && plot?.data[0]?.x.length > 0 && plot?.data[0]?.z.length > 0
     }
 
     let active: boolean = true
